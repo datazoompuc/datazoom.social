@@ -1,0 +1,25 @@
+Package: DatazoomR
+Title: PNADC
+Version: 0.0.0.9000
+Authors@R: person(given = "Arthur",
+           family = "Carvalho Brito",
+           role = c("aut","cre"),
+           email = "arthurcbps@gmail.com")
+Description: DataZoom PNAD continua
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
+Imports: 
+	dplyr,
+	labelled,
+	purrr,
+	readr,	
+	readxl,
+	stringr,
+	tidyr
+License: GPL (>= 2)
+URL: http://www.econ.puc-rio.br/datazoom/index.html
+
+
+
