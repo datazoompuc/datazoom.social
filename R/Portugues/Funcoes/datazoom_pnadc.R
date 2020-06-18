@@ -267,7 +267,8 @@ loop <- function(data,
 
   if(interview == int_final){
     return(data)
-  } else{
+  } 
+  else{
     return(loop(data, interview + 1, int_final))
   }
 }
@@ -298,18 +299,19 @@ pnadc_painel_basico <- function(build_data = TRUE, ...){
   stop("Se build_data == FALSE, definir dados_prontos.
        Ver help para detalhes")
   }
-  if(build_data == TRUE &
+  if (build_data == TRUE &
      (is.null(argumentos$local_dados) | is.null(argumentos$local_dicionario))
      ){
      stop('Se build_data == TRUE, definir local_dados e local_dicionario,
           Ver help para detalhes')
     }
 
-  if(!build_data){
-    if(is.list(dados_prontos) == FALSE){
+  if (!build_data){
+    if (is.list(dados_prontos) == FALSE){
       dados_prontos <- as.list(dados_prontos)
     }
-    } else{
+    } 
+    else {
 
       local_dados <- argumentos$local_dados
       local_dicionario <- argumentos$local_dicionario
