@@ -141,7 +141,7 @@ foreach aa in `years' {
 
 *tokenize `years'
 foreach aa in `years' {
-foreach pa in 1 2 3 4 5 6 7{
+foreach pa in 1 2 3 4 5 6 7 8{
 	use PNADC`aa', clear
 	keep if V1014 == `pa'
 	tempfile PNADC_Painel`pa'temp`aa'
@@ -150,7 +150,7 @@ foreach pa in 1 2 3 4 5 6 7{
 }
 
 
-foreach pa in 1 2 3 4 5 6 7{
+foreach pa in 1 2 3 4 5 6 7 8{
 foreach aa in `years' {
 	append using `PNADC_Painel`pa'temp`aa''
 	keep if V1014 == `pa'
@@ -160,7 +160,7 @@ save `PNADC_Painel`pa'', replace
 }
 
 global panels = ""
-forvalues pa = 1(1)7{
+forvalues pa = 1(1)8{
 	use `PNADC_Painel`pa'', clear
 	qui count
 	if r(N) != 0 { 
@@ -169,7 +169,6 @@ forvalues pa = 1(1)7{
 }
 
 display "$panels"
-
 
 /*_______________________________________________________________________*/
 /*______________________Executa a identificação Básica___________________*/
@@ -660,6 +659,6 @@ qui if "`idrs'" != "" {
 }
 
 ********************************************************************
-di _newline "This version of the datazoom_pnadcontinua package is compatible with the latest version of the continuous PNAD microdata published on 18/02/2020"
+di _newline "This version of the datazoom_pnadcontinua package is compatible with the latest version of the continuous PNAD microdata published on 05/15/2020"
 di _newline "The datasets were saved in `c(pwd)'"
 end
