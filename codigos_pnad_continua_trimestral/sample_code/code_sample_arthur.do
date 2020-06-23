@@ -20,42 +20,42 @@ clear
 forvalues yr = 2012(1)2018 {
 	import delimited "$inpdir/PNADC_01`yr'_20190729.txt", encoding(Big5) clear
 	sample 1
-	export delimited using "$outdir/PNADC_01`yr'_20190729.txt", replace	
+	export delimited using "$outdir/avancado_etapas/PNADC_01`yr'_20190729.txt", replace	
 	
 	import delimited "$inpdir/PNADC_02`yr'_20190729.txt", encoding(Big5) clear
 	sample 1
-	export delimited using "$outdir/PNADC_02`yr'_20190729.txt", replace	
+	export delimited using "$outdir/avancado_etapas/PNADC_02`yr'_20190729.txt", replace	
 	
 	import delimited "$inpdir/PNADC_03`yr'_20190729.txt", encoding(Big5) clear
 	sample 1
-	export delimited using "$outdir/PNADC_03`yr'_20190729.txt", replace	
+	export delimited using "$outdir/avancado_etapas/PNADC_03`yr'_20190729.txt", replace	
 	
 	import delimited "$inpdir/PNADC_04`yr'_20190729.txt", encoding(Big5) clear
 	sample 1
-	export delimited using "$outdir/PNADC_04`yr'_20190729.txt", replace	
+	export delimited using "$outdir/avancado_etapas/PNADC_04`yr'_20190729.txt", replace	
 }
 
 * 2019
 import delimited "$inpdir/PNADC_012019_20190729.txt", encoding(Big5) clear
 sample 1
-export delimited using "$outdir/PNADC_012019_20190729.txt", replace	
+export delimited using "$outdir/avancado_etapas/PNADC_012019_20190729.txt", replace	
 
 import delimited "$inpdir/PNADC_022019.txt", encoding(Big5) clear
 sample 1
-export delimited using "$outdir/PNADC_022019.txt", replace	
+export delimited using "$outdir/avancado_etapas/PNADC_022019.txt", replace	
 
 import delimited "$inpdir/PNADC_032019.txt", encoding(Big5) clear
 sample 1
-export delimited using "$outdir/PNADC_032019.txt", replace	
+export delimited using "$outdir/avancado_etapas/PNADC_032019.txt", replace	
 
 import delimited "$inpdir/PNADC_042019.txt", encoding(Big5) clear
 sample 1
-export delimited using "$outdir/PNADC_042019.txt", replace	
+export delimited using "$outdir/avancado_etapas/PNADC_042019.txt", replace	
 
 * 2020
 import delimited "$inpdir/PNADC_012020.txt", encoding(Big5) clear
 sample 1
-export delimited using "$outdir/PNADC_012020.txt", replace	
+export delimited using "$outdir/avancado_etapas/PNADC_012020.txt", replace	
 
 /* identificacao do painel avançado por etapas
 	1) é necessário renomear cada arquivo .ado:
@@ -73,5 +73,5 @@ export delimited using "$outdir/PNADC_012020.txt", replace
 
 clear
 datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020) /*
-	*/	original($outdir) 	/*
+	*/	original($outdir/avancado_etapas) 	/*
 	*/	saving($outdir/avancado_etapas/etapa1) idrs
