@@ -16,6 +16,7 @@ global outdir     "${ROOT}/sample_arthur"
 
 clear
 
+/*
 * 1) seleciona amostra de 1% da PNAD Contínua
 forvalues yr = 2012(1)2018 {
 	import delimited "$inpdir/PNADC_01`yr'_20190729.txt", encoding(Big5) clear
@@ -70,8 +71,8 @@ export delimited using "$outdir/avancado_etapas/PNADC_012020.txt", replace
 	3) rodar a idenficacao avancada (abaixo)
 	4) repatir para cada etapa, salvando em folder direntes (./etapa1, ./etapa2, etc)
 */
-
+*/
 clear
-datazoom_pnadcontinua, years( 2012 2013 2014 2015 2016 2017 2018 2019 2020) /*
-	*/	original($outdir/avancado_etapas) 	/*
+datazoom_pnadcontinua, years(2012 2013 2014 2015 2016 2017 2018 2019) /*
+	*/	original($outdir) 	/*
 	*/	saving($outdir/avancado_etapas/etapa1) idrs
