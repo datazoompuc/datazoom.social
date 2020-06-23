@@ -22,74 +22,73 @@ local y`1' = ""
 	
 foreach year in `years'{
 	foreach trim in 01 02 03 04 {
-			if (`year' == 2020) {
+		if (`year' == 2020) {
 			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
-				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
-				if _rc == 0 {
-					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
-					qui destring hous_id, replace
-					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
-					qui destring ind_id, replace
-					tempfile PNADC_`trim'`year'
-					save `PNADC_`trim'`year'', replace
-					}
-				else continue, break
-			}	
-			else if (`trim' == 04 & `year' == 2019) {
-			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
-				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
-				if _rc == 0 {
-					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
-					qui destring hous_id, replace
-					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
-					qui destring ind_id, replace
-					tempfile PNADC_`trim'`year'
-					save `PNADC_`trim'`year'', replace
-					}
-				else continue, break
-			}			
-			else if (`trim' == 03 & `year' == 2019) {
-			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
-				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
-				if _rc == 0 {
-					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
-					qui destring hous_id, replace
-					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
-					qui destring ind_id, replace
-					tempfile PNADC_`trim'`year'
-					save `PNADC_`trim'`year'', replace
-					}
-				else continue, break
+			cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
+			if _rc == 0 {
+				qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+				qui destring hous_id, replace
+				qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+				qui destring ind_id, replace
+				tempfile PNADC_`trim'`year'
+				save `PNADC_`trim'`year'', replace
 			}
-			else if (`trim' == 02 & `year' == 2019) {
+			else continue, break
+		}	
+		else if (`trim' == 04 & `year' == 2019) {
 			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
-				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
-				if _rc == 0 {
-					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
-					qui destring hous_id, replace
-					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
-					qui destring ind_id, replace
-					tempfile PNADC_`trim'`year'
-					save `PNADC_`trim'`year'', replace
-					}
-				else continue, break
-			}						
-			else  {
+			cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
+			if _rc == 0 {
+				qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+				qui destring hous_id, replace
+				qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+				qui destring ind_id, replace
+				tempfile PNADC_`trim'`year'
+				save `PNADC_`trim'`year'', replace
+			}
+			else continue, break
+		}			
+		else if (`trim' == 03 & `year' == 2019) {
 			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
-				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'_20190729.txt") clear
-				if _rc == 0 {
-					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
-					qui destring hous_id, replace
-					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
-					qui destring ind_id, replace
-					tempfile PNADC_`trim'`year'
-					save `PNADC_`trim'`year'', replace
-					}
-				else continue, break
+			cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
+			if _rc == 0 {
+				qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+				qui destring hous_id, replace
+				qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+				qui destring ind_id, replace
+				tempfile PNADC_`trim'`year'
+				save `PNADC_`trim'`year'', replace
 			}
-			}
-
-	}	
+			else continue, break
+		}
+		else if (`trim' == 02 & `year' == 2019) {
+			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
+			cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
+			if _rc == 0 {
+				qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+				qui destring hous_id, replace
+				qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+				qui destring ind_id, replace
+				tempfile PNADC_`trim'`year'
+				save `PNADC_`trim'`year'', replace
+				}
+			else continue, break
+		}						
+		else  {
+			di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
+			cap infile using "`dic'", using("`original'/PNADC_`trim'`year'_20190729.txt") clear
+			if _rc == 0 {
+				qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+				qui destring hous_id, replace
+				qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+				qui destring ind_id, replace
+				tempfile PNADC_`trim'`year'
+				save `PNADC_`trim'`year'', replace
+				}
+			else continue, break
+		}
+	}
+}	
 
 if _rc==901 exit	
 
@@ -113,15 +112,13 @@ else {
 
 loc caminhoprin = c(pwd)
 
-
 * juntando os trimestres de cada ano
-
 foreach aa in `years' {	
 	use `PNADC_01`aa'', clear
 	foreach trim in 02 03 04 {
-	capture append using `PNADC_`trim'`aa''
+		capture append using `PNADC_`trim'`aa''
 		if _rc != 0 {
-		continue, break	
+			continue, break	
 		}
 	}
 	if "`nid'"~="" {
@@ -134,14 +131,13 @@ foreach aa in `years' {
 	}
 }
 
-
 **********
 *junta paineis 
  	*Combinações
 
 *tokenize `years'
 foreach aa in `years' {
-foreach pa in 1 2 3 4 5 6 7{
+foreach pa in 1 2 3 4 5 6 7 8{
 	use PNADC`aa', clear
 	keep if V1014 == `pa'
 	tempfile PNADC_Painel`pa'temp`aa'
@@ -169,7 +165,6 @@ forvalues pa = 1(1)7{
 }
 
 display "$panels"
-
 
 /*_______________________________________________________________________*/
 /*______________________Executa a identificação Básica___________________*/
@@ -206,12 +201,12 @@ qui if "`idbas'" != "" {
 		****************************************************************
 		* Emparelhamento para cada par de entrevista por vez
 		forvalues i = 1/4 {
-		****************************************************************
-		* Emparelhamento-padrão- se a data de nascimento está correta
-		****************************************************************
-		* Ordenando cada indivÃ­duo pelo período (trimestre) de entrevista
+			****************************************************************
+			* Emparelhamento-padrão- se a data de nascimento está correta
+			****************************************************************
+			* Ordenando cada indivÃ­duo pelo período (trimestre) de entrevista
 			sort UF UPA V1008 V1014 V2007 V2008 V20081 V20082 Ano Trimestre V2003  
-		* Loop para procurar a mesma pessoa em uma posição anterior
+			* Loop para procurar a mesma pessoa em uma posição anterior
 			loc j = 1 /* j determina a posição anterior na base */
 			loc stop = 0 /* se stop=1, a loop para */
 			loc count = 0
@@ -220,14 +215,14 @@ qui if "`idbas'" != "" {
 				count if p201 == . & n_p == `i'+1 /* observações não emparelhadas */
 				loc count = r(N)
 				if `count' == `lastcount' {
-		* Parar caso a loop não esteja emparelhando mais
+					* Parar caso a loop não esteja emparelhando mais
 					loc stop = 1
 				}
 				else {
 					if r(N) != 0 {
-		* Captando a identificação p201 da observação anterior
+						* Captando a identificação p201 da observação anterior
 						replace p201 = p201[_n - `j'] if /*
-		identificação do domicilio
+						identificação do domicilio
 						*/	UF == UF[_n - `j'] & ///
 						UPA == UPA[_n - `j'] & ///
 						V1008 == V1008[_n - `j'] & ///
@@ -241,7 +236,7 @@ qui if "`idbas'" != "" {
 						Ano de nascimento */ V20082 == V20082[_n - `j'] & /*
 						Informação observada */ V2008!=99 & V20081!=99 & V20082!=9999
 						
-		* identificação de emparelhamento para quem está frente
+						* identificação de emparelhamento para quem está frente
 						replace forw = 1 if UF == UF[_n + `j'] & ///
 						UPA == UPA[_n + `j'] & ///
 						V1008 == V1008[_n + `j'] & ///
@@ -252,15 +247,15 @@ qui if "`idbas'" != "" {
 						loc j = `j' + 1 /* passando para a prÃ³xima observação */
 					}
 					else {
-		* Parar se não há observaçoes para emparelhar
+						* Parar se não há observaçoes para emparelhar
 						loc stop = 1
 					}
 				}
 			}
-		* Recodificar varaveis de identificação do emparelhamento
+			* Recodificar varaveis de identificação do emparelhamento
 			replace back = p201 !=. if n_p == `i'+1
 			replace forw = 0 if forw != 1 & n_p == `i'
-		* identificação para quem estava ausente na Ãºltima entrevista
+			* identificação para quem estava ausente na Ãºltima entrevista
 			replace p201 = `i'00 + V2003 if p201 == . & n_p == `i'+1
 		}
 		
@@ -278,7 +273,6 @@ qui if "`idbas'" != "" {
 		save PNAD_painel_`pa'_basic, replace
 	}
 }
-
 
 /*_______________________________________________________________________*/
 /*___________________Executa a identificação Ribas Soares________________*/
@@ -642,7 +636,7 @@ qui if "`idrs'" != "" {
 					}
 				}
 			}
-		* Igualando o nÃºmero de quem era igual
+			* Igualando o número de quem era igual
 			bys UF UPA V1008 V1014 `ncode1': egen `ncode2' = min(p201)
 			replace p201 = `ncode2'
 		}
@@ -662,6 +656,6 @@ qui if "`idrs'" != "" {
 }
 
 ********************************************************************
-di _newline "Esta versão do pacote datazoom_pnadcontinua é compatí­vel com a última versão dos microdados da PNAD Contínua divulgados em 19/09/2019"
+di _newline "Esta versão do pacote datazoom_pnadcontinua é compatí­vel com a última versão dos microdados da PNAD Contínua divulgados em 15/05/2020"
 di _newline "As bases de dados foram salvas em `c(pwd)'"
 end
