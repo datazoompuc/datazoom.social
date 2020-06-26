@@ -655,7 +655,7 @@ qui if "`idrs'" != "" {
 	replace idind = "" if p201 ==.
 	*replace idind = "" if V2008==99 | V20081==99 | V20082==9999
 	lab var idind "identificacao do individuo"
-	drop __* back forw hous_id ind_id id_dom id_chefe n_p_aux n_p p201
+	*drop __* back forw hous_id ind_id id_dom id_chefe n_p_aux n_p p201
 	replace painel=`pa'
 	save PNAD_painel_`pa'_rs, replace
 	}
