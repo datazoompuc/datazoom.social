@@ -24,6 +24,7 @@ else {
 }
 loc caminhoprin = c(pwd)
 
+
 /* Dicionários */
 
 findfile pnad_anual_en_2012a2014.dct
@@ -55,6 +56,12 @@ loc dic_18_1 = r(fn)
 
 findfile pnad_anual_en_5entr_2018.dct
 loc dic_18_5 = r(fn)
+
+findfile pnad_anual_en_1entr_2019.dct
+loc dic_19_1 = r(fn)
+
+findfile pnad_anual_en_5entr_2019.dct
+loc dic_19_5 = r(fn)
 
 /* Extraindo dos arquivos */
 
@@ -223,10 +230,41 @@ foreach year in `years' {
 					}
 				else continue, break
 					}
+	*************************************2019*********************************
+	if `year' == 20191 {
+	findfile pnad_anual_1entr_2019.dct
+    loc dic_19_1 = r(fn)
+		di as input "Extracting files from PNADC_anual_`year'..."
+		cap infile using "`dic_19_1'", using("`original'/PNADC_2019_visita1.txt") clear
+				if _rc == 0 {
+					save PNADC_anual_2019_visita1, replace
+					}
+				else continue, break
+					}
+	if `year' == 20192 {
+	findfile pnad_anual_educ.dct
+    loc dic_17_2 = r(fn)
+		di as input "Extracting files from PNADC_anual_`year'..."
+		cap infile using "`dic_17_2'", using("`original'/PNADC_022019_educacao.txt") clear
+		if _rc == 0 {
+					save PNADC_anual_2019_educ, replace
+					}
+				else continue, break
+					}
+		if `year' == 20195 {
+		findfile pnad_anual_5entr_2019.dct
+        loc dic_19_5 = r(fn)
+		di as input "Extracting files from PNADC_anual_`year'..."
+		cap infile using "`dic_19_5'", using("`original'/PNADC_2019_visita5.txt") clear
+		if _rc == 0 {
+					save PNADC_anual_2019_visita5, replace
+					}
+				else continue, break
+					}
 	}
 
 
 	
-di _newline "This version of the datazoom_pnadcont_anual package is compatible with the latest version of  the continuous annual PNAD data published on June 19th, 2019."
+di _newline "This version of the datazoom_pnadcont_anual package is compatible with the latest version of  the continuous annual PNAD data published on 10/16/2019."
 di _newline " Databases were saved in `c(pwd)'"
 end
