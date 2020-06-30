@@ -2,12 +2,12 @@
 VERSION 10.0
 SYNCHRONOUS_ONLY
 
-POSITION . . 350 400
+POSITION . . 350 500
 
 DIALOG main, label("PNAD Contínua Anual") tabtitle("Main")
 BEGIN
 ******************************************************************************   
-GROUPBOX caixaAnos 20 20 140 325, label("Year(s)")
+GROUPBOX caixaAnos 20 20 140 400, label("Year(s)")
 
    CHECKBOX    ck2012 +14 +20 120  ., label("2012_visit1")  option(2012)
    CHECKBOX    ck2013 @ +20 120    ., label("2013_visit1")  option(2013)
@@ -24,15 +24,18 @@ GROUPBOX caixaAnos 20 20 140 325, label("Year(s)")
    CHECKBOX	   ck20181 @ +20 120	   ., label("2018_visit1")  option(20181)
    CHECKBOX	   ck20182 @ +20 120	   ., label("2018_visit2")  option(20182)
    CHECKBOX	   ck20185 @ +20 120	   ., label("2018_visit5")  option(20185)
+   CHECKBOX	   ck20191 @ +20 120	   ., label("2019_visit1")  option(20191)
+   CHECKBOX	   ck20192 @ +20 120	   ., label("2019_visit2")  option(20192)
+   CHECKBOX	   ck20195 @ +20 120	   ., label("2019_visit5")  option(20195)   
    
-GROUPBOX caixaDicionÃ¡rios 160 20 140 325, label("Databases")
+GROUPBOX caixaDicionários 160 20 140 400, label("Databases")
 
 	BUTTON	fldados 	+20 +35 100 ., label("Original Files...") onpush(script dados) 
 	BUTTON	flsalvando  @ +35 100 ., label("Saving...") onpush(script salvando) 
 
 	
-TEXT     credit     5   350  200    ., label("PUC-Rio - Economics Department") left
-TEXT     notes     5   370 360    ., label("Note: regularly update the datazoom_pnadcont_anual package") left
+TEXT     credit     5   420  200    ., label("PUC-Rio - Economics Department") left
+TEXT     notes     5   440 360    ., label("Note: regularly update the datazoom_pnadcont_anual package") left
 
 
 END
@@ -75,7 +78,7 @@ PROGRAM command
 		beginoptions
 			/*Parte da syntax: anos a extrair*/
 			put "years("
-			option main.ck2012 main.ck2013 main.ck2014 main.ck2015 main.ck20161 main.ck20162 main.ck20164 main.ck20165 main.ck20171 main.ck20172 main.ck20174 main.ck20175 main.ck20181 main.ck20182 main.ck20185
+			option main.ck2012 main.ck2013 main.ck2014 main.ck2015 main.ck20161 main.ck20162 main.ck20164 main.ck20165 main.ck20171 main.ck20172 main.ck20174 main.ck20175 main.ck20181 main.ck20182 main.ck20185 main.ck20191 main.ck20192 main.ck20195
 			put ") "
 			/*Parte da syntax: base de dados originais*/
 			put saidadata " "
