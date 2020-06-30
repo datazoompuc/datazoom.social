@@ -1,4 +1,4 @@
-dictionary {
+dictionary{
 _column(1)		int		Ano	%4f		"Year"
 _column(5)		byte	Trimestre	%1f		"Quarter"
 _column(6)		int		UF	%2f		"State"
