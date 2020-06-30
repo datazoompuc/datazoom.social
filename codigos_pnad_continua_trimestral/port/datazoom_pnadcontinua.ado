@@ -222,28 +222,28 @@ qui if "`idbas'" != "" {
 					if r(N) != 0 {
 						* Captando a identificação p201 da observação anterior
 						replace p201 = p201[_n - `j'] if /*
-						identificação do domicilio
-						*/	UF == UF[_n - `j'] & ///
-						UPA == UPA[_n - `j'] & ///
-						V1008 == V1008[_n - `j'] & ///
-						V1014 == V1014[_n - `j'] & /*
-						diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
-						excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
-						Caracteristicas individuais
-						Sexo */ V2007 == V2007[_n - `j'] & /*
-						Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
-						Mês de nascimento */ V20081 == V20081[_n - `j'] & /*
-						Ano de nascimento */ V20082 == V20082[_n - `j'] & /*
-						Informação observada */ V2008!=99 & V20081!=99 & V20082!=9999
+							identificação do domicilio
+							*/	UF == UF[_n - `j'] & ///
+							UPA == UPA[_n - `j'] & ///
+							V1008 == V1008[_n - `j'] & ///
+							V1014 == V1014[_n - `j'] & /*
+							diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
+							excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
+							Caracteristicas individuais
+							Sexo */ V2007 == V2007[_n - `j'] & /*
+							Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
+							Mês de nascimento */ V20081 == V20081[_n - `j'] & /*
+							Ano de nascimento */ V20082 == V20082[_n - `j'] & /*
+							Informação observada */ V2008!=99 & V20081!=99 & V20082!=9999
 						
 						* identificação de emparelhamento para quem está frente
 						replace forw = 1 if UF == UF[_n + `j'] & ///
-						UPA == UPA[_n + `j'] & ///
-						V1008 == V1008[_n + `j'] & ///
-						V1014 == V1014[_n + `j'] & ///
-						p201 == p201[_n + `j'] & ///
-						n_p == `i' & n_p[_n + `j']==`i'+1 ///
-						& forw != 1
+							UPA == UPA[_n + `j'] & ///
+							V1008 == V1008[_n + `j'] & ///
+							V1014 == V1014[_n + `j'] & ///
+							p201 == p201[_n + `j'] & ///
+							n_p == `i' & n_p[_n + `j']==`i'+1 ///
+							& forw != 1
 						loc j = `j' + 1 /* passando para a prÃ³xima observação */
 					}
 					else {
@@ -329,27 +329,27 @@ qui if "`idrs'" != "" {
 					if r(N) != 0 {
 						* Captando a identificação p201 da observação anterior
 						replace p201 = p201[_n - `j'] if /*
-						identificação do domicilio
-						*/ UF == UF[_n - `j'] & ///
-						UPA == UPA[_n - `j'] & ///
-						V1008 == V1008[_n - `j'] & ///
-						V1014 == V1014[_n - `j'] & /*
-						diferenças entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
-						excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
-						CaracterÃ­sicas individuais
-						Sexo */ V2007 == V2007[_n - `j'] & /*
-						Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
-						MÃªs de nascimento */ V20081 == V20081[_n - `j'] & /*
-						Ano de nascimento */ V20082 == V20082[_n - `j'] & /*
-						Informação observada */ V2008!=99 & V20081!=99 & V20082!=9999
+							identificação do domicilio
+							*/ UF == UF[_n - `j'] & ///
+							UPA == UPA[_n - `j'] & ///
+							V1008 == V1008[_n - `j'] & ///
+							V1014 == V1014[_n - `j'] & /*
+							diferenças entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
+							excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
+							CaracterÃ­sicas individuais
+							Sexo */ V2007 == V2007[_n - `j'] & /*
+							Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
+							MÃªs de nascimento */ V20081 == V20081[_n - `j'] & /*
+							Ano de nascimento */ V20082 == V20082[_n - `j'] & /*
+							Informação observada */ V2008!=99 & V20081!=99 & V20082!=9999
 						* identificação de emparelhamento para quem está¡  frente
 						replace forw = 1 if UF == UF[_n + `j'] & ///
-						UPA == UPA[_n + `j'] & ///
-						V1008 == V1008[_n + `j'] & ///
-						V1014 == V1014[_n + `j'] & ///
-						p201 == p201[_n + `j'] & ///
-						n_p == `i' & n_p[_n + `j']==`i'+1 ///
-						& forw != 1
+							UPA == UPA[_n + `j'] & ///
+							V1008 == V1008[_n + `j'] & ///
+							V1014 == V1014[_n + `j'] & ///
+							p201 == p201[_n + `j'] & ///
+							n_p == `i' & n_p[_n + `j']==`i'+1 ///
+							& forw != 1
 						loc j = `j' + 1 /* passando para a próxima observação */
 					}
 					else {
@@ -388,26 +388,26 @@ qui if "`idrs'" != "" {
 					if r(N) != 0 {
 						* Captando a identificação  p201 da observação anterior
 						replace p201 = p201[_n - `j'] if /*
-						identificação do domicilio
-						*/ UF == UF[_n - `j'] & ///
-						UPA == UPA[_n - `j'] & ///
-						V1008 == V1008[_n - `j'] & ///
-						V1014 == V1014[_n - `j'] & /*
-						diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
-						excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
-						Caracteristicas individuais
-						Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
-						MÃªs de nascimento */ V20082 == V20082[_n - `j'] & /*
-						Mesmo nÃºmeroo de ordem */ V2003 == V2003[_n - `j'] & /*
-						Informação observada */ V2008!=99 & V20081!=99
+							identificação do domicilio
+							*/ UF == UF[_n - `j'] & ///
+							UPA == UPA[_n - `j'] & ///
+							V1008 == V1008[_n - `j'] & ///
+							V1014 == V1014[_n - `j'] & /*
+							diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
+							excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
+							Caracteristicas individuais
+							Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
+							MÃªs de nascimento */ V20082 == V20082[_n - `j'] & /*
+							Mesmo nÃºmeroo de ordem */ V2003 == V2003[_n - `j'] & /*
+							Informação observada */ V2008!=99 & V20081!=99
 						* Identificaè¤¯ de emparelhamento para quem está¡  frente
 						replace forw = 1 if UF == UF[_n + `j'] & ///
-						UPA == UPA[_n + `j'] & ///
-						V1008 == V1008[_n + `j'] & ///
-						V1014 == V1014[_n + `j'] & ///
-						p201 == p201[_n + `j'] & ///
-						n_p == `i' & n_p[_n + `j']==`i'+1 ///
-						& forw != 1
+							UPA == UPA[_n + `j'] & ///
+							V1008 == V1008[_n + `j'] & ///
+							V1014 == V1014[_n + `j'] & ///
+							p201 == p201[_n + `j'] & ///
+							n_p == `i' & n_p[_n + `j']==`i'+1 ///
+							& forw != 1
 						loc j = `j' + 1 /* passando para a próxima observação */
 					}
 
@@ -444,43 +444,43 @@ qui if "`idrs'" != "" {
 				else {
 					if r(N) != 0 {
 						replace p201 = p201[_n - `j'] if /*
-						identificação do domicilio
-						*/ UF == UF[_n - `j'] & ///
-						UPA == UPA[_n - `j'] & ///
-						V1008 == V1008[_n - `j'] & ///
-						V1014 == V1014[_n - `j'] & /*
-						Diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
-						Excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
-						Caracteristicas individuais
-						Sexo */ V2007 == V2007[_n - `j'] & /*
-						Diferença na idade */ abs(V2009 - V2009[_n - `j'])<=`ager' & /*
-						Idade observada */ V2009!=999 & /*
-						Se chefe ou conjuge */ ((V2005<=3 & V2005[_n - `j']<=3) | /*
-						ou filho com mais de 25 */ (V2009>=25 & V2009[_n - `j']>=25 & ///
-						V2005==4 & V2005[_n - `j']==4)) & /*
-						Ate 4 dias de erro na data */ ((abs(V2008 - V2008[_n - `j'])<=4 & /*
-						Ate 2 meses de erro na data*/ abs(V20081 - V20081[_n - `j'])<=2 & /*
-						Informação observada */ V2008!=99 & V20081!=99) /*
-						ou */ | /*
-						1 ciclo de erro na educação*/ (abs(VD3004 - VD3004[_n - `j'])<=1 /*
-						e */ & /*
-						Ate 2 meses de erro na data*/ ((abs(V20081 - V20081[_n - `j'])<=2 & /*
-						Informação observada */ V20081!=99 & /*
-						Informação não observada */ (V2008==99 | V2008[_n-`j']==99)) /*
-						ou */ | /*
-						Ate 4 dias de erro na data */ (abs(V2008 - V2008[_n - `j'])<=4 & /*
-						InformaÃ£o observada */ V2008!=99 & /*
-						Informação não observada */ (V20081==99 | V20081[_n - `j']==99)) /*
-						ou */ | /*
-						informaçoes não observadas */ ((V2008==99 | V2008[_n - `j']==99) & ///
-						(V20081==99 | V20081[_n - `j']==99)))))
+							identificação do domicilio
+							*/ UF == UF[_n - `j'] & ///
+							UPA == UPA[_n - `j'] & ///
+							V1008 == V1008[_n - `j'] & ///
+							V1014 == V1014[_n - `j'] & /*
+							Diferença entre períodos */ n_p == `i'+1 & n_p[_n - `j'] == `i' /*
+							Excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
+							Caracteristicas individuais
+							Sexo */ V2007 == V2007[_n - `j'] & /*
+							Diferença na idade */ abs(V2009 - V2009[_n - `j'])<=`ager' & /*
+							Idade observada */ V2009!=999 & /*
+							Se chefe ou conjuge */ ((V2005<=3 & V2005[_n - `j']<=3) | /*
+							ou filho com mais de 25 */ (V2009>=25 & V2009[_n - `j']>=25 & ///
+							V2005==4 & V2005[_n - `j']==4)) & /*
+							Ate 4 dias de erro na data */ ((abs(V2008 - V2008[_n - `j'])<=4 & /*
+							Ate 2 meses de erro na data*/ abs(V20081 - V20081[_n - `j'])<=2 & /*
+							Informação observada */ V2008!=99 & V20081!=99) /*
+							ou */ | /*
+							1 ciclo de erro na educação*/ (abs(VD3004 - VD3004[_n - `j'])<=1 /*
+							e */ & /*
+							Ate 2 meses de erro na data*/ ((abs(V20081 - V20081[_n - `j'])<=2 & /*
+							Informação observada */ V20081!=99 & /*
+							Informação não observada */ (V2008==99 | V2008[_n-`j']==99)) /*
+							ou */ | /*
+							Ate 4 dias de erro na data */ (abs(V2008 - V2008[_n - `j'])<=4 & /*
+							InformaÃ£o observada */ V2008!=99 & /*
+							Informação não observada */ (V20081==99 | V20081[_n - `j']==99)) /*
+							ou */ | /*
+							informaçoes não observadas */ ((V2008==99 | V2008[_n - `j']==99) & ///
+							(V20081==99 | V20081[_n - `j']==99)))))
 						replace forw = 1 if UF == UF[_n + `j'] & ///
-						UPA == UPA[_n + `j'] & ///
-						V1008 == V1008[_n + `j'] & ///
-						V1014 == V1014[_n + `j'] & ///
-						p201 == p201[_n + `j'] & ///
-						n_p == `i' & n_p[_n + `j']==`i'+1 ///
-						& forw != 1
+							UPA == UPA[_n + `j'] & ///
+							V1008 == V1008[_n + `j'] & ///
+							V1014 == V1014[_n + `j'] & ///
+							p201 == p201[_n + `j'] & ///
+							n_p == `i' & n_p[_n + `j']==`i'+1 ///
+							& forw != 1
 						loc j = `j' + 1
 					}
 					else {
@@ -521,29 +521,29 @@ qui if "`idrs'" != "" {
 					else {
 						if r(N) != 0 {
 							replace p201 = p201[_n - `j'] if /*
-							identificação do domicilio
-							*/ UF == UF[_n - `j'] & ///
-							UPA == UPA[_n - `j'] & ///
-							V1008 == V1008[_n - `j'] & ///
-							V1014 == V1014[_n - `j'] & /*
-							Diferença entre periodos */ n_p == `i'+1 & n_p[_n-`j'] == `i' /*
-							excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
-							h emparelhados no domicilio*/ `dom' > 0 & `dom'!=. & /*
-							Caracteristicas individuais
-							Sexo */ V2007 == V2007[_n - `j'] & /*
-							Criterio mudam com a loop */ ((abs(V2009-V2009[_n - `j'])<=`w' & /*
-							se a idade observada */ V2009!=999) /*
-							caso contrario */ | /*
-							Mesma escolaridade */ (VD3004==VD3004[_n - `j'] & /*
-							Mesma condição no domicilio */ V2005==V2005[_n - `j'] & /*
-							Idade não observada */ (V2009==999 | V2009[_n - `j']==999)))
+								identificação do domicilio
+								*/ UF == UF[_n - `j'] & ///
+								UPA == UPA[_n - `j'] & ///
+								V1008 == V1008[_n - `j'] & ///
+								V1014 == V1014[_n - `j'] & /*
+								Diferença entre periodos */ n_p == `i'+1 & n_p[_n-`j'] == `i' /*
+								excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
+								h emparelhados no domicilio*/ `dom' > 0 & `dom'!=. & /*
+								Caracteristicas individuais
+								Sexo */ V2007 == V2007[_n - `j'] & /*
+								Criterio mudam com a loop */ ((abs(V2009-V2009[_n - `j'])<=`w' & /*
+								se a idade observada */ V2009!=999) /*
+								caso contrario */ | /*
+								Mesma escolaridade */ (VD3004==VD3004[_n - `j'] & /*
+								Mesma condição no domicilio */ V2005==V2005[_n - `j'] & /*
+								Idade não observada */ (V2009==999 | V2009[_n - `j']==999)))
 							replace forw = 1 if UF == UF[_n + `j'] & ///
-							UPA == UPA[_n + `j'] & ///
-							V1008 == V1008[_n + `j'] & ///
-							V1014 == V1014[_n + `j'] & ///
-							p201 == p201[_n + `j'] & ///
-							n_p ==`i' & n_p[_n+`j']==`i'+1 ///
-							& forw != 1
+								UPA == UPA[_n + `j'] & ///
+								V1008 == V1008[_n + `j'] & ///
+								V1014 == V1014[_n + `j'] & ///
+								p201 == p201[_n + `j'] & ///
+								n_p ==`i' & n_p[_n+`j']==`i'+1 ///
+								& forw != 1
 							loc j = `j' + 1
 						}
 						else {
@@ -589,46 +589,46 @@ qui if "`idrs'" != "" {
 				else {
 					if r(N) != 0 {
 						replace p201 = p201[_n - `j'] if /*
-						identificação do domicilio
-						*/ UF == UF[_n - `j'] & ///
-						UPA == UPA[_n - `j'] & ///
-						V1008 == V1008[_n - `j'] & ///
-						V1014 == V1014[_n - `j'] & /*
-						Quem entrou na entrevista i*/ p201>`i'00 & p201<`i'99 & /*
-						não emparelhado */ back==0 & `fill'[_n - `j']!=1 & /*
-						Uma entrev. de diferença*/ `max'[_n - `j']<`i' & ///
-						p201[_n - `j']<`i'00-100 & /*
-						Sexo */ V2007 == V2007[_n - `j'] & /*
-						Diferença na idade */ ((abs(V2009 - V2009[_n - `j'])<=`ager' & /*
-						Idade observada */ V2009!=999 & /*
-						Ate 4 dias de erro na data */ ((abs(V2008 - V2008[_n - `j'])<=4 & /*
-						Ate 2 meses de erro na data*/ abs(V20081 - V20081[_n - `j'])<=2 & /*
-						informação observada */ V2008!=99 & V20081!=99) /*
-						ou */ | /*
-						1 ciclo de erro na educação*/ (abs(VD3004 - VD3004[_n - `j'])<=1 /*
-						e */ & /*
-						Ate 2 meses de erro na data*/ ((abs(V20081 - V20081[_n - `j'])<=2 & /*
-						Informação observada */ V20081!=99 & /*
-						Informação não observada */ (V2008==99 | V2008[_n - `j']==99)) /*
-						ou */ | /*
-						Ate 4 dias de erro na data */ (abs(V2008 - V2008[_n - `j'])<=4 & /*
-						Informação observada */ V2008!=99 & /*
-						Informação não observada */ (V20081==99 | V20081[_n - `j']==99)) /*
-						ou */ | /*
-						nada observado */ ((V2008==99 | V2008[_n - `j']==99) & ///
-						(V20081==99 | V20081[_n - `j']==99)))))) /*
-						ou */ | /*
-						mesma escolaridade */ (VD3004==VD3004[_n - `j'] & /*
-						e nÃºmero de ordem */ V2005==V2005[_n - `j'] /*
-						Se idade não observada */ & (V2009==999 | V2009[_n - `j']==999)))
+							identificação do domicilio
+							*/ UF == UF[_n - `j'] & ///
+							UPA == UPA[_n - `j'] & ///
+							V1008 == V1008[_n - `j'] & ///
+							V1014 == V1014[_n - `j'] & /*
+							Quem entrou na entrevista i*/ p201>`i'00 & p201<`i'99 & /*
+							não emparelhado */ back==0 & `fill'[_n - `j']!=1 & /*
+							Uma entrev. de diferença*/ `max'[_n - `j']<`i' & ///
+							p201[_n - `j']<`i'00-100 & /*
+							Sexo */ V2007 == V2007[_n - `j'] & /*
+							Diferença na idade */ ((abs(V2009 - V2009[_n - `j'])<=`ager' & /*
+							Idade observada */ V2009!=999 & /*
+							Ate 4 dias de erro na data */ ((abs(V2008 - V2008[_n - `j'])<=4 & /*
+							Ate 2 meses de erro na data*/ abs(V20081 - V20081[_n - `j'])<=2 & /*
+							informação observada */ V2008!=99 & V20081!=99) /*
+							ou */ | /*
+							1 ciclo de erro na educação*/ (abs(VD3004 - VD3004[_n - `j'])<=1 /*
+							e */ & /*
+							Ate 2 meses de erro na data*/ ((abs(V20081 - V20081[_n - `j'])<=2 & /*
+							Informação observada */ V20081!=99 & /*
+							Informação não observada */ (V2008==99 | V2008[_n - `j']==99)) /*
+							ou */ | /*
+							Ate 4 dias de erro na data */ (abs(V2008 - V2008[_n - `j'])<=4 & /*
+							Informação observada */ V2008!=99 & /*
+							Informação não observada */ (V20081==99 | V20081[_n - `j']==99)) /*
+							ou */ | /*
+							nada observado */ ((V2008==99 | V2008[_n - `j']==99) & ///
+							(V20081==99 | V20081[_n - `j']==99)))))) /*
+							ou */ | /*
+							mesma escolaridade */ (VD3004==VD3004[_n - `j'] & /*
+							e nÃºmero de ordem */ V2005==V2005[_n - `j'] /*
+							Se idade não observada */ & (V2009==999 | V2009[_n - `j']==999)))
 						* identificação de emparelhamento para quem está frente
 						replace `fill' = 1 if UF == UF[_n + `j'] & ///
-						UPA == UPA[_n + `j'] & ///
-						V1008 == V1008[_n + `j'] & ///
-						V1014 == V1014[_n + `j'] & ///
-						p201 == p201[_n + `j'] & ///
-						`fill' == 0 & `max'<`i' & ///
-						(n_p[_n + `j'] - n_p)>=2
+							UPA == UPA[_n + `j'] & ///
+							V1008 == V1008[_n + `j'] & ///
+							V1014 == V1014[_n + `j'] & ///
+							p201 == p201[_n + `j'] & ///
+							`fill' == 0 & `max'<`i' & ///
+							(n_p[_n + `j'] - n_p)>=2
 						loc j = `j' + 1
 					}
 					else {
