@@ -1,6 +1,6 @@
 
 {smcl}
-{* *! version 1.0  03rd January 2020}{...}
+{* *! version 1.0  23rd June 2020}{...}
 {vieweralsosee "" "--"}{...}
 {vieweralsosee "Install command2" "ssc install command2"}{...}
 {vieweralsosee "Help command2 (if installed)" "help command2"}{...}
@@ -95,6 +95,8 @@ Email {browse "mailto:datazoom@econ.puc-rio.br":datazoom@econ.puc-rio.br}
 
 Related packages:
 
+{help datazoom_pnad_covid} (if installed) 
+{help datazoom_pnadcontinua} (if installed) 
 {help datazoom_censo} (if installed)   
 {help datazoom_pnad} (if installed)    
 {help datazoom_pmeantiga} (if installed)  
