@@ -127,7 +127,8 @@ foreach year in `years' {
 		findfile pnad_anual_educ.dct
         loc dic_17_2 = r(fn)
 		di as input "Extraindo arquivo PNADC_anual_`year'..."
-		cap infile using "`dic_17_2'", using("`original'/PNADC_022016_educacao.txt") clear
+		*cap infile using "`dic_17_2'", using("`original'/PNADC_022016_educacao.txt") clear // due to change on arquive name
+		cap infile using "`dic_17_2'", using("`original'/PNADC_2016_trimestre2.txt") clear
 		if _rc == 0 {
 					save PNADC_anual_2016_educ, replace
 					}
@@ -168,7 +169,8 @@ foreach year in `years' {
 		findfile pnad_anual_educ.dct
         loc dic_17_2 = r(fn)
 		di as input "Extraindo arquivo PNADC_anual_`year'..."
-		cap infile using "`dic_17_2'", using("`original'/PNADC_022017_educacao.txt") clear
+		*cap infile using "`dic_17_2'", using("`original'/PNADC_022017_educacao.txt") clear // due to change on arquive name
+		cap infile using "`dic_17_2'", using("`original'/PNADC_2017_trimestre2.txt") clear
 		if _rc == 0 {
 					save PNADC_anual_2017_educ, replace
 					}
@@ -209,7 +211,8 @@ foreach year in `years' {
 	findfile pnad_anual_educ.dct
     loc dic_17_2 = r(fn)
 		di as input "Extraindo arquivo PNADC_anual_`year'..."
-		cap infile using "`dic_17_2'", using("`original'/PNADC_022018_educacao.txt") clear
+		*cap infile using "`dic_17_2'", using("`original'/PNADC_022018_educacao.txt") clear // due to change on arquive name
+		cap infile using "`dic_17_2'", using("`original'/PNADC_2018_trimestre2.txt") clear
 		if _rc == 0 {
 					save PNADC_anual_2018_educ, replace
 					}
@@ -240,7 +243,8 @@ foreach year in `years' {
 	findfile pnad_anual_educ.dct
     loc dic_17_2 = r(fn)
 		di as input "Extraindo arquivo PNADC_anual_`year'..."
-		cap infile using "`dic_17_2'", using("`original'/PNADC_022019_educacao.txt") clear
+		*cap infile using "`dic_17_2'", using("`original'/PNADC_022019_educacao.txt") clear // due to change on arquive name
+		cap infile using "`dic_17_2'", using("`original'/PNADC_2019_trimestre2.txt") clear
 		if _rc == 0 {
 					save PNADC_anual_2019_educ, replace
 					}
@@ -260,6 +264,6 @@ foreach year in `years' {
 
 
 	
-di _newline "Esta versão do pacote datazoom_pnadcont_anual é compatível com a última versão dos microdados divulgado pelo IBGE em 16/10/2019"
+di _newline "Esta versão do pacote datazoom_pnadcont_anual é compatível com a última versão dos microdados divulgado pelo IBGE em 16/07/2020"
 di _newline " As bases de dados foram salvas na pasta `c(pwd)'"
 end
