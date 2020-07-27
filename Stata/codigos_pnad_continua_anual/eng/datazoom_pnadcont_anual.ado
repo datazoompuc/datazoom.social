@@ -232,7 +232,7 @@ foreach year in `years' {
 					}
 	*************************************2019*********************************
 	if `year' == 20191 {
-	findfile pnad_anual_1entr_2019.dct
+	findfile pnad_anual_en_1entr_2019.dct
     loc dic_19_1 = r(fn)
 		di as input "Extracting files from PNADC_anual_`year'..."
 		cap infile using "`dic_19_1'", using("`original'/PNADC_2019_visita1.txt") clear
@@ -242,7 +242,7 @@ foreach year in `years' {
 				else continue, break
 					}
 	if `year' == 20192 {
-	findfile pnad_anual_educ.dct
+	findfile pnad_anual_en_educ.dct
     loc dic_17_2 = r(fn)
 		di as input "Extracting files from PNADC_anual_`year'..."
 		cap infile using "`dic_17_2'", using("`original'/PNADC_022019_educacao.txt") clear
@@ -252,7 +252,7 @@ foreach year in `years' {
 				else continue, break
 					}
 		if `year' == 20195 {
-		findfile pnad_anual_5entr_2019.dct
+		findfile pnad_anual_en_5entr_2019.dct
         loc dic_19_5 = r(fn)
 		di as input "Extracting files from PNADC_anual_`year'..."
 		cap infile using "`dic_19_5'", using("`original'/PNADC_2019_visita5.txt") clear
