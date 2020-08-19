@@ -397,7 +397,7 @@ qui if "`idrs'" != "" {
 							excluir emparelhados */ & p201 ==. & forw[_n - `j'] != 1 & /*
 							Caracteristicas individuais
 							Dia de nascimento */ V2008 == V2008[_n - `j'] & /*
-							MÃªs de nascimento */ V20082 == V20082[_n - `j'] & /*
+							Mês de nascimento */ V20081 == V20081[_n - `j'] & /*
 							Mesmo nÃºmeroo de ordem */ V2003 == V2003[_n - `j'] & /*
 							Informação observada */ V2008!=99 & V20081!=99
 						* Identificaè¤¯ de emparelhamento para quem está¡  frente
