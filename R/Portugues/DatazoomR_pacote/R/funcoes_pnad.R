@@ -10,15 +10,9 @@ NULL
 
 
 
-
-
-
-
 #' Carregando dados brutos
 #'
 #' @param diretorio_dados Diretório onde os microdados originais em formato de texto estão armazenados
-#'
-#' @param diretorio_dicionario Diretório onde o dicionário da pesquisa em formato xls está armaezenado
 #'
 #' @param ... vetores com datas das pesquisas de interesse no  formato \code{c('trimestre', 'ano')}
 #'
@@ -30,35 +24,21 @@ NULL
 #' datazoom_pnadc('./Desktop', './Desktop', c(1, 2000), c(2, 2000))
 #'
 datazoom_pnadc <- function(diretorio_dados,
-                           diretorio_dicionario,
                            ...) {
-
-
+  
+  list(c(1, 2013), c(2, 2013))
   datas <- list(...)
-
+  
   if (any(map(datas, length) != 2)) {stop('Escolha o mesmo número de anos e trimestres', call. = FALSE)}
   trimestre <- datas %>% map( ~ .x[[1]])
   ano <- datas %>% map( ~ .x[[2]])
-
+  
   if (sum(trimestre %in% 1:4 == F) > 0) {stop('Escolha trimestres entre 1 e 4', call. = FALSE)}
   if (sum(ano %in% 2012:2020 == F) > 0) {stop('Escolha anos entre 2012 e 2020', call. = FALSE)}
-
-  dic = read_excel(file.path(diretorio_dicionario,
-                             'dicionario_das_variaveis_PNAD_Continua_microdados.xls'),
-                   range = cell_cols("C:E"),
-                   skip = 6,
-                   col_names = c('Codigo_da_variavel',
-                                 'numero',
-                                 'descricao')
-  ) %>%
-    select(Codigo_da_variavel, descricao) %>%
-    na.omit()
-
-
-  descricao = as.list(dic$descricao)
+  
+  
   trimestre = str_pad(trimestre, width = 2, pad = 0)
-  names(descricao) = dic$Codigo_da_variavel
-  key = data.frame(trimyear = paste0(trimestre, ano) %>% as.character())
+  key = data.frame(trimano = paste0(trimestre, ano) %>% as.character())
   paths = key %>%  mutate(
     date = ifelse(
       trimyear %in% c("022019", "032019", "042019"),
@@ -68,7 +48,7 @@ datazoom_pnadc <- function(diretorio_dados,
     filepath_in = file.path(diretorio_dados, paste0(date, '.txt'), sep = '')
   )
   filepath_in = paths$filepath_in
-
+  
   last = c(4, 5, 7, 9, 11, 20,
            27, 29, 31, 32, 33,
            34, 49, 64, 73, 76,
@@ -113,13 +93,13 @@ datazoom_pnadc <- function(diretorio_dados,
            437, 445, 446, 447, 450,
            453, 456, 459, 462, 463
   )
-
+  
   vname = c("Ano", "Trimestre", "UF", "Capital", "RM_RIDE",
             "UPA", "Estrato", "V1008","V1014", "V1016",
             "V1022", "V1023", "V1027", "V1028", "V1029",
             "posest", "V2001", "V2003", "V2005", "V2007",
             "V2008", "V20081", "V20082", "V2009", "V2010",
-            "V3001", "V3002", "V3002A", "V3003", "V3003A",
+            "V3001", "V3002", "V3002A", "V3003A",
             "V3004", "V3005", "V3005A", "V3006", "V3006A",
             "V3007", "V3008", "V3009", "V3009A", "V3010",
             "V3011", "V3011A", "V3012", "V3013", "V3013A",
@@ -159,7 +139,7 @@ datazoom_pnadc <- function(diretorio_dados,
             "VD4031", "VD4032", "VD4033", "VD4034", "VD4035",
             "VD4036", "VD4037"
   )
-
+  
   fatores = c('Ano', 'Trimestre', 'UF', 'Capital', 'RM_RIDE',
               'V1008', 'V1014', 'V1016', 'V1022', 'V1023',
               'posest', 'V2005', 'V2007', 'V2008', 'V20081',
@@ -194,7 +174,7 @@ datazoom_pnadc <- function(diretorio_dados,
               'VD4015', 'VD4018', 'VD4023', 'VD4030', 'VD4036',
               'VD4037'
   )
-
+  
   caracteres = c('UPA', 'Estrato', 'V4041')
   numerico = c('V1027', 'V1028', 'V1029', 'V2001', 'V2003',
                'V2009', 'V3013', 'V40081', 'V40082', 'V40083',
@@ -208,7 +188,7 @@ datazoom_pnadc <- function(diretorio_dados,
                'VD4017', 'VD4019', 'VD4020', 'VD4031', 'VD4032',
                'VD4033', 'VD4034', 'VD4035'
   )
-
+  
   DF = filepath_in %>% map(
     ~ .x %>% read_tsv(
       .,
@@ -216,9 +196,9 @@ datazoom_pnadc <- function(diretorio_dados,
       col_names = 'a') %>%
       separate(a, into = vname, sep = last)
   )
-
+  
   names(DF) = paste0('PNADC_', trimestre, ano)
-
+  
   DF = DF %>% map(
     ~ .x %>% mutate_at(caracteres, as.character) %>%
       mutate_at(numerico, as.numeric) %>%
@@ -229,67 +209,280 @@ datazoom_pnadc <- function(diretorio_dados,
       ) %>%
       select(hous_id, ind_id, everything())
   )
+  
+  Descricoes <- data.frame(
+    var = vname,
+    descricao_pt =
+      ##########
+    c("Ano de referência", "Trimestre de referência",
+      "Unidade da Federação", "Município da Capital",
+      "Reg. Metr. e Reg. Adm. Int. Des.", "Unidade Primária de Amostragem",
+      "Estrato", "Número de seleção do domicílio", "Painel",
+      "Número da entrevista no domicílio", "Tipo de área",
+      "Peso SEM pós estratificação", "Peso COM pós estratificação",
+      "Projeção da população", "Domínios de projeção",
+      "Número de pessoas no domicílio", "Número de ordem",
+      "Condição no domicílio", "Sexo",
+      "Dia de nascimento", "Mês de nascimento", "Ano de nascimento",
+      "Idade na data de referência", "Cor ou raça",
+      "Sabe ler e escrever", "Frequenta escola",
+      "A escola que ... frequenta é de",
+      "Qual é o curso que frequenta", "Duração deste curso que requenta",
+      "Curso que frequenta é seriado", "Curso que freq é organizado em:",
+      "Qual é o ano/série que frequenta", "Qual é a etapa que frequenta",
+      "Concluiu outro curso de graduação",
+      "Anteriormente frequentou escola",
+      "Curso mais elevado que frequentou",
+      "Curso mais elevado que frequentou",
+      "Duração do curso que frequentou",
+      "Curso que frequentou era seriado",
+      "Curso que freq é organizado em:",
+      "Aprovado na prim. série do curso",
+      "Último ano/série que concluiu",
+      "Qual é a etapa que frequentou",
+      "Cursou os anos iniciais deste curso",
+      "Concluiu o curso que frequentou",
+      "Trabalhou 1 hr em ativ. remunerd.",
+      "Trabalhou 1 hr em produtos etc...",
+      "Fez algum bico pelo menos de 1 hr",
+      "Ajudou sem receber no domic. 1 hr",
+      "Afastado de trabalho remunerado",
+      "Motivo de estar afastado",
+      "Motivo de estar afastado",
+      "Durante afastamento recebia pagam.",
+      "Quanto tempo que estava afastado",
+      "Tempo de afastamenento até 1 ano",
+      "Tempo de afastamen. de 1 a 2 anos",
+      "Tempo de afastamen. mais de 2 anos",
+      "Quantos trabalhos tinha na semana",
+      "Ocupação no trabalho principal",
+      "Posição na ocupação",
+      "Tipo trabalhador não remunerado",
+      "Atividade no trab. principal",
+      "Seção da atividade",
+      "Seção da atividade",
+      "Esse trabalho era na área",
+      "Teve ajuda de pelo menos um trabalhador não remunerado",
+      "Qnts trabalhadores não remunerados",
+      "1 a 5 trabalhadores não remunerados",
+      "6 a 10 trabalhadores não remunerados",
+      "Qnts empregados trabalhavam nesse negócio/empresa",
+      "1 a 5 empregados",
+      "6 a 10 empregados",
+      "11 a 50 empregados",
+      "Tinha pelo menos um sócio que trab. nesse negócio/empresa",
+      "Quantos sócios",
+      "1 a 5 sócios",
+      "Qnts pessoas trabalhavam nesse negócio/empresa",
+      "1 a 5 pessoas",
+      "6 a 10 pessoas",
+      "11 a 50 pessoas",
+      "Negócio/empresa registrado no CNPJ",
+      "Em que tipo de local funcionava esse negócio/empresa",
+      "Exercia o trabalho em estabelecimento desse negócio/empresa",
+      "Onde exercia normalmente esse serviço",
+      "Serv. domést. em mais de 1 domic.",
+      "Contratado como empregado temporário",
+      "Era contratado somente por pessoa responsável pelo negócio",
+      "Era contratado somente por intermediário",
+      "Servidor público estatutário",
+      "Carteira de trabalho assinada",
+      "Contribuinte de instit. d previd.",
+      "Rendimento habitual var. auxil.",
+      "Rendimento habitual em dinheiro",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em dinheiro",
+      "Rendimento habitual em produtos",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em produtos",
+      "Rendimento habitual em benefícios",
+      "Tipo rend. habitual em benefícios",
+      "Rendimento efetivo var. auxil.",
+      "Rendimento efetivo em dinheiro",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em dinheiro",
+      "Rendimento efetivo em produtos",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em produtos",
+      "Hrs habituais no trab. princ.",
+      "Hrs efetivas no trab. princ.",
+      "Tempo que estava nesse trabalho",
+      "De 1 mês a menos de 1 ano",
+      "De 1 ano a menos de 2 anos",
+      "De 2 anos ou mais tempo",
+      "Ocupação no trab. secundário",
+      "Posição na ocupação",
+      "Tipo trabalhador não remunerado",
+      "Atividade no trab. secundário",
+      "Esse trabalho era na área",
+      "Negócio/empresa registrado no CNPJ",
+      "Servidor público estatutário",
+      "Carteira de trabalho assinada",
+      "Contribuinte de instit. d previd.",
+      "Rendimento habitual var. auxil.",
+      "Rendimento habitual em dinheiro",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em dinheiro",
+      "Rendimento habitual em produtos",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em produtos",
+      "Rendimento habitual em benefícios",
+      "Tipo rend. habitual em benefícios",
+      "Rendimento efetivo var. auxil.",
+      "Rendimento efetivo em dinheiro",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em dinheiro",
+      "Rendimento efetivo em produtos",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em produtos",
+      "Hrs habituais no trab. secun.",
+      "Hrs efetivas no trab. secun.",
+      "Contribuinte de instit. d previd.",
+      "Rendimento habitual var. auxil.",
+      "Rendimento habitual em dinheiro",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em dinheiro",
+      "Rendimento habitual em produtos",
+      "Faixa do valor do rendimento hab.",
+      "Valor do rend. hab. em produtos",
+      "Rendimento habitual em benefícios",
+      "Tipo rend. habitual em benefícios",
+      "Não remunerado",
+      "Rendimento efetivo var. auxil.",
+      "Rendimento efetivo em dinheiro",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em dinheiro",
+      "Rendimento efetivo em produtos",
+      "Faixa do valor do rendimento efe.",
+      "Valor do rend. efe. em produtos",
+      "Hrs habituais no(s) outro(s) trab.",
+      "Hrs efetivas no(s) outro(s) trab.",
+      "Gostaria trabalhar + hrs efetivas",
+      "Gostaria trabalhar + hrs habituais",
+      "Dispon. trabalhar + hrs efetivas",
+      "Dispon. trabalhar + hrs habituais",
+      "Providência p/ conseg. trab. (30d)",
+      "Principal provid. p/conseg. trab",
+      "Principal provid. p/conseg. trab.",
+      "Gostaria de ter trabalhado",
+      "Motivo de não ter tomado provid.",
+      "Motivo de não ter tomado provid.",
+      "Tempo em que irá começar o trab.",
+      "Meses em que irá começar o trab.",
+      "Tempo tentando conseguir trabalho",
+      "Tempo tentando trab. 1 mes-1 ano",
+      "Tempo tentando trab. 1 ano-2 anos",
+      "Tempo tentando trab. + de 2 anos",
+      "Poderia ter começado a trabalhar",
+      "Motivo p/ñ querer/começar a trab.",
+      "Motivo p/ñ querer/começar a trab.",
+      "Trab por pelo menos 1 hora em 1 ano",
+      "Condição no domicílio",
+      "Número de componentes do domic.",
+      "Espécie da unidade doméstica",
+      "Nível de instrução mais elevado alcançado
+                  (5 anos ou mais de idade)",
+      "Anos de estudo (5 anos ou mais de idade) para fundamental
+                  de 9 anos",
+      "Grupamento de anos de estudo (pessoas de 5 anos ou mais de idade)
+                  para fundamental de 9 anos",
+      "Condição em relação a força d trab.",
+      "Condição de ocupação",
+      "Força de trabalho potencial",
+      "Subocupação por insuficiên. de hrs efet",
+      "Subocupação por insuficiên. de hrs hab",
+      "Pessoas desalentadas",
+      "Posição na ocupação trab. princ.",
+      "Posição na ocupação trab. princ.",
+      "Posição na ocupação trab. princ.",
+      "Grupamen. d ativid. trab. princ.",
+      "Grupamen. ocupacion. trab. princ.",
+      "Contrib. instit. previd. qq trab.",
+      "Faixa hrs habituais em todos trab.",
+      "Faixa hrs efetivas em todos trab.",
+      "Tipo d remuneração trab. princ.",
+      "Rendim. habitual trab. princ.",
+      "Rendim. efetivo trab. princ.",
+      "Tipo d remuneração em qq trabalho",
+      "Rendim. habitual qq trabalho",
+      "Rendim. efetivo qq trabalho",
+      "Pq ñ proc./ñ gost./ñ disp.p/trab.",
+      "Pq ñ proc./ñ gost./ñ disp.p/trab.",
+      "Hrs habituais em todos trab.",
+      "Hrs efetivas no trab. princ.",
+      "Hrs efetivas no trab. secun.",
+      "Hrs efetivas no(s) outro(s) trab.",
+      "Hrs efetivas em todos trab.",
+      "Faixa hrs habituais trab. princ.",
+      "Faixa hrs efetivas trab. princ."
+    )
+    
+    #######
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  )
+  )
 
-  lista <- as.list(dic$descricao)
-  names(lista) <- as.list(dic$Codigo_da_variavel)
 
 
-  DF = DF %>% map(~ .x %>% set_variable_labels(.labels = lista))
+DF =  DF %>% map(~ .x %>% set_variable_labels(.labels = lista))
+return(DF)
 
-
-  return(DF)
 }
 
- #' Painel básico
- #'
- #' @param build_data Default \code{TRUE}.
- #' Se \code{TRUE}, implementa primeiro \code{\link{datazoom_pnadc}} e depois
- #' monta paineis de indiv�?duos. Se \code{FALSE}, a função constrói paneis a partir de dados já carregados no R
- #'
- #' @param dados_prontos Bases de dados para diferentes trimestres da PNAD cont�?nua.
- #' Necessário se \code{build_data = FALSE}
- #'
- #' @param local_dados Diretório onde os microdados originais em formato de texto estão armazenados
- #' caso \code{build_data = TRUE}
- #'
- #' @param local_dicionarios Diretório onde o dicionário da pesquisa em formato xls está armaezenado caso
- #' \code{build_data = TRUE}
- #'
- #' @param periodos Lista de vetores com per�?odos de interesse no formato
- #' \code{periodos = list(c(trimestre1, ano1), c(trimestre2, ano2), ...)}
- #'
- #' @encoding UTF-8
- #'
- #' @return Lista de dataframes, sendo cada entrada um trimestre/ano
- #'
- #' @examples
- #' PNADC_2012 <- datazoom_pnadc(diretorio_dados = './Desktop',
- #' diretorio_dicionario = './pnadcontinua/Desktop',
- #' c(1,2012), c(2,2012))
- #'
- #' teste <- pnadc_painel_basico(build_data = FALSE,
- #'                              dados_prontos = PNADC_2012)
- #'
- #' teste2 <- pnadc_painel_basico(build_data = TRUE,
- #'                               local_dados = './pnadcontinua',
- #'                               local_dicionario = './pnadcontinua/Dicionario_e_input',
- #'                               periodos = list(c(1,2012), c(2,2012)))
- #' @export
+#' Painel básico
+#'
+#' @param build_data Default \code{TRUE}.
+#' Se \code{TRUE}, implementa primeiro \code{\link{datazoom_pnadc}} e depois
+#' monta paineis de indiv??duos. Se \code{FALSE}, a função constrói paneis a partir de dados já carregados no R
+#'
+#' @param dados_prontos Bases de dados para diferentes trimestres da PNAD cont??nua.
+#' Necessário se \code{build_data = FALSE}
+#'
+#' @param local_dados Diretório onde os microdados originais em formato de texto estão armazenados
+#' caso \code{build_data = TRUE}
+#'
+#' @param periodos Lista de vetores com per??odos de interesse no formato
+#' \code{periodos = list(c(trimestre1, ano1), c(trimestre2, ano2), ...)}
+#'
+#' @encoding UTF-8
+#'
+#' @return Lista de dataframes, sendo cada entrada um trimestre/ano
+#'
+#' @examples
+#' PNADC_2012 <- datazoom_pnadc(diretorio_dados = './Desktop',
+#' c(1,2012), c(2,2012))
+#'
+#' teste <- pnadc_painel_basico(build_data = FALSE,
+#'                              dados_prontos = PNADC_2012)
+#'
+#' teste2 <- pnadc_painel_basico(build_data = TRUE,
+#'                               local_dados = './pnadcontinua',
+#'                               periodos = list(c(1,2012), c(2,2012)))
+#' @export
 pnadc_painel_basico <- function(build_data = TRUE, ...){
-
-    argumentos <- list(...)
-
+  
+  argumentos <- list(...)
+  
   if (!(build_data) & is.null(argumentos$dados_prontos)) {
     stop("Se build_data == FALSE, definir dados_prontos.
        Ver help para detalhes")
   }
   if(build_data == TRUE &
-     (is.null(argumentos$local_dados) | is.null(argumentos$local_dicionario))
+     (is.null(argumentos$local_dados))
   ){
-    stop('Se build_data == TRUE, definir local_dados e local_dicionario,
+    stop('Se build_data == TRUE, definir local_dados,
           Ver help para detalhes')
   }
-
+  
   if(!build_data){
     if(is.list(argumentos$dados_prontos) == FALSE){
       dados_prontos <- as.list(argumentos$dados_prontos)
@@ -297,90 +490,21 @@ pnadc_painel_basico <- function(build_data = TRUE, ...){
       dados_prontos <- argumentos$dados_prontos
     }
   } else{
-
+    
     local_dados <- argumentos$local_dados
-    local_dicionario <- argumentos$local_dicionario
-
+    
     argumentos$local_pastas <- NULL
-    argumentos$local_dicionario <- NULL
-
+    
     dados_prontos <- do.call(datazoom_pnadc, c(local_dados,
-                                               local_dicionario,
                                                argumentos$periodos))
   }
-
-  paineis <- dados_prontos %>% do.call(rbind, .) %>%
-    split(.$V1014) %>%
-    setNames(., paste0('painel_', names(.))) %>%
-    map(~.x %>%
-          bind_cols(
-            ### Adiciona identificadores
-            id_dom = group_indices(., UPA, V1008, V1014),
-            id_chefe = group_indices(., UPA, V1008, V1014, V2005)
-          ) %>%
-          mutate(id_chefe = ifelse(V2005 != 1, NA, id_chefe)) %>%
-          group_by(id_chefe) %>%
-          mutate(n_p_aux = ifelse(V2005 != 1,
-                                  NA,
-                                  row_number())) %>%
-          group_by(id_dom, Ano, Trimestre) %>%
-          arrange(id_dom, Ano, Trimestre) %>%
-          mutate(n_p = mean(n_p_aux, na.rm = T)) %>%
-          ungroup() %>%
-          group_by(UF, UPA, V1008, V1014, V2007,
-                   V2008, V20081, V20082, V2003) %>%
-          ### Transforma NaN em NA's
-          mutate(n_p = ifelse(is.na(n_p), NA, n_p),
-                 p201 = ifelse(n_p == 1 & V2008 != 99 &
-                                 V20081 != 99 & V20082 != 9999,
-                               100*(n_p-1) + V2003, NA)) %>%
-          group_by(UF, UPA, V1008, V1014, V2007,
-                   V2008, V20081, V20082, V2003) %>%
-          mutate(p201 = ifelse(n_p == 1  & V2008 != 99 &
-                                 V20081 != 99 & V20082 != 9999,
-                               100*(n_p-1) + V2003, NA)) %>%
-          loop() %>%
-          ungroup() %>%
-          mutate_at(c('UF', 'UPA', 'V1008', 'p201'), as.character) %>%
-          mutate(UPA = str_pad(UPA,9, pad = "0"),
-                 V1008 = str_pad(V1008,3, pad = "0"),
-                 p201 = str_pad(p201,3, pad = "0")) %>%
-          mutate(idind = ifelse(is.na(p201),
-                                NA,
-                                paste0(V1014, UF, UPA, V1008, p201))) %>%
-          select(-c(p201, n_p, n_p_aux)) %>%
-          arrange(Ano, Trimestre, idind, UPA, V2003) %>%
-          set_variable_labels(.labels =  var_label(dados_prontos[[1]]))
-    )
+  
+  ###### Inserir função do painel
+  
+  
   return(paineis)
 }
 
-
-loop <- function(data,
-                 interview = 2,
-                 int_final = 5){
-  data <- data %>%
-    group_by(UF, UPA, V1008, V1014, V2007,
-             V2008, V20081, V20082, V2003) %>%
-    fill(p201, .direction = 'down') %>%
-    mutate(p201 = ifelse(
-      n_p %in% 1:(interview-1),
-      p201,
-      ifelse(
-        n_p == interview  & is.na(p201) &
-          V2008 != 99 &
-          V20081 != 99 & V20082 != 9999,
-        100 * (n_p - 1) + V2003,
-        NA
-      )
-    ))
-
-  if(interview == int_final){
-    return(data)
-  } else{
-    return(loop(data, interview + 1, int_final))
-  }
-}
 
 
 
