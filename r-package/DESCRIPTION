@@ -9,7 +9,7 @@ Description: DataZoom PNAD continua
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Imports: 
 	dplyr,
 	labelled,
@@ -20,6 +20,3 @@ Imports:
 	tidyr
 License: GPL (>= 2)
 URL: http://www.econ.puc-rio.br/datazoom/index.html
-
-
-
