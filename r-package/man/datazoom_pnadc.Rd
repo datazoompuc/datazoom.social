@@ -5,12 +5,10 @@
 \alias{datazoom_pnadc}
 \title{Carregando dados brutos}
 \usage{
-datazoom_pnadc(diretorio_dados, diretorio_dicionario, ...)
+datazoom_pnadc(diretorio_dados, ...)
 }
 \arguments{
 \item{diretorio_dados}{Diretório onde os microdados originais em formato de texto estão armazenados}
-
-\item{diretorio_dicionario}{Diretório onde o dicionário da pesquisa em formato xls está armaezenado}
 
 \item{...}{vetores com datas das pesquisas de interesse no  formato \code{c('trimestre', 'ano')}}
 }
@@ -21,6 +19,5 @@ Lista de dataframes, sendo cada entrada um trimestre/ano em \code{...}
 Carregando dados brutos
 }
 \examples{
-datazoom_pnadc('./Desktop', './Desktop', c(1, 2000), c(2, 2000))
-
+datazoom_pnadc("./Desktop", "./Desktop", c(1, 2000), c(2, 2000))
 }
