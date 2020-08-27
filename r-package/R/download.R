@@ -1,35 +1,18 @@
-#' Download microdata from multiple quarters
+#' Download microdata from a selected year and quarter
 #'
-#' @param periods List of pairs of the form (t, y) where t is the trimester (1-4) and y is year (2012-present)
-#' @param dir dir where data should be saved
-#' @return List of filenames of the downloaded files
-#' @example download_quarters(list(c(1, 2019), c(2, 2019)))
-#' @export
-download_quarters <- function(periods, dir = tempdir()) {
-  files = c()
-  for (p in periods) {
-    files <- c(files, download_quarter(p, dir = dir))
-  }
-  files
-}
-
-#' Download microdata from a single quarter
-#'
-#' @param period Pair of the form (t, y) where t is the trimester (1-4) and y is year (2012-present)
-#' @param dir dir where data should be saved
+#' @param quarter Number between 1 and 4 indicating the quarter
+#' @param year Number between 2012 and present year
+#' @param dir Directory where data should be saved
 #' @return filename of the downloaded file
-#' @example download_quarter(c(1, 2019))
+#' @example download_quarter(1, 2019)
 #' @export
-download_quarter <- function(period, dir = tempdir()) {
+download_quarter <- function(quarter, year, dir = tempdir()) {
   if (!dir.exists(dir))
     stop("Provided directory doesn't exist")
-  if (!is_period_valid(period))
+  if (!is_period_valid(quarter, year))
     stop("Provided period is not valid")
 
   host_path <- "ftp://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/Trimestral/Microdados/"
-  quarter <- period[1]
-  year <- period[2]
-
   path_with_year <- paste0(host_path, year, "/")
 
   # IBGE has an irregular naming scheme for files, but they will always begin with the identifier
@@ -50,6 +33,6 @@ download_quarter <- function(period, dir = tempdir()) {
   paste0(dir, "/", file)
 }
 
-is_period_valid <- function(period) {
-  length(period) == 2 && period[1] >= 1 && period[1] <= 4 && period[2] >= 2012 && period[2] <= timeDate::getRmetricsOptions("currentYear")
+is_period_valid <- function(quarter, year) {
+  quarter >= 1 && quarter <= 4 && year >= 2012 && year <= timeDate::getRmetricsOptions("currentYear")
 }
