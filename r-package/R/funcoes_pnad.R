@@ -24,7 +24,6 @@ NULL
 #' datazoom_pnadc("./Desktop", "./Desktop", c(1, 2000), c(2, 2000))
 datazoom_pnadc <- function(diretorio_dados,
                            ...) {
-  list(c(1, 2013), c(2, 2013))
   datas <- list(...)
 
   if (any(map(datas, length) != 2)) {
