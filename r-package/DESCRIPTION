@@ -18,5 +18,7 @@ Imports:
 	readxl,
 	stringr,
 	tidyr
+Depends:
+  PNADcIBGE
 License: GPL (>= 2)
 URL: http://www.econ.puc-rio.br/datazoom/index.html
