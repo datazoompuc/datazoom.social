@@ -196,8 +196,158 @@ datazoom_pnadc <- function(diretorio_dados,
     "VD4033", "VD4034", "VD4035"
   )
 
-  Descricoes <- data.frame(
-    var = vname,
+  Descricoes <- variable_dictionary()
+
+  DF <- filepath_in %>% map(
+    ~ .x %>%
+      read_tsv(
+        .,
+        n_max = 1000,
+        col_names = "a"
+      ) %>%
+      separate(a, into = vname, sep = last)
+  )
+
+  names(DF) <- paste0("PNADC_", trimestre, ano)
+
+  DF <- DF %>% map(
+    ~ .x %>%
+      mutate_at(caracteres, as.character) %>%
+      mutate_at(numerico, as.numeric) %>%
+      mutate_at(fatores, as.factor) %>%
+      mutate(
+        hous_id = paste0(UPA, V1008, V1014),
+        ind_id = paste0(UPA, V1008, V1014, V2003)
+      ) %>%
+      select(hous_id, ind_id, everything())
+  )
+
+  DF <- DF %>% map(~ .x %>% set_variable_labels(.labels = lista))
+  return(DF)
+}
+
+#' Painel básico
+#'
+#' @param build_data Default \code{TRUE}.
+#' Se \code{TRUE}, implementa primeiro \code{\link{datazoom_pnadc}} e depois
+#' monta paineis de indiv??duos. Se \code{FALSE}, a função constrói paneis a partir de dados já carregados no R
+#'
+#' @param dados_prontos Bases de dados para diferentes trimestres da PNAD cont??nua.
+#' Necessário se \code{build_data = FALSE}
+#'
+#' @param local_dados Diretório onde os microdados originais em formato de texto estão armazenados
+#' caso \code{build_data = TRUE}
+#'
+#' @param periodos Lista de vetores com per??odos de interesse no formato
+#' \code{periodos = list(c(trimestre1, ano1), c(trimestre2, ano2), ...)}
+#'
+#' @encoding UTF-8
+#'
+#' @return Lista de dataframes, sendo cada entrada um trimestre/ano
+#'
+#' @examples
+#' PNADC_2012 <- datazoom_pnadc(
+#'   diretorio_dados = "./Desktop",
+#'   c(1, 2012), c(2, 2012)
+#' )
+#'
+#' teste <- pnadc_painel_basico(
+#'   build_data = FALSE,
+#'   dados_prontos = PNADC_2012
+#' )
+#'
+#' teste2 <- pnadc_painel_basico(
+#'   build_data = TRUE,
+#'   local_dados = "./pnadcontinua",
+#'   periodos = list(c(1, 2012), c(2, 2012))
+#' )
+#' @export
+pnadc_painel_basico <- function(build_data = TRUE, ...) {
+  argumentos <- list(...)
+
+  if (!(build_data) & is.null(argumentos$dados_prontos)) {
+    stop("Se build_data == FALSE, definir dados_prontos.
+       Ver help para detalhes")
+  }
+  if (build_data == TRUE &
+    (is.null(argumentos$local_dados))
+  ) {
+    stop("Se build_data == TRUE, definir local_dados,
+          Ver help para detalhes")
+  }
+
+  if (!build_data) {
+    if (is.list(argumentos$dados_prontos) == FALSE) {
+      dados_prontos <- as.list(argumentos$dados_prontos)
+    } else {
+      dados_prontos <- argumentos$dados_prontos
+    }
+  } else {
+    local_dados <- argumentos$local_dados
+
+    argumentos$local_pastas <- NULL
+
+    dados_prontos <- do.call(datazoom_pnadc, c(
+      local_dados,
+      argumentos$periodos
+    ))
+  }
+
+  ###### Inserir função do painel
+
+
+  return(paineis)
+}
+
+# INCONSISTENT ROW NUMBERS
+variable_dictionary <- function() {
+  data.frame(
+    var = c(
+      "Ano", "Trimestre", "UF", "Capital", "RM_RIDE",
+      "UPA", "Estrato", "V1008", "V1014", "V1016",
+      "V1022", "V1023", "V1027", "V1028", "V1029",
+      "posest", "V2001", "V2003", "V2005", "V2007",
+      "V2008", "V20081", "V20082", "V2009", "V2010",
+      "V3001", "V3002", "V3002A", "V3003A",
+      "V3004", "V3005", "V3005A", "V3006", "V3006A",
+      "V3007", "V3008", "V3009", "V3009A", "V3010",
+      "V3011", "V3011A", "V3012", "V3013", "V3013A",
+      "V3013B", "V3014", "V4001", "V4002", "V4003",
+      "V4004", "V4005", "V4006", "V4006A", "V4007",
+      "V4008", "V40081", "V40082", "V40083", "V4009",
+      "V4010", "V4012", "V40121", "V4013", "V40132",
+      "V40132A", "V4014", "V4015", "V40151", "V401511",
+      "V401512", "V4016", "V40161", "V40162", "V40163",
+      "V4017", "V40171", "V401711", "V4018", "V40181",
+      "V40182", "V40183", "V4019", "V4020", "V4021",
+      "V4022", "V4024", "V4025", "V4026", "V4027",
+      "V4028", "V4029", "V4032", "V4033", "V40331",
+      "V403311", "V403312", "V40332", "V403321", "V403322",
+      "V40333", "V403331", "V4034", "V40341", "V403411",
+      "V403412", "V40342", "V403421", "V403422", "V4039",
+      "V4039C", "V4040", "V40401", "V40402", "V40403",
+      "V4041", "V4043", "V40431", "V4044", "V4045",
+      "V4046", "V4047", "V4048", "V4049", "V4050",
+      "V40501", "V405011", "V405012", "V40502", "V405021",
+      "V405022", "V40503", "V405031", "V4051", "V40511",
+      "V405111", "V405112", "V40512", "V405121", "V405122",
+      "V4056", "V4056C", "V4057", "V4058", "V40581",
+      "V405811", "V405812", "V40582", "V405821", "V405822",
+      "V40583", "V405831", "V40584", "V4059", "V40591",
+      "V405911", "V405912", "V40592", "V405921", "V405922",
+      "V4062", "V4062C", "V4063", "V4063A", "V4064",
+      "V4064A", "V4071", "V4072", "V4072A", "V4073",
+      "V4074", "V4074A", "V4075A", "V4075A1", "V4076",
+      "V40761", "V40762", "V40763", "V4077", "V4078",
+      "V4078A", "V4082", "VD2002", "VD2003", "VD2004",
+      "VD3004", "VD3005", "VD3006", "VD4001", "VD4002",
+      "VD4003", "VD4004", "VD4004A", "VD4005", "VD4007",
+      "VD4008", "VD4009", "VD4010", "VD4011", "VD4012",
+      "VD4013", "VD4014", "VD4015", "VD4016", "VD4017",
+      "VD4018", "VD4019", "VD4020", "VD4023", "VD4030",
+      "VD4031", "VD4032", "VD4033", "VD4034", "VD4035",
+      "VD4036", "VD4037"
+    ),
     descricao_pt =
       c(
         "Ano de referência", "Trimestre de referência",
@@ -414,6 +564,7 @@ datazoom_pnadc <- function(diretorio_dados,
         "Household selection number",
         "Panel",
         "household interview number",
+        "Type of situation in the area",
         "Area type",
         "Weight without after stratification",
         "Weight with after stratification",
@@ -430,55 +581,85 @@ datazoom_pnadc <- function(diretorio_dados,
         "Skin color or race",
         "Knows how to read and write",
         "Attend school",
-        "School is public or private?",
-        " Type of course attended (education)",
+        "The school that ... attends is",
+        "Type of course attended (education)",
+        "Type of course attended (education)",
         "Course lenght",
-        "The course is divided into",
+        "The course is divided into grades",
+        "The course is organized into :",
         "Year/Grade which is attended by the surveyed",
+        "Stage which is attended by the surveyed",
         "Finished another graduation course",
         "Attended school before",
         "Highest level of education later completed",
+        "Highest level of education later completed",
         "Lenght of the last course attended by the surveyed",
-        "The course was divided into",
-        "Finished at least the first grade",
-        "Educational attainment",
+        "The course was divided into grades",
+        "The course was organized into:",
+        "Approved in the first grade of the course",
+        "Last year/ grade completed",
+        "Stage which was attended by the surveyed",
+        "Attended the first years of the course",
         "Finished the course",
-        "Worked/Was a intern in paid activity in cash",
-        "Worked/Was a intern in activity remunerated in goods",
-        "Occasional remunerated job (at least 1 hr)",
+        "Worked/Was an intern in paid activity in the form of",
+        "Worked/Was an intern in activity remunerated in the",
+        "Participated in an occasional remunerated activity",
         "Worked without remuneration for household",
-        "Was temporarily absent from its remunerated work",
-        "Motives for being temporarily absent from work",
+        "Was temporally absent from its remunerated work",
+        "Motives for being temporarily absent of work",
+        "Motives for being temporarily absent of work",
+        "Received part of its payment when absent of the work ",
         "Period of absence from the workplace",
-        "Time from absence in the workplace (1 to 11 months)",
-        "Time of absence in the workplace (12 to 23 months)",
-        "Time of absence in the workplace (2 years or more)",
-        "# of jobs in the week of ref.",
-        "Occupation code",
+        "Time of Absence in the Workplace (1 to 11 months)",
+        "Time of Absence in the Workplace (12 to 23 months)",
+        "Time of Absence in the Workplace (2 years or more)",
+        "Number of jobs in the week of ref.",
+        "Occupation in the main job",
         "Occupation type",
-        "Unpaid worker",
-        "Code of the main activity from this business",
+        "Type of unpaid worker",
+        "Code of the main activity from this business/company",
         "Section of economic activity",
-        "this job was in the area",
-        "business registered in CNPJ",
-        "worked in household services for more than 1 hh",
-        "hired as temporary worker",
+        "Section of economic activity",
+        "This job was in the area",
+        "Had help from at least one unpaid worker",
+        "How many unpaid workers",
+        "1 to 5 unpaid workers",
+        "6 to 10 unpaid workers",
+        "How many employees worked",
+        "1 to 5 employees",
+        "6 to 10 employees",
+        "11 to 50 employees",
+        "Had at least one partner in that business",
+        "How many partners",
+        "1 to 5 partners",
+        "How many people worked in this business",
+        "1 to 5 individuals",
+        "6 to 10 individuals",
+        "11 to 50 individuals",
+        "Business / company registered with CNPJ",
+        "In what kind of place did this business / company work?",
+        "Was working in a business / company work",
+        "Where the surveyed was working in a business/company work",
+        "Worked in household services for more than 1 hh",
+        "Hired as a temporary worker",
+        "Hired only by person responsible for the business",
+        "Was hired only by an intermediary",
         "Public servant",
         "Formally employed",
         "Contributed to a pension plan",
         "Monthly gross income (norm. received) (auxiliary)",
-        "normally received income in cash ",
+        "Received income in cash normally received",
         "Income (in cash) bracket (norm. rec.)",
         "Gross income (in cash) (norm. rec.)",
-        " normally received income in goods",
+        "Received income in goods norm. rec.",
         "Income (in goods) bracket (norm. rec.)",
         "Monthly gross income (in goods) (norm. rec.)",
         "Norm. rec. payment only in the form of benefits",
-        " type of remuneration in benefits ",
+        "Type of norm. rec.payment in the form of benefits",
         "Gross income in the month of ref. (auxiliary)",
         "Received income in cash in the month of ref",
-        "Income (in cash) bracket (in the month of ref)",
-        "Gross income (in cash) (in month of ref)",
+        "Income (in cash) bracket in the month of ref",
+        "Gross income (in cash) in the month of ref",
         "Received income (in goods) in the month of ref",
         "Income (in goods) bracket in the month of ref",
         "Gross income (in goods) in the month of ref",
@@ -493,20 +674,20 @@ datazoom_pnadc <- function(diretorio_dados,
         "Non-paid worker",
         "Activity in the 2nd job",
         "This job was in the area",
-        "business registered in CNPJ",
-        "Public servant",
-        "Formally employed",
-        "Contributed to a pension plan",
+        "Business / company registered with CNPJ",
+        "Public servant(2nd job)",
+        "Formally employed(2nd job)",
+        "Contributed to a pension plan(2nd job)",
         "Monthly gross income (2nd job)",
         "Norm. received income (in cash) (2nd job)",
         "Income (in cash) bracket (2nd job)",
         "Monthly income in cash (2nd job)",
         "Received income in goods (2nd job)",
         "Income (in goods) bracket (2nd job)",
-        "Monthly gross income (in goods)(2nd job",
-        "Norm. received remuneration only in benefits",
-        "type of remuneration in benefits ",
-        "Gross income in month of ref.(2nd job)(auxil.)",
+        "Monthly gross income (in goods)(2nd job)",
+        "Norm. only received remuneration in benefits",
+        "Type of Norm. only received remuneration in benefits",
+        "Gross income in the month of ref. (2nd job)(auxiliary)",
         "Received income in cash in the month of ref",
         "Income (in cash) bracket in the month of ref",
         "Income (in cash) in the month of ref",
@@ -515,49 +696,61 @@ datazoom_pnadc <- function(diretorio_dados,
         "Gross income (in goods) in the month of ref",
         "Usual working hours (2nd job)",
         "Effective working hours (2nd job)",
-        "Contributed to a pension plan",
-        "Monthly gross income (norm. received other jobs)",
+        "Contributed to a pension plan(- other jobs)",
+        "Monthly gross income (norm. received -other jobs)",
         "Norm. received income in cash (other jobs)",
         "Income (in cash) bracket (norm.rec.-other jobs)",
         "Monthly income in cash (norm. rec. - other jobs)",
         "Received income in goods (normally-other jobs)",
         "Income (in goods) bracket (other jobs)",
         "Monthly gross income in goods (norm. rec. - other jobs)",
-        "Received remuneration only in benefits",
-        "type of remuneration in benefits ",
-        "Unpaid in other jobs",
+        "Normally received remuneration in benefits (-other jobs)",
+        "Type of norm. received remuneration in benefits (-other jobs)",
+        "Unpaid (-other jobs)",
         "Gross income in month of ref. (other jobs)(aux.)",
         "Received income (in cash) in the month of ref",
         "Income (in cash) bracket in the month of ref",
-        "Gross income (in cash) in the month of ref",
+        "Income (in cash) in the month of ref",
         "Received income in  goods in the month of ref",
-        "Income (in goods) bracket in the month of ref",
-        "Gross income in goods in the month of ref",
+        "Income (in cash) bracket in the month of ref",
+        "Gross income (in goods) in the month of ref",
         "Usual working hours (other jobs)",
         "Effective working hours (other jobs)",
+        "Willing to have more effective working hours",
         "Willing to have more usual working hours",
+        "Able to have more effective working hours",
         "Able to have more usual working hours",
         "Made an effort to get a job (30d)",
         "Main measure taken to get a new job",
+        "Main measure taken to get a new job",
         "Was willing to work (no efforts to work tough)",
         "Motives for not start seeking for work",
-        " how much time to start working in the new job",
-        " # of months to start working in new job",
-        "lenght of time trying to get a job",
-        "time trying to get a job 1 month to 1 year",
-        "time trying to get a job 1 year to 2 years",
+        "Motives for not start seeking for work",
+        "Time to start working",
+        "Months to start working",
+        "length time trying to get a job ",
+        "time trying to get a job 1 month - 1 year ",
+        "time trying to get a job 1 yr - 2 years  ",
         "time trying to get a job more than 2 years",
         "Able to start working in the week of ref",
         "Motives for not be willing to work in the week of ref",
-        "# of individuals in the household",
+        "Motives for not be willing to work in the week of ref",
+        "Worked for at least one hour in a year",
+        "Household condition",
+        "Number of individuals in the household",
+        "Type of domestic unit",
         "Highest level of instruction completed (Work)",
+        "Year of study (5 years old or more)",
+        "Groupment of years of study (5 years old or more)",
         "Condition in the workforce",
         "Occupation's condition",
         "Potential workforce",
-        "Sub-occupation due to lack of hours",
+        "Sub-occupation due to lack of effective hours",
+        "Sub-occupation due to lack of usual hours",
+        "Discouraged people",
         "Position in the main job",
-        "Position in the main job(2)",
-        "Position in the occupation (main job)",
+        "Position in the main job",
+        "Position in the main job",
         "Main activity groups in the workplace",
         "Occupational groups in the main job",
         "Contributed to a pension plan (any job)",
@@ -565,115 +758,19 @@ datazoom_pnadc <- function(diretorio_dados,
         "Bracket - Effective working hours in all jobs",
         "Remuneration type in the main job",
         "Norm. received monthly income in the main job",
-        "Effective monthly income in the main job",
-        "Type of remuneration",
+        "Effective monthly income earned at the main job",
+        "Type of remuneration in all jobs",
         "Norm. received monthly income for all jobs",
         "Effective monthly income for all jobs",
         "Motives for not be looking for a new job",
+        "Motives for not be looking for a new job",
         "Usual working hours in all jobs",
+        "Effective working hours in main job",
+        "Effective working hours in 2nd job",
+        "Effective working hours in other jobs",
         "Effective working hours in all jobs",
         "Bracket - Usual working hours in the main job",
         "Bracket - Effective working hours in the main job"
       )
   )
-
-  DF <- filepath_in %>% map(
-    ~ .x %>%
-      read_tsv(
-        .,
-        n_max = 1000,
-        col_names = "a"
-      ) %>%
-      separate(a, into = vname, sep = last)
-  )
-
-  names(DF) <- paste0("PNADC_", trimestre, ano)
-
-  DF <- DF %>% map(
-    ~ .x %>%
-      mutate_at(caracteres, as.character) %>%
-      mutate_at(numerico, as.numeric) %>%
-      mutate_at(fatores, as.factor) %>%
-      mutate(
-        hous_id = paste0(UPA, V1008, V1014),
-        ind_id = paste0(UPA, V1008, V1014, V2003)
-      ) %>%
-      select(hous_id, ind_id, everything())
-  )
-
-  DF <- DF %>% map(~ .x %>% set_variable_labels(.labels = lista))
-  return(DF)
-}
-
-#' Painel básico
-#'
-#' @param build_data Default \code{TRUE}.
-#' Se \code{TRUE}, implementa primeiro \code{\link{datazoom_pnadc}} e depois
-#' monta paineis de indiv??duos. Se \code{FALSE}, a função constrói paneis a partir de dados já carregados no R
-#'
-#' @param dados_prontos Bases de dados para diferentes trimestres da PNAD cont??nua.
-#' Necessário se \code{build_data = FALSE}
-#'
-#' @param local_dados Diretório onde os microdados originais em formato de texto estão armazenados
-#' caso \code{build_data = TRUE}
-#'
-#' @param periodos Lista de vetores com per??odos de interesse no formato
-#' \code{periodos = list(c(trimestre1, ano1), c(trimestre2, ano2), ...)}
-#'
-#' @encoding UTF-8
-#'
-#' @return Lista de dataframes, sendo cada entrada um trimestre/ano
-#'
-#' @examples
-#' PNADC_2012 <- datazoom_pnadc(
-#'   diretorio_dados = "./Desktop",
-#'   c(1, 2012), c(2, 2012)
-#' )
-#'
-#' teste <- pnadc_painel_basico(
-#'   build_data = FALSE,
-#'   dados_prontos = PNADC_2012
-#' )
-#'
-#' teste2 <- pnadc_painel_basico(
-#'   build_data = TRUE,
-#'   local_dados = "./pnadcontinua",
-#'   periodos = list(c(1, 2012), c(2, 2012))
-#' )
-#' @export
-pnadc_painel_basico <- function(build_data = TRUE, ...) {
-  argumentos <- list(...)
-
-  if (!(build_data) & is.null(argumentos$dados_prontos)) {
-    stop("Se build_data == FALSE, definir dados_prontos.
-       Ver help para detalhes")
-  }
-  if (build_data == TRUE &
-    (is.null(argumentos$local_dados))
-  ) {
-    stop("Se build_data == TRUE, definir local_dados,
-          Ver help para detalhes")
-  }
-
-  if (!build_data) {
-    if (is.list(argumentos$dados_prontos) == FALSE) {
-      dados_prontos <- as.list(argumentos$dados_prontos)
-    } else {
-      dados_prontos <- argumentos$dados_prontos
-    }
-  } else {
-    local_dados <- argumentos$local_dados
-
-    argumentos$local_pastas <- NULL
-
-    dados_prontos <- do.call(datazoom_pnadc, c(
-      local_dados,
-      argumentos$periodos
-    ))
-  }
-
-  ###### Inserir função do painel
-
-
-  return(paineis)
 }
