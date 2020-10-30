@@ -1,7 +1,7 @@
-library(tidyverse)
-library(igraph)
-library(haven)
-library(data.table)
+#library(tidyverse)
+#library(igraph)
+#library(haven)
+#library(data.table)
 
 
 ########### FUNCOES AUXILIARES #####################
