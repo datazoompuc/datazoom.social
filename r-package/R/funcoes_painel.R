@@ -265,7 +265,7 @@ find_connections <- function(x) {
       from = ., to = data.table::shift(., -1, fill = .[1])
     )))
 
-  dg <- igraph::graph_from_data_frame(dt, igraph::directed = FALSE)
+  dg <- igraph::graph_from_data_frame(dt, directed = FALSE)
 
   map_dbl(x, ~ igraph::components(dg)$membership[as.character(.x[1])])
 }
@@ -278,7 +278,7 @@ bind <- function(old_df, id, new_id) {
 
 eq_index_across <- function(df, id1, id2, new_id) {
   df <- df %>% mutate(from = paste0("id1", "_", {{ id1 }}), to = paste0("id2", "_", {{ id2 }}))
-  dg <- igraph::graph_from_data_frame(df %>% select(from, to), igraph::directed = FALSE)
+  dg <- igraph::graph_from_data_frame(df %>% select(from, to), directed = FALSE)
   df <- df %>% mutate("{{new_id}}" := igraph::components(dg)$membership[from])
   df %>% select(-c(from, to))
 }
