@@ -330,15 +330,17 @@ wrapper <- function(df, prev_id, new_id, M, f) {
     }
   )
 
-  isItMatch0 <- deparse(substitute(f)) == "match0"
+    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
+      bind(painel, ., id_1)
+  
+    isItMatch0 <- deparse(substitute(f)) == "match0"
 
   if (isItMatch0) {
-    out <- bind(painel, matches, id_1)
+    out <- panel_matched
   } else {
-    painel <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, ., tmp)
 
-    out <- eq_index_across(painel, {{ prev_id }}, tmp, {{ new_id }}) %>%
+    panel_matched <- panel_matched %>% rename(tmp = id_1)
+    out <- eq_index_across(panel_matched, {{ prev_id }}, tmp, {{ new_id }}) %>%
       select(-tmp)
   }
 
@@ -359,8 +361,9 @@ wrapper3 <- function(df, N) {
   return(df)
 }
 
-create_idind <- function(df, id) {
-  df %>%
+create_idind <- function(df, id, is_basic = TRUE) {
+  
+df <-  df %>%
     group_by({{ id }}) %>%
     arrange(Ano, Trimestre) %>%
     mutate(p201 = (first(na.omit(n_p)) - 1) * 100 + first(na.omit(V2003))) %>%
@@ -371,14 +374,19 @@ create_idind <- function(df, id) {
       p201 = str_pad(p201, 3, pad = "0"),
     ) %>%
     ungroup() %>%
-    mutate(idind = ifelse(is.na(p201) | NA %in% c(V2008, V20081, V20082),
-      NA,
-      paste0(V1014, UF, UPA, V1008, p201)
-    )) %>%
-    select(-c(
-      p201, id_dom, id_chefe, n_p,
-      aux, ager, ager2, dom, {{ id }}
-    ))
+    mutate(idind = paste0(V1014, UF, UPA, V1008, p201))
+
+if(is_basic){
+
+  df <- df %>%
+    mutate(idind = ifelse(is.na(p201) | V2008 == 99 |
+                            V20081 == 99 | V20082 == 9999,
+                          NA, idind)
+    )
+}
+  df %>% select(-c(
+    p201, id_dom, id_chefe, n_p,
+    aux, ager, ager2, dom, {{ id }}))
 }
 
 
@@ -424,7 +432,7 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
     new_id = id_1, f = match0
   )
   if (add_idind) {
-    painel_basico <- create_idind(painel_basico, id_1)
+    painel_basico <- create_idind(painel_basico, id_1, is_basic = TRUE)
 
     painel_basico <- left_join(painel_basico, separated_data) %>%
       select(-c(id_0, n_p_aux))
@@ -483,7 +491,7 @@ build_panel_adv_aux <- function(original_data) {
     wrapper3(N = 3) %>%
     wrapper3(N = 4)
 
-  painel_avancado <- create_idind(dados, id_1)
+  painel_avancado <- create_idind(dados, id_1, is_basic = FALSE)
 
   painel_avancado <- left_join(painel_avancado, separated_data) %>%
     select(-c(id_0, back, forw))
@@ -494,8 +502,10 @@ build_panel_adv_aux <- function(original_data) {
 ##########################
 
 
-build_panel <- function(database, basic = TRUE){
+build_panel <- function(..., basic = TRUE){
 
+  database <- list(...)
+  
   map(database, ~   
   if(basic){
     build_panel_basic_aux(original_data = ., add_idind = TRUE)
@@ -503,3 +513,7 @@ build_panel <- function(database, basic = TRUE){
     build_panel_adv_aux(original_data = .)
   })
 }
+
+
+
+
