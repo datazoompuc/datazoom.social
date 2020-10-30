@@ -1,9 +1,8 @@
 #library(tidyverse)
 #library(igraph)
-#library(haven)
 #library(data.table)
 
-
+#### PACOTES NECESSARIOS: purrr, dplyr, datatable, igraph
 ########### FUNCOES AUXILIARES #####################
 
 create_p201 <- function(dados) {
