@@ -4,6 +4,8 @@ library(haven)
 library(data.table)
 
 
+########### FUNCOES AUXILIARES #####################
+
 create_p201 <- function(dados) {
   dados %>%
     bind_cols(
@@ -380,9 +382,10 @@ create_idind <- function(df, id) {
     ))
 }
 
-fazer_painel_basico <- function(dados_originais, add_idind = TRUE,
+
+build_panel_basic_aux <- function(original_data, add_idind = TRUE,
                                 do_nothing = FALSE) {
-  dados_separados <- dados_originais %>%
+  separated_data <- original_data %>%
     ungroup() %>%
     mutate(id_0 = row_number()) %>%
     select(-c(
@@ -391,10 +394,10 @@ fazer_painel_basico <- function(dados_originais, add_idind = TRUE,
     ))
 
   if (do_nothing) {
-    return(dados_separados)
+    return(separated_data)
   }
 
-  dados <- dados_originais %>%
+  dados <- original_data %>%
     mutate(id_0 = row_number()) %>%
     select(
       Ano, Trimestre, UF, UPA, V1008, V1014, V2003, V2005, V2007, V2008,
@@ -424,7 +427,7 @@ fazer_painel_basico <- function(dados_originais, add_idind = TRUE,
   if (add_idind) {
     painel_basico <- create_idind(painel_basico, id_1)
 
-    painel_basico <- left_join(painel_basico, dados_separados) %>%
+    painel_basico <- left_join(painel_basico, separated_data) %>%
       select(-c(id_0, n_p_aux))
   }
 
@@ -432,18 +435,10 @@ fazer_painel_basico <- function(dados_originais, add_idind = TRUE,
 }
 
 
-a <- dados %>% select(!starts_with(c(
-  "id_0", "id_dom", "id_chefe", "n_p_aux",
-  "n_p", "p201", "aux", "ager", "ager2", "dom"
-)))
 
-
-
-
-
-fazer_painel_adv <- function(dados_originais) {
-  dados_separados <- fazer_painel_basico(dados_originais, do_nothing = TRUE)
-  dados <- fazer_painel_basico(dados_originais, add_idind = FALSE)
+build_panel_adv_aux <- function(original_data) {
+  separated_data <- build_panel_basic_aux(original_data, do_nothing = TRUE)
+  dados <- build_panel_basic_aux(original_data, add_idind = FALSE)
 
   dados <- dados %>%
     update_back_forw(id = id_1) %>%
@@ -491,8 +486,21 @@ fazer_painel_adv <- function(dados_originais) {
 
   painel_avancado <- create_idind(dados, id_1)
 
-  painel_avancado <- left_join(painel_avancado, dados_separados) %>%
+  painel_avancado <- left_join(painel_avancado, separated_data) %>%
     select(-c(id_0, back, forw))
 
   return(painel_avancado)
+}
+
+##########################
+
+
+build_panel <- function(database, basic = TRUE){
+
+  map(database, ~   
+  if(basic){
+    build_panel_basic_aux(original_data = ., add_idind = TRUE)
+  } else{
+    build_panel_adv_aux(original_data = .)
+  })
 }
