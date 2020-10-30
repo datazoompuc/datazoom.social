@@ -330,16 +330,18 @@ wrapper <- function(df, prev_id, new_id, M, f) {
     }
   )
 
-    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, ., id_1)
-  
     isItMatch0 <- deparse(substitute(f)) == "match0"
 
   if (isItMatch0) {
+    
+    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
+      bind(painel, ., id_1)
+  
     out <- panel_matched
   } else {
-
-    panel_matched <- panel_matched %>% rename(tmp = id_1)
+    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
+      bind(painel, ., tmp)
+    
     out <- eq_index_across(panel_matched, {{ prev_id }}, tmp, {{ new_id }}) %>%
       select(-tmp)
   }
