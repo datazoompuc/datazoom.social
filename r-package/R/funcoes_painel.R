@@ -1,6 +1,6 @@
-#library(tidyverse)
-#library(igraph)
-#library(data.table)
+# library(tidyverse)
+# library(igraph)
+# library(data.table)
 
 #### PACOTES NECESSARIOS: purrr, dplyr, datatable, igraph
 ########### FUNCOES AUXILIARES #####################
@@ -63,144 +63,194 @@ prep_matches <- function(x, prev_id) {
   }
   return(tmp)
 }
-match0 <- function(i, df, prev_id, j) {
-  j <- unlist(j)
+
+match0 <- function(df, prev_id, j) {
   id <- rlang::as_name(rlang::enquo(prev_id))
 
-  if (!is.na(df$p201[i]) | all(is.na(j)) | is_empty(j)) {
-    out <- df[[i, id]]
-  } else {
-    j <- j[!is.na(j)]
+  out <- map2(
+    seq(nrow(df)), j,
+    function(x, y) {
+      if (!is.na(df$p201[x]) | all(is.na(y)) | is_empty(x)) {
+        out <- df[[x, id]]
+      } else {
+        y <- y[!is.na(y)]
+        g1 <- df$V2008[x] != 99 & df$V20081[x] != 99 &
+          df$V20082[x] != 9999
 
-    g1 <-
-      df$V2008[i] != 99 &
-        df$V20081[i] != 99 &
-        df$V20082[i] != 9999
+        out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[x, id]],
+          df[y[g1], ] %>%
+            pull({{ prev_id }}) %>%
+            unique(.)
+        )
+      }
+      return(out)
+    }
+  )
+  return(out)
+}
+match1 <- function(df, prev_id, j) {
+  id <- rlang::as_name(rlang::enquo(prev_id))
 
+  V2008_99 <- df$V2008 == 99
+  V20081_99 <- df$V20081 == 99
+  forw <- df$forw == 1
 
-    out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[i, id]],
-      df[j[g1], ] %>%
-        pull({{ prev_id }}) %>%
-        unique(.)
-    )
-  }
+  out <- map2(seq(nrow(df)), j, function(x, y) {
+    if (!is.na(df$p201[x]) | df$aux[x] == TRUE |
+      is_empty(y) | all(is.na(y)) | forw[x]) {
+      out <- df[[x, id]]
+    } else {
+      y <- y[!is.na(y)]
+      g1 <- (!V2008_99[y] & !V20081_99[x] & !forw[y])
+
+      out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[x, id]],
+        df[y[g1], ] %>%
+          pull({{ prev_id }}) %>%
+          unique(.)
+      )
+    }
+    return(out)
+  })
 
   return(out)
 }
-match1 <- function(i, df, prev_id, j) {
-  j <- unlist(j)
+match2 <- function(df, prev_id, j) {
   id <- rlang::as_name(rlang::enquo(prev_id))
 
+  V2009_ager <- outer(
+    df$V2009, df$V2009,
+    function(x, y) {
+      abs(x - y) <= df$ager
+    }
+  )
+  V2009_999 <- df$V2009 == 999
+  V2005_3 <- df$V2005 <= 3
+  V2009_25 <- df$V2009 >= 25
+  V2005_4 <- df$V2005 == 4
 
-  if (!is.na(df$p201[i]) | df$aux[i] == TRUE |
-    is_empty(j) | all(is.na(j)) | df$forw[i] == 1) {
-    out <- df[[i, id]]
-  } else {
-    j <- j[!is.na(j)]
+  abs_V2008_4 <- outer(
+    df$V2008, df$V2008,
+    function(x, y) {
+      abs(x - y) <= 4
+    }
+  )
 
-    g1 <- (df$V2008[i] != 99 &
-      df$V20081[i] != 99 &
-      df$forw[j] != 1
-    )
+  abs_V20081_2 <- outer(
+    df$V20081, df$V20081,
+    function(x, y) {
+      abs(x - y) <= 2
+    }
+  )
 
-    out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[i, id]],
-      df[j[g1], ] %>%
-        pull({{ prev_id }}) %>%
-        unique(.)
-    )
-  }
+  V2008_99 <- df$V2008 == 99
+  V20081_99 <- df$V20081 == 99
 
-  return(out)
-}
-match2 <- function(i, df, prev_id, j) {
-  j <- unlist(j)
-  id <- rlang::as_name(rlang::enquo(prev_id))
+  abs_VD3004_1 <- outer(
+    df$VD3004, df$VD3004,
+    function(x, y) {
+      abs(x - y) <= 1
+    }
+  )
 
+  forw <- df$forw == 1
 
-  if (!is.na(df$p201[i]) |
-    is_empty(j) | all(is.na(j)) | df$forw[i] == 1) {
-    out <- df[[i, id]]
-  } else {
-    j <- j[!is.na(j)]
-
-    g1 <-
-      #######
-      (abs(df$V2009[i] - df$V2009[j]) <= df$ager[i] &
-        df$V2009[i] != 999 &
-        (
-          (df$V2005[i] <= 3 & df$V2005[j] <= 3) |
-            (df$V2009[i] >= 25 &
-              df$V2009[j] >= 25 & df$V2005[i] == 4 &
-              df$V2005[j] == 4)
-        ) &
-        ((
-          abs(df$V2008[i] - df$V2008[j]) <= 4 &
-            abs(df$V20081[i] - df$V20081[j]) <= 2 &
-            df$V2008[i] != 99 & df$V20081[i] != 99
-        ) |
-          (abs(
-            df$VD3004[i] - df$VD3004[j]
-          ) <= 1 &
-            (
+  out <- map2(seq(nrow(df)), j, function(x, y) {
+    if (!is.na(df$p201[x]) |
+      is_empty(y) | all(is.na(y)) | df$forw[x] == 1) {
+      out <- df[[x, id]]
+    } else {
+      y <- y[!is.na(y)]
+      g1 <-
+        #######
+        (V2009_ager[x, y] &
+          !V2009_999[x] &
+          (
+            (V2005_3[x] & V2005_3[y]) |
+              (V2009_25[x] & V2009_25[y] &
+                V2005_4[x] & V2005_4[y]
+              )
+          ) &
+          ((
+            abs_V2008_4[x, y] &
+              abs_V20081_2[x, y] &
+              !V2008_99[x] &
+              !V20081_99[x]
+          ) |
+            (abs_VD3004_1[x, y] &
               (
-                abs(df$V20081[i] - df$V20081[j]) <= 2 & df$V20081[i] != 99 &
-                  (df$V2008[i] == 99 | df$V2008[j] == 99)
-              ) |
                 (
-                  abs(df$V2008[i] - df$V2008[j]) <= 4 & df$V2008[i] != 99 &
-                    (df$V20081[i] == 99 | df$V20081[j] == 99)
+                  abs_V20081_2[x, y] & !V20081_99[x] &
+                    (V2008_99[x] | V2008_99[y])
                 ) |
-                (
-                  (df$V2008[i] == 99 | df$V2008[j] == 99) &
-                    (df$V20081[i] == 99 |
-                      df$V20081[j] == 99)
-                )
-            )))) & df$forw[j] != 1
+                  (
+                    abs_V2008_4[x, y] & !V2008_99[x] &
+                      (V20081_99[x] | V20081_99[y])
+                  ) |
+                  (
+                    (V2008_99[x] | V2008_99[y]) &
+                      (V20081_99[x] |
+                        V20081_99[y])
+                  )
+              )))) & !forw[y]
 
-    #########
+      #########
+      out <- ifelse(is_empty(g1) | all(g1 == FALSE),
+        df[[x, id]],
+        df[y[g1], ] %>% pull({{ prev_id }}) %>% unique(.)
+      )
+    }
+    return(out)
+  })
 
-    out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[i, id]],
-      df[j[g1], ] %>%
-        pull({{ prev_id }}) %>%
-        unique(.)
-    )
-  }
   return(out)
 }
-match3 <- function(i, df, prev_id, j, m) {
+match3 <- function(df, prev_id, j, m) {
   id <- rlang::as_name(rlang::enquo(prev_id))
-  w <- list(0, 1, 2, df$ager2[i])
 
-  df$aux[i] <- (df$forw[i] == 1 & (df$n_p[i] == 1 | df$back[i] == 1)) |
-    (df$back[i] == 1 & df$n_p[i] == 5) | df$dom[i] == 0
+  abs_V2009_m <- outer(
+    df$V2009, df$V2009,
+    function(x, y) {
+      w <- c(0, 1, 2, df$ager2)
+      abs(x - y) <= w[m]
+    }
+  )
 
-  if (!is.na(df$p201[i]) |
-    !(df$dom[i] > 0 & !is.na(df$dom[i])) |
-    is_empty(j) | all(is.na(j)) | df$forw[i] == 1) {
-    out <- df[[i, id]]
-  } else {
-    j <- j[!is.na(j)]
+  VD3004_equal <- outer(df$VD3004, df$VD3004, `==`)
+  V2005_equal <- outer(df$V2005, df$V2005, `==`)
+  V2009_999 <- df$V2009 == 999
+  forw <- df$forw == 1
 
-    ### Achando novos pareáveis
-    ###
-    g1 <-
-      ((abs(df$V2009[i] - df$V2009[j]) <= w[m] &
-        df$V2009[i] != 999) |
-        (
-          df$VD3004[i] == df$VD3004[j] &
-            df$V2005[i] == df$V2005[j] &
-            (df$V2009[i] == 999 | df$V2009[j] == 999))) &
-        df$forw[j] != 1
+  out <- map2(seq(nrow(df)), j, function(x, y) {
+    df$aux[x] <-
+      (df$forw[x] == 1 & (df$n_p[x] == 1 | df$back[x] == 1)) |
+        (df$back[x] == 1 & df$n_p[x] == 5) | df$dom[x] == 0
 
+    if (!is.na(df$p201[x]) |
+      !(df$dom[x] > 0 & !is.na(df$dom[x])) |
+      is_empty(y) | all(is.na(y)) | forw[x] == 1) {
+      out <- df[[x, id]]
+    } else {
+      y <- y[!is.na(y)]
 
-    out <- ifelse(is_empty(g1) | all(g1 == FALSE), df[[i, id]],
-      df[j[g1], ] %>%
-        pull({{ prev_id }}) %>%
-        unique(.)
-    )
-  }
+      g1 <- ((abs_V2009_m[x, y] & !V2009_999[x]) |
+        (VD3004_equal[x, y] & V2005_equal[x, y] &
+          V2009_999[x] & V2009_999[y]) &
+          !forw[y]
+      )
+
+      out <- ifelse(is_empty(g1) | all(g1 == FALSE),
+        df[[x, id]],
+        df[y[g1], ] %>%
+          pull({{ prev_id }}) %>%
+          unique(.)
+      )
+    }
+    return(out)
+  })
+
   return(out)
 }
+
 
 remove_duplicates <- function(df, prev_id, new_id, matchables) {
   prev_id <- df %>%
@@ -303,19 +353,15 @@ wrapper <- function(df, prev_id, new_id, M, f) {
   prep <- map(painel, ~ prep_matches(., prev_id = {{ prev_id }}))
 
   if (isItMatch3) {
-    matches <- map2(painel, prep, ~ map2(seq(nrow(.x)), .y, function(u, v) {
-      match3(i = u, df = .x, prev_id = {{ prev_id }}, j = v, m = M)
-    }))
+    matches <- map2(painel, prep, ~ match3(
+      df = .x, prev_id = {{ prev_id }},
+      j = .y, m = M
+    ))
   } else {
-    matches <- map2(
-      painel, prep,
-      ~ map2(
-        seq(nrow(.x)), .y,
-        function(u, v) {
-          f(i = u, df = .x, prev_id = {{ prev_id }}, j = v)
-        }
-      )
-    )
+    matches <- map2(painel, prep, ~ f(
+      df = .x, prev_id = {{ prev_id }},
+      j = .y
+    ))
   }
 
   matches_adjusted <- pmap(
@@ -330,18 +376,17 @@ wrapper <- function(df, prev_id, new_id, M, f) {
     }
   )
 
-    isItMatch0 <- deparse(substitute(f)) == "match0"
+  isItMatch0 <- deparse(substitute(f)) == "match0"
 
   if (isItMatch0) {
-    
     panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
       bind(painel, ., id_1)
-  
+
     out <- panel_matched
   } else {
     panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
       bind(painel, ., tmp)
-    
+
     out <- eq_index_across(panel_matched, {{ prev_id }}, tmp, {{ new_id }}) %>%
       select(-tmp)
   }
@@ -364,8 +409,7 @@ wrapper3 <- function(df, N) {
 }
 
 create_idind <- function(df, id, is_basic = TRUE) {
-  
-df <-  df %>%
+  df <- df %>%
     group_by({{ id }}) %>%
     arrange(Ano, Trimestre) %>%
     mutate(p201 = (first(na.omit(n_p)) - 1) * 100 + first(na.omit(V2003))) %>%
@@ -378,22 +422,22 @@ df <-  df %>%
     ungroup() %>%
     mutate(idind = paste0(V1014, UF, UPA, V1008, p201))
 
-if(is_basic){
-
-  df <- df %>%
-    mutate(idind = ifelse(is.na(p201) | V2008 == 99 |
-                            V20081 == 99 | V20082 == 9999,
-                          NA, idind)
-    )
-}
+  if (is_basic) {
+    df <- df %>%
+      mutate(idind = ifelse(is.na(p201) | V2008 == 99 |
+        V20081 == 99 | V20082 == 9999,
+      NA, idind
+      ))
+  }
   df %>% select(-c(
     p201, id_dom, id_chefe, n_p,
-    aux, ager, ager2, dom, {{ id }}))
+    aux, ager, ager2, dom, {{ id }}
+  ))
 }
 
 
 build_panel_basic_aux <- function(original_data, add_idind = TRUE,
-                                do_nothing = FALSE) {
+                                  do_nothing = FALSE) {
   separated_data <- original_data %>%
     ungroup() %>%
     mutate(id_0 = row_number()) %>%
@@ -442,8 +486,6 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
 
   return(painel_basico)
 }
-
-
 
 build_panel_adv_aux <- function(original_data) {
   separated_data <- build_panel_basic_aux(original_data, do_nothing = TRUE)
@@ -496,7 +538,7 @@ build_panel_adv_aux <- function(original_data) {
   painel_avancado <- create_idind(dados, id_1, is_basic = FALSE)
 
   painel_avancado <- left_join(painel_avancado, separated_data) %>%
-    select(-c(id_0, back, forw))
+    select(-c(id_0, back, forw, n_p_aux))
 
   return(painel_avancado)
 }
@@ -504,14 +546,13 @@ build_panel_adv_aux <- function(original_data) {
 ##########################
 
 
-build_panel <- function(..., basic = TRUE){
-
+build_panel <- function(..., basic = TRUE) {
   database <- list(...)
-  
-  map(database, ~   
-  if(basic){
+
+  map(database, ~
+  if (basic) {
     build_panel_basic_aux(original_data = ., add_idind = TRUE)
-  } else{
+  } else {
     build_panel_adv_aux(original_data = .)
   })
 }
