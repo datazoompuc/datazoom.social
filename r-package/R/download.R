@@ -24,13 +24,13 @@ download_quarter <- function(quarter, year, dir = tempdir()) {
   }
 
   # Files are compressed when downloaded
-  zip_location <- paste0(dir, "/", file)
+  zip_location <- file.path(dir, file)
   utils::download.file(url = paste0(path_with_year, file), destfile = zip_location, mode = "wb")
   utils::unzip(zipfile = zip_location, exdir = dir)
 
   # Again, need find function because of irregular names
   file <- dir(dir, pattern = paste0("^PNADC_0", quarter, year, ".*\\.txt$"))
-  paste0(dir, "/", file)
+  file.path(dir, file)
 }
 
 is_period_valid <- function(quarter, year) {
