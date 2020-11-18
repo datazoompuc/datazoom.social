@@ -20,4 +20,4 @@ Imports:
 	tidyr
 License: GPL (>= 2)
 URL: http://www.econ.puc-rio.br/datazoom/index.html
-BurReports: https://github.com/datazoompuc/PNAD_Continua/issues	
+BugReports: https://github.com/datazoompuc/PNAD_Continua/issues	
