@@ -1,10 +1,13 @@
+#' @importFrom dplyr %>% arrange bind_cols filter group_by group_indices mutate  select summarise ungroup
+#' @importFrom purrr map
+
+
 # library(tidyverse)
 # library(igraph)
 # library(data.table)
 
-#### PACOTES NECESSARIOS: purrr, dplyr, datatable, igraph
-########### FUNCOES AUXILIARES #####################
 
+#### Create auxiliary variables and p201 identifiers
 create_p201 <- function(dados) {
   dados %>%
     bind_cols(
@@ -25,6 +28,11 @@ create_p201 <- function(dados) {
     mutate(n_p = ifelse(is.na(n_p), NA, n_p)) %>%
     mutate(p201 = ifelse(n_p == 1, V2003, NA))
 }
+
+
+### Prepare matches by removing for each observation units impossible to
+### be matched: units already matched (same prev_id) or on the same date
+### (same n_p)
 
 prep_matches <- function(x, prev_id) {
   if (nrow(x) == 1) {
@@ -63,6 +71,9 @@ prep_matches <- function(x, prev_id) {
   }
   return(tmp)
 }
+
+### Functions that match according to different criteria,
+### match0 for basic panel, the rest for the advanced
 
 match0 <- function(df, prev_id, j) {
   id <- rlang::as_name(rlang::enquo(prev_id))
@@ -251,6 +262,8 @@ match3 <- function(df, prev_id, j, m) {
   return(out)
 }
 
+### Deals with the case of within a matching process observations
+### with the same n_p being matched to the same unit
 
 remove_duplicates <- function(df, prev_id, new_id, matchables) {
   prev_id <- df %>%
@@ -258,8 +271,6 @@ remove_duplicates <- function(df, prev_id, new_id, matchables) {
     pull(.)
 
   j <- which(map_lgl({{ matchables }}, ~ all(!is.na(.))))
-
-
 
   x <- pmap(
     list({{ new_id }}, {{ matchables }}, seq(length({{ new_id }})), prev_id),
@@ -282,6 +293,11 @@ remove_duplicates <- function(df, prev_id, new_id, matchables) {
   return(x)
 }
 
+
+### Equalizes observations that are indirectly connected in the same matching
+### process:
+### if x is matched to y, and y to z, x should be matched to
+### z as well
 
 eq_index <- function(matches, df, prev_id) {
   z <- map2(
@@ -319,6 +335,10 @@ find_connections <- function(x) {
 
   map_dbl(x, ~ igraph::components(dg)$membership[as.character(.x[1])])
 }
+
+### Bind groups of rows together and then adds column with ids corresponding
+### to new wave of matches
+
 bind <- function(old_df, id, new_id) {
   a <- bind_rows(old_df)
   b <- map(id, unlist) %>% unlist(.)
@@ -326,12 +346,18 @@ bind <- function(old_df, id, new_id) {
   bind_cols(a, "{{new_id}}" := b)
 }
 
+### Connects observations that are indirectly matched by different
+### matching functions
+
 eq_index_across <- function(df, id1, id2, new_id) {
   df <- df %>% mutate(from = paste0("id1", "_", {{ id1 }}), to = paste0("id2", "_", {{ id2 }}))
   dg <- igraph::graph_from_data_frame(df %>% select(from, to), directed = FALSE)
   df <- df %>% mutate("{{new_id}}" := igraph::components(dg)$membership[from])
   df %>% select(-c(from, to))
 }
+
+
+
 update_back_forw <- function(df, id) {
   df %>%
     group_by({{ id }}) %>%
@@ -341,6 +367,8 @@ update_back_forw <- function(df, id) {
       forw = ifelse(n() > 1 & n_p < max(n_p), 1, 0)
     )
 }
+
+### wrapper around a matching stage
 
 wrapper <- function(df, prev_id, new_id, M, f) {
   painel <- df %>%
@@ -393,6 +421,10 @@ wrapper <- function(df, prev_id, new_id, M, f) {
 
   return(out)
 }
+
+
+### same as wrapper, but considers the 4 cycles using
+### function match3
 
 wrapper3 <- function(df, N) {
   D <- df %>%
