@@ -1,11 +1,11 @@
-Package: datazoom.pnadcontinua
-Title: PNADC
+Package: datazoomPNADcontinua
+Title: Compilation of PNAD Continua Microdata in R
 Version: 0.0.0.9000
-Authors@R: person(given = "Arthur",
-           family = "Carvalho Brito",
+Authors@R: person(given = "Department of Economics",
+           family = "PUC-Rio",
            role = c("aut","cre"),
-           email = "arthurcbps@gmail.com")
-Description: DataZoom PNAD continua
+           email = "datazoom@econ.puc-rio.br")
+Description: Extracts and builds databases from the PNAD Continua survey in R  format). Since the survey is still being published by IBGE, this  is subject to frequent updates.
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -13,11 +13,14 @@ RoxygenNote: 7.1.1
 Imports: 
 	dplyr,
 	labelled,
+        igraph,
 	purrr,
-	readr,	
-	readxl,
+	readr,
+        rlang,
 	stringr,
-	tidyr
-License: GPL (>= 2)
+	tidyr,
+        timeDate
 URL: http://www.econ.puc-rio.br/datazoom/index.html
 BugReports: https://github.com/datazoompuc/PNAD_Continua/issues	
+Depends: 
+    R (>= 2.10)
