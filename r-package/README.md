@@ -1,16 +1,16 @@
-# datazoom.pnadcontinua
+# datazoomPNADcontinua
 
 datazoom.pnadcontinua is an R package that facilitates access to official data regarding the Continuous PNAD. The package provides functions that download and pre-process selected datasets. 
 
 ## Installation
-The package can be installed using `devtools` like so:
+The package can be installed using `devtools`:
 
 ```
 if(!require(devtools)) install.packages("devtools")
-devtools::install_github("datazoompuc/datazoompuc/PNAD_Continua/tree/master/r-package")
+devtools::install_github("datazoompuc/datazoompuc/PNAD_Continua/tree/rascunhos-painel/r-package")
 ```
 
-## Painel of Individuals
+## Panel of Individuals
 
 The Continuous PNAD is a panel survey, in which each household is interviewed for five consecutive quarters. Despite correctly identifying the same household in all five interviews, the Pnad Continuous does not assign the same identification number to each member of the household at every interview. 
 In case the user wishes to work with an individuals panel,
@@ -27,12 +27,35 @@ capacity.
 
 ```
 library(datazoom.pnadcontinua)
+```
+Use ```load_panel``` to load and clean microdata from a specified directory.
 
-# Downloads data
-data <- download(c(2018, 2019))
+To download data, set sources as a list of vectors
+of time periods
+```
 
-# Loads painel data
-painel_data <- funcoes_painel(2018)
+dates <- list(c(1, 2012), c(2, 2012))
+
+microdata <- load_panel(panel = 'no', lang = 'english',
+                        sources = dates,
+                        download_directory = './Desktop')
+```
+
+To load the data from a folder:
+```
+microdata <- load_panel(panel = 'advanced', lang = 'english',
+                        sources = './Desktop/folder_name')
+```
+
+To load an individual .txt file corresponding to a given period of the survey:
+
+```
+ microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
+```
+To build a panel with data already loaded to R, use ```pnadc_panel```. Let data1 and data2 be two dataframes with deidentified PNAD-C data:
+
+```
+panel <- pnadc_panel(data1, data2, basic = TRUE, lang = 'english')
 ```
 
 ## Credits
