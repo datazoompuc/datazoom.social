@@ -47,7 +47,7 @@ NULL
 #'
 #' To load an individual .txt file corresponding to a given period of the survey:
 #'
-#'   microdata <- load(panel = 'basic', sources = './PNADC_012020.txt')
+#'   microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
 #'
 #'
 
