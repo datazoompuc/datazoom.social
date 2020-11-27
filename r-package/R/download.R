@@ -36,7 +36,7 @@ download_quarter <- function(quarter, year, directory = getwd()) {
     mode = "wb"
   )
 
-  unzip(
+  utils::unzip(
     zipfile = file.path(directory, file_name),
     exdir = file.path(directory, "PNADC_microdata")
   )

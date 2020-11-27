@@ -23,6 +23,9 @@ NULL
 #'
 #' Alternatively, \code{sources} may be a list of full file paths
 #'
+#' @param lang Should the data come in Portuguese or in English. Default is
+#' \code{lang = 'english'}
+#'
 #' @param download_directory In case \code{sources} is such that data is downloaded
 #' from IBGE, where should it be stored? Default is the working directory
 #'
@@ -31,6 +34,8 @@ NULL
 #' required period. Else, returns a list with a dataframe for each panel in the original data.
 #'
 #' @examples
+#'
+#' \dontrun{
 #' To download data, set \code{sources} as a list of vectors
 #' of time periods
 #'
@@ -48,7 +53,7 @@ NULL
 #' To load an individual .txt file corresponding to a given period of the survey:
 #'
 #'   microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
-#'
+#'}
 #'
 
 
@@ -127,6 +132,7 @@ dataset <- purrr::map(dataset,
 #'
 #' @examples
 #'
+#'\dontrun{
 #' Let \code{data1} and \code{data2} be two dataframes with deidentified
 #' PNAD-C data:
 #'
@@ -135,6 +141,7 @@ dataset <- purrr::map(dataset,
 #' The user could also use a list of dataframes  \code{list_df}:
 #'
 #' panel <- pnadc_panel(list_df, basic = TRUE)
+#' }
 
 #' @export
 
@@ -264,12 +271,12 @@ translation_and_labels <- function(df, language){
 if(language == 'english'){
 
   labels_key <- as.list(data_labels$label_eng) %>%
-    setNames(data_labels$variable_pt.br)
+    stats::setNames(data_labels$variable_pt.br)
 
 } else{
 
   labels_key <- as.list(data_labels$label_pt.br) %>%
-    setNames(data_labels$variable_pt.br)
+    stats::setNames(data_labels$variable_pt.br)
 
 }
 

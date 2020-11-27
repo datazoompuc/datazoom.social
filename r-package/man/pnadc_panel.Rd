@@ -24,6 +24,7 @@ Builds PNAD Contínua panel data from a loaded object
 }
 \examples{
 
+\dontrun{
 Let \code{data1} and \code{data2} be two dataframes with deidentified
 PNAD-C data:
 
@@ -32,4 +33,5 @@ panel <- pnadc_panel(data1, data2, basic = TRUE, lang = 'english')
 The user could also use a list of dataframes  \code{list_df}:
 
 panel <- pnadc_panel(list_df, basic = TRUE)
+}
 }

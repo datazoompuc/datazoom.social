@@ -43,6 +43,8 @@ Beware that it may take a long time to prepare panel data, especially if \code{p
 }
 
 \examples{
+
+\dontrun{
 To download data, set \code{sources} as a list of vectors
 of time periods
 
@@ -59,7 +61,7 @@ microdata <- load_panel(panel = 'advanced', lang = 'english',
 
 To load an individual .txt file corresponding to a given period of the survey:
 
-  microdata <- load(panel = 'basic', sources = './PNADC_012020.txt')
-
+  microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
+}
 
 }

@@ -1,5 +1,5 @@
 #' @importFrom dplyr %>%
-
+#' @importFrom data.table :=
 
 
 
@@ -441,8 +441,8 @@ create_idind <- function(df, id, is_basic = TRUE) {
   df <- df %>%
     dplyr::group_by({{ id }}) %>%
     dplyr::arrange(ANO, TRIMESTRE) %>%
-    dplyr::mutate(p201 = (dplyr::first(na.omit(n_p)) - 1) * 100 +
-                    dplyr::first(na.omit(as.numeric(as.character(V2003))))
+    dplyr::mutate(p201 = (dplyr::first(stats::na.omit(n_p)) - 1) * 100 +
+                    dplyr::first(stats::na.omit(as.numeric(as.character(V2003))))
            ) %>%
     dplyr::mutate(dplyr::across(c(UF, UPA, V1008, p201), as.character)) %>%
     dplyr::mutate(
