@@ -1,4 +1,5 @@
 #' @importFrom dplyr %>%
+#' @importFrom rlang .data
 
 NULL
 
@@ -72,13 +73,13 @@ dataset <- load_and_tidy_data(files = sources,
 #### each dataset
 
    dataset <- dplyr::bind_rows(dataset) %>%
-     build_panel(., basic = type_panel) %>%
-     purrr::map(.,  ~ .x %>%
-                  dplyr::relocate(idind) %>%
+     build_panel(.data, basic = type_panel) %>%
+     purrr::map(.data,  ~ .x %>%
+                  dplyr::relocate(.data$idind) %>%
                   dplyr::group_by(V1014) %>%
-                  dplyr::group_split(.)) %>%
-     purrr::flatten(.) %>%
-     purrr::map(. , ~ dplyr::ungroup(.))
+                  dplyr::group_split(.data)) %>%
+     purrr::flatten(.data) %>%
+     purrr::map(.data , ~ dplyr::ungroup(.))
 
    panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
 
@@ -89,8 +90,8 @@ dataset <- load_and_tidy_data(files = sources,
    #### splitting by year/quarter and naming each dataset
 
    dataset <- dplyr::bind_rows(dataset) %>%
-     dplyr::group_by(ANO, TRIMESTRE) %>%
-     dplyr::group_split() %>%
+     dplyr::group_by(.data$ANO, .data$TRIMESTRE) %>%
+     dplyr::group_split(.data) %>%
      purrr::map(~ dplyr::ungroup(.))
 
    dataset_names <- purrr::map(dataset, ~ paste0('pnadc_',
@@ -109,8 +110,8 @@ dataset <- purrr::map(dataset, ~ translation_and_labels(df = .,
 dataset <- purrr::map(dataset,
                ~ .x %>%
                  dplyr::mutate(
-                   hous_id = paste0(UPA, V1008, V1014),
-                   ind_id = paste0(UPA, V1008, V1014, V2003)
+                   hous_id = paste0(.data$UPA, .data$V1008, V1014),
+                   ind_id = paste0(.data$UPA, .data$V1008, V1014, .data$V2003)
                    ) %>%
                  dplyr::relocate(hous_id, ind_id)
                )
@@ -150,7 +151,7 @@ pnadc_panel <- function(..., basic = TRUE, lang = 'english'){
 
   dataset <- list(...)
 
-if(purrr::map_lgl(dataset, ~ !is.data.frame(.)) %>% all(.)){
+if(purrr::map_lgl(dataset, ~ !is.data.frame(.)) %>% all(.data)){
 
   dataset <- purrr::flatten(dataset)
 }
@@ -161,7 +162,7 @@ dataset <- dataset %>%
   purrr::map(~ .x %>%
     dplyr::mutate(
       dplyr::across(
-        c(V2009, V2005, V2008, V20081, VD3004, V20082, V2003),
+        c(.data$V2009, .data$V2005, .data$V2008, .data$V20081, .data$VD3004, .data$V20082, .data$V2003),
         ~ as.character(.) %>% as.numeric(.)
       )
     ))
@@ -182,13 +183,13 @@ if(lang == 'english'){
 
 ### build panel
   dataset <- dplyr::bind_rows(dataset) %>%
-    build_panel(., basic = basic) %>%
-    purrr::map(.,  ~ .x %>%
-                 dplyr::relocate(idind) %>%
+    build_panel(.data, basic = basic) %>%
+    purrr::map(.data,  ~ .x %>%
+                 dplyr::relocate(.data$idind) %>%
                  dplyr::group_by(V1014) %>%
                  dplyr::group_split(.)) %>%
-    purrr::flatten(.) %>%
-    purrr::map(. , ~ dplyr::ungroup(.))
+    purrr::flatten(.data) %>%
+    purrr::map(.data , ~ dplyr::ungroup(.))
 
   panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
 
@@ -212,7 +213,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 
   #### In case user wants to download from IBGE
 
-  if (purrr::map_lgl(files, is.numeric) %>% all(.)) {
+  if (purrr::map_lgl(files, is.numeric) %>% all(.data)) {
 
     quarters <- purrr::map(files, ~ .[[1]])
     years <- purrr::map(files, ~ .[[2]])
@@ -245,7 +246,8 @@ spread_columns <- function(dataset, original_column) {
   dataset %>%
     tidyr::separate({{original_column}},
                     into = data_labels$variable_pt.br, sep = data_labels$position[-1] - 1) %>%
-    dplyr::mutate(dplyr::across(c(V2009, VD3004, V2005, V2009, V2008, V20081, V20082),
+    dplyr::mutate(dplyr::across(c(.data$V2009, .data$VD3004, .data$V2005,
+                                  .data$V2008, .data$V20081, .data$V20082),
                   as.numeric))
 }
 
@@ -253,10 +255,10 @@ convert_types <- function(df){
 
   df %>%
     dplyr::mutate(
-      dplyr::across(where(is.factor),
-                    ~ ifelse(. == '.', "", .) %>%
-                      as.character(.)),
-      dplyr::across(everything(), ~ ifelse(stringr::str_trim(.) == "", NA, .) %>%
+      dplyr::across(tidyselect::vars_select_helpers$where(is.factor),
+                    ~ ifelse(.data == '.', "", .) %>%
+                      as.character(.data)),
+      dplyr::across(tidyselect::everything(), ~ ifelse(stringr::str_trim(.) == "", NA, .) %>%
                as.factor(.)),
       dplyr::across(data_labels$variable_pt.br[data_labels$var_type == "factor"],
              as.factor),
@@ -287,10 +289,10 @@ if(language == 'english'){
 
   df <- df %>%
     dplyr::rename(
-      Year = ANO,
-      Quarter = TRIMESTRE,
-      Capital = CAPITAL,
-      Stratum = ESTRATO
+      Year = .data$ANO,
+      Quarter = .data$TRIMESTRE,
+      Capital = .data$CAPITAL,
+      Stratum = .data$ESTRATO
     )
 
 }

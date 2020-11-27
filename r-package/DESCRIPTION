@@ -20,6 +20,7 @@ Imports:
         rlang,
         stats,	
         stringr,
+        tidyselect,
 	tidyr,
         timeDate,
         utils
@@ -27,5 +28,5 @@ URL: http://www.econ.puc-rio.br/datazoom/index.html
 BugReports: https://github.com/datazoompuc/PNAD_Continua/issues	
 Depends: 
     R (>= 3.5)
-License: MIT + file MIT
+License: MIT + file LICENSE
 

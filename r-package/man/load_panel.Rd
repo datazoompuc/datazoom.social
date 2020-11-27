@@ -18,6 +18,9 @@ A string that indicates whether the user wants the data as a panel of individual
 set \code{panel = "no"}. If yes, set \code{panel = "basic"} or \code{panel = "advanced"} for either
 type of identification. Check references for further explanation.}
 
+\item{lang}{Should the data come in Portuguese or in English. Default is
+\code{lang = 'english'}}
+
 \item{sources}{A number of different sources are supported:
 
 Passing a list of dates will download the corresponding data from IBGE's website.

@@ -1,5 +1,6 @@
 #' @importFrom dplyr %>%
 #' @importFrom data.table :=
+#' @importFrom rlang .data
 
 
 
@@ -9,21 +10,21 @@ create_p201 <- function(dados) {
   dados %>%
     dplyr::bind_cols(
       ### Adiciona identificadores
-      id_dom = dplyr::group_indices(., UPA, V1008, V1014),
-      id_chefe = dplyr::group_indices(., UPA, V1008, V1014, V2005)
+      id_dom = dplyr::group_indices(.data, .data$UPA, .data$V1008, .data$V1014),
+      id_chefe = dplyr::group_indices(.data, .data$UPA, .data$V1008, .data$V1014, .data$V2005)
     ) %>%
-    dplyr::mutate(id_chefe = ifelse(V2005 != 1, NA, id_chefe)) %>%
-    dplyr::group_by(id_chefe) %>%
-    dplyr::mutate(n_p_aux = ifelse(V2005 != 1,
+    dplyr::mutate(id_chefe = ifelse(.data$V2005 != 1, NA, .data$id_chefe)) %>%
+    dplyr::group_by(.data$id_chefe) %>%
+    dplyr::mutate(n_p_aux = ifelse(.data$V2005 != 1,
       NA,
       dplyr::row_number()
     )) %>%
-    dplyr::group_by(id_dom, ANO, TRIMESTRE) %>%
-    dplyr::mutate(n_p = mean(n_p_aux, na.rm = T)) %>%
+    dplyr::group_by(.data$id_chefe, .data$ANO, .data$TRIMESTRE) %>%
+    dplyr::mutate(n_p = mean(.data$n_p_aux, na.rm = T)) %>%
     dplyr::ungroup() %>%
     ### Transforma NaN em NA's
-    dplyr::mutate(n_p = ifelse(is.na(n_p), NA, n_p)) %>%
-    dplyr::mutate(p201 = ifelse(n_p == 1, as.numeric(as.character(V2003)), NA))
+    dplyr::mutate(n_p = ifelse(is.na(.data$n_p), NA, .data$n_p)) %>%
+    dplyr::mutate(p201 = ifelse(.data$n_p == 1, as.numeric(as.character(.data$V2003)), NA))
 }
 
 
@@ -88,7 +89,7 @@ match0 <- function(df, prev_id, j) {
         out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), df[[x, id]],
           df[y[g1], ] %>%
             dplyr::pull({{ prev_id }}) %>%
-            unique(.)
+            unique(.data)
         )
       }
       return(out)
@@ -114,7 +115,7 @@ match1 <- function(df, prev_id, j) {
       out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), df[[x, id]],
         df[y[g1], ] %>%
           dplyr::pull({{ prev_id }}) %>%
-          unique(.)
+          unique(.data)
       )
     }
     return(out)
@@ -204,7 +205,7 @@ match2 <- function(df, prev_id, j) {
       #########
       out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE),
         df[[x, id]],
-        df[y[g1], ] %>% dplyr::pull({{ prev_id }}) %>% unique(.)
+        df[y[g1], ] %>% dplyr::pull({{ prev_id }}) %>% unique(.data)
       )
     }
     return(out)
@@ -250,7 +251,7 @@ match3 <- function(df, prev_id, j, m) {
         df[[x, id]],
         df[y[g1], ] %>%
           dplyr::pull({{ prev_id }}) %>%
-          unique(.)
+          unique(.data)
       )
     }
     return(out)
@@ -265,7 +266,7 @@ match3 <- function(df, prev_id, j, m) {
 remove_duplicates <- function(df, prev_id, new_id, matchables) {
   prev_id <- df %>%
     dplyr::select({{ prev_id }}) %>%
-    dplyr::pull(.)
+    dplyr::pull(.data)
 
   j <- which(purrr::map_lgl({{ matchables }}, ~ all(!is.na(.))))
 
@@ -275,7 +276,7 @@ remove_duplicates <- function(df, prev_id, new_id, matchables) {
       if (x != z) {
         h1 <- which({{ new_id }} %in% x)
         h1 <- h1[h1 != w]
-        f <- purrr::map({{ matchables }}[h1], ~ !(w %in% .x)) %>% unlist()
+        f <- purrr::map({{ matchables }}[h1], ~ !(w %in% .x)) %>% unlist(.data)
         out <- dplyr::case_when(
           purrr::is_empty(h1) ~ x,
           all(w > h1[f]) ~ x,
@@ -311,7 +312,7 @@ eq_index <- function(matches, df, prev_id) {
         z <- find_connections(w)
         y$tmp <- z
         out <- y %>%
-          dplyr::group_by(tmp) %>%
+          dplyr::group_by(.data$tmp) %>%
           dplyr::mutate(out = dplyr::first({{ prev_id }})) %>%
           dplyr::pull(out)
       }
@@ -338,7 +339,7 @@ find_connections <- function(x) {
 
 bind <- function(old_df, id, new_id) {
   a <- dplyr::bind_rows(old_df)
-  b <- purrr::map(id, unlist) %>% unlist(.)
+  b <- purrr::map(id, unlist) %>% unlist(.data)
 
   dplyr::bind_cols(a, "{{new_id}}" := b)
 }
@@ -348,9 +349,9 @@ bind <- function(old_df, id, new_id) {
 
 eq_index_across <- function(df, id1, id2, new_id) {
   df <- df %>% dplyr::mutate(from = paste0("id1", "_", {{ id1 }}), to = paste0("id2", "_", {{ id2 }}))
-  dg <- igraph::graph_from_data_frame(df %>% dplyr::select(from, to), directed = FALSE)
-  df <- df %>% dplyr::mutate("{{new_id}}" := igraph::components(dg)$membership[from])
-  df %>% dplyr::select(-c(from, to))
+  dg <- igraph::graph_from_data_frame(df %>% dplyr::select(.data$from, .data$to), directed = FALSE)
+  df <- df %>% dplyr::mutate("{{new_id}}" := igraph::components(dg)$membership[.data$from])
+  df %>% dplyr::select(-c(.data$from, .data$to))
 }
 
 
@@ -358,10 +359,10 @@ eq_index_across <- function(df, id1, id2, new_id) {
 update_back_forw <- function(df, id) {
   df %>%
     dplyr::group_by({{ id }}) %>%
-    dplyr::arrange(ANO, TRIMESTRE) %>%
+    dplyr::arrange(.data$ANO, .data$TRIMESTRE) %>%
     dplyr::mutate(
-      back = ifelse(dplyr::n() > 1 & n_p > min(n_p), 1, 0),
-      forw = ifelse(dplyr::n() > 1 & n_p < max(n_p), 1, 0)
+      back = ifelse(dplyr::n() > 1 & .data$n_p > min(.data$n_p), 1, 0),
+      forw = ifelse(dplyr::n() > 1 & .data$n_p < max(.data$n_p), 1, 0)
     )
 }
 
@@ -369,7 +370,7 @@ update_back_forw <- function(df, id) {
 
 wrapper <- function(df, prev_id, new_id, M, f) {
   painel <- df %>%
-    dplyr::group_split()
+    dplyr::group_split(.data)
 
   isItMatch3 <- deparse(substitute(f)) == "match3"
 
@@ -405,15 +406,15 @@ wrapper <- function(df, prev_id, new_id, M, f) {
 
   if (isItMatch0) {
     panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, ., id_1)
+      bind(painel, .data, .data$id_1)
 
     out <- panel_matched
   } else {
     panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, ., tmp)
+      bind(painel, .data, .data$tmp)
 
-    out <- eq_index_across(panel_matched, {{ prev_id }}, tmp, {{ new_id }}) %>%
-      dplyr::select(-tmp)
+    out <- eq_index_across(panel_matched, {{ prev_id }}, .data$tmp, {{ new_id }}) %>%
+      dplyr::select(-.data$tmp)
   }
 
   return(out)
@@ -425,14 +426,15 @@ wrapper <- function(df, prev_id, new_id, M, f) {
 
 wrapper3 <- function(df, N) {
   D <- df %>%
-    dplyr::group_by(UF, UPA, V1008, V1014, V2007) %>%
+    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007) %>%
     dplyr::arrange(
-      desc(aux), UF, UPA, V1008, V1014, V2007, ANO, TRIMESTRE,
-      V2009, VD3004, V2003
+      dplyr::desc(.data$aux), .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
+      .data$ANO, .data$TRIMESTRE,
+      .data$V2009, .data$VD3004, .data$V2003
     )
   df <- wrapper(
-    df = D, prev_id = id_1,
-    new_id = id_1, f = match3, M = N
+    df = D, prev_id = .data$id_1,
+    new_id = .data$id_1, f = match3, M = N
   )
   return(df)
 }
@@ -440,29 +442,29 @@ wrapper3 <- function(df, N) {
 create_idind <- function(df, id, is_basic = TRUE) {
   df <- df %>%
     dplyr::group_by({{ id }}) %>%
-    dplyr::arrange(ANO, TRIMESTRE) %>%
-    dplyr::mutate(p201 = (dplyr::first(stats::na.omit(n_p)) - 1) * 100 +
-                    dplyr::first(stats::na.omit(as.numeric(as.character(V2003))))
+    dplyr::arrange(.data$ANO, .data$TRIMESTRE) %>%
+    dplyr::mutate(p201 = (dplyr::first(stats::na.omit(.data$n_p)) - 1) * 100 +
+                    dplyr::first(stats::na.omit(as.numeric(as.character(.data$V2003))))
            ) %>%
-    dplyr::mutate(dplyr::across(c(UF, UPA, V1008, p201), as.character)) %>%
+    dplyr::mutate(dplyr::across(c(.data$UF, .data$UPA, .data$V1008, .data$p201), as.character)) %>%
     dplyr::mutate(
-      UPA = stringr::str_pad(UPA, 9, pad = "0"),
-      V1008 = stringr::str_pad(V1008, 3, pad = "0"),
-      p201 = stringr::str_pad(p201, 3, pad = "0"),
+      UPA = stringr::str_pad(.data$UPA, 9, pad = "0"),
+      V1008 = stringr::str_pad(.data$V1008, 3, pad = "0"),
+      p201 = stringr::str_pad(.data$p201, 3, pad = "0"),
     ) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(idind = paste0(V1014, UF, UPA, V1008, p201))
+    dplyr::ungroup(.data) %>%
+    dplyr::mutate(idind = paste0(.data$V1014, .data$UF, .data$UPA, .data$V1008, .data$p201))
 
   if (is_basic) {
     df <- df %>%
-      dplyr::mutate(idind = ifelse(is.na(p201) | V2008 == 99 |
-        V20081 == 99 | V20082 == 9999,
-      NA, idind
+      dplyr::mutate(idind = ifelse(is.na(.data$p201) | .data$V2008 == 99 |
+        .data$V20081 == 99 | .data$V20082 == 9999,
+      NA, .data$idind
       ))
   }
   df %>% dplyr::select(-c(
-    p201, id_dom, id_chefe, n_p,
-    aux, ager, ager2, dom, {{ id }}
+    .data$p201, .data$id_chefe, .data$id_chefe, .data$n_p,
+    .data$aux, .data$ager, .data$ager2, .data$dom, {{ id }}
   ))
 }
 
@@ -471,11 +473,12 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
                                   do_nothing = FALSE) {
 
   separated_data <- original_data %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(id_0 = dplyr::row_number()) %>%
+    dplyr::ungroup(.data) %>%
+    dplyr::mutate(id_0 = dplyr::row_number(.data)) %>%
     dplyr::select(-c(
-      ANO, TRIMESTRE, UF, UPA, V1008, V1014, V2003, V2005, V2007, V2008,
-      V20081, V20082, V2009, VD3004
+      .data$ANO, .data$TRIMESTRE, .data$UF, .data$UPA, .data$V1008, .data$V1014,
+      .data$V2003, .data$V2005, .data$V2007, .data$V2008,
+      .data$V20081, .data$V20082, .data$V2009, .data$VD3004
     ))
 
   if (do_nothing) {
@@ -483,12 +486,13 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
   }
 
   dados <- original_data %>%
-    dplyr::mutate(id_0 = dplyr::row_number()) %>%
+    dplyr::mutate(id_0 = dplyr::row_number(.data)) %>%
     dplyr::select(
-      ANO, TRIMESTRE, UF, UPA, V1008, V1014, V2003, V2005, V2007, V2008,
-      V20081, V20082, V2009, VD3004, id_0
+      .data$ANO, .data$TRIMESTRE, .data$UF, .data$UPA, .data$V1008, .data$V1014,
+      .data$V2003, .data$V2005, .data$V2007, .data$V2008,
+      .data$V20081, .data$V20082, .data$V2009, .data$VD3004, .data$id_0
     ) %>%
-    create_p201()
+    create_p201(.data)
 
   dados <- dados %>%
     dplyr::mutate(
@@ -499,21 +503,23 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
     )
 
   dados <- dados %>%
-    dplyr::group_by(UF, UPA, V1008, V1014, V2007, V2008, V20081, V20082) %>%
+    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
+                    .data$V2008, .data$V20081, .data$V20082) %>%
     dplyr::arrange(
-      UF, UPA, V1008, V1014, V2007, V2008, V20081, V20082,
-      ANO, TRIMESTRE, V2003
+      .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007, .data$V2008,
+      .data$V20081, .data$V20082,
+      .data$ANO, .data$TRIMESTRE, .data$V2003
     )
 
   painel_basico <- wrapper(
-    df = dados, prev_id = id_0,
-    new_id = id_1, f = match0
+    df = dados, prev_id = .data$id_0,
+    new_id = .data$id_1, f = match0
   )
   if (add_idind) {
-    painel_basico <- create_idind(painel_basico, id_1, is_basic = TRUE)
+    painel_basico <- create_idind(painel_basico, .data$id_1, is_basic = TRUE)
 
     painel_basico <- dplyr::left_join(painel_basico, separated_data) %>%
-      dplyr::select(-c(id_0, n_p_aux))
+      dplyr::select(-c(.data$id_0, .data$n_p_aux))
   }
 
   return(painel_basico)
@@ -525,55 +531,60 @@ build_panel_adv_aux <- function(original_data) {
   dados <- build_panel_basic_aux(original_data, add_idind = FALSE)
 
   dados <- dados %>%
-    update_back_forw(id = id_1) %>%
+    update_back_forw(id = .data$id_1) %>%
     dplyr::mutate(
-      aux = (forw == 1 & (n_p == 1 | back == 1)) | (back == 1 & n_p == 5)
+      aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
+        (.data$back == 1 & .data$n_p == 5)
     ) %>%
-    dplyr::group_by(UF, UPA, V1008, V1014, V2008, V20081, V2003) %>%
+    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2008,
+                    .data$V20081, .data$V2003) %>%
     dplyr::arrange(
-      aux, UF, UPA, V1008, V1014, V2007,
-      V2008, V20081, V2003, ANO, TRIMESTRE
+      .data$aux, .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
+      .data$V2008, .data$V20081, .data$V2003, .data$ANO, .data$TRIMESTRE
     )
   dados <- wrapper(
-    df = dados, prev_id = id_1,
-    new_id = id_1, f = match1
+    df = dados, prev_id = .data$id_1,
+    new_id = .data$id_1, f = match1
   )
 
   dados <- dados %>%
-    update_back_forw(id = id_1) %>%
+    update_back_forw(id = .data$id_1) %>%
     dplyr::mutate(
-      ager = ifelse(as.numeric(as.character(V2009)) >= 25 &
-                      as.numeric(as.character(V2009)) < 999,
-                    exp(as.numeric(as.character(V2009))/ 30), 2),
-      ager2 = ifelse(as.numeric(as.character(V2009)) >= 25, 2 * ager, ager),
-      aux = (forw == 1 & (n_p == 1 | back == 1)) | (back == 1 & n_p == 5)
+      ager = ifelse(as.numeric(as.character(.data$V2009)) >= 25 &
+                      as.numeric(as.character(.data$V2009)) < 999,
+                    exp(as.numeric(as.character(.data$V2009))/ 30), 2),
+      ager2 = ifelse(as.numeric(as.character(.data$V2009)) >= 25, 2 * .data$ager, .data$ager),
+      aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
+        (.data$back == 1 & .data$n_p == 5)
     ) %>%
-    dplyr::group_by(UF, UPA, V1008, V1014, V2007) %>%
+    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007) %>%
     dplyr::arrange(
-      desc(aux), UF, UPA, V1008, V1014, V2007, ANO, TRIMESTRE,
-      V2009, VD3004, V2003
+      dplyr::desc(.data$aux), .data$UF, .data$UPA, .data$V1008, .data$V1014,
+      .data$V2007, .data$ANO, .data$TRIMESTRE,
+      .data$V2009, .data$VD3004, .data$V2003
     )
 
   dados <- wrapper(
-    df = dados, prev_id = id_1,
-    new_id = id_1, f = match2
+    df = dados, prev_id = .data$id_1,
+    new_id = .data$id_1, f = match2
   )
 
   dados <- dados %>%
-    dplyr::group_by(ANO, TRIMESTRE, UF, UPA, V1008, V1014) %>%
-    dplyr::mutate(dom = sum(back)) %>%
-    update_back_forw(id = id_1) %>%
-    dplyr::mutate(aux = (forw == 1 & (n_p == 1 | back == 1)) | (back == 1 & n_p == 5))
+    dplyr::group_by(.data$ANO, .data$TRIMESTRE, .data$UF, .data$UPA, .data$V1008, .data$V1014) %>%
+    dplyr::mutate(dom = sum(.data$back)) %>%
+    update_back_forw(id = .data$id_1) %>%
+    dplyr::mutate(aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
+                    (.data$back == 1 & .data$n_p == 5))
 
   dados <- wrapper3(dados, N = 1) %>%
     wrapper3(N = 2) %>%
     wrapper3(N = 3) %>%
     wrapper3(N = 4)
 
-  painel_avancado <- create_idind(dados, id_1, is_basic = FALSE)
+  painel_avancado <- create_idind(dados, .data$id_1, is_basic = FALSE)
 
   painel_avancado <- dplyr::left_join(painel_avancado, separated_data) %>%
-    dplyr::select(-c(id_0, back, forw, n_p_aux))
+    dplyr::select(-c(.data$id_0, .data$back, .data$forw, .data$n_p_aux))
 
   return(painel_avancado)
 }

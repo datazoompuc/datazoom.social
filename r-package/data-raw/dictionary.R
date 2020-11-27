@@ -850,7 +850,7 @@ dictionary_eng <- dictionary_eng %>%
          value_label = value_label_en)
 
 
-save(dictionary_eng, dictionary_pt.br, data_labels,
+save(dictionary_eng, dictionary_pt.br,
      file = './data/data.RData')
 
 
