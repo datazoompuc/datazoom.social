@@ -21,6 +21,8 @@ download_quarter <- function(quarter, year, directory = getwd()) {
       side = "left",
       pad = 0
     )
+
+    #### Ficar de olho para ver se o IBGE muda o seu padrão de nomes nos códigos
     file_name <- paste0("PNADC_", quarter, year, "_20190729.zip")
   }
 
@@ -42,19 +44,8 @@ download_quarter <- function(quarter, year, directory = getwd()) {
   )
 
   return(file.path(directory, "PNADC_microdata"))
-
 }
 
 is_period_valid <- function(quarter, year) {
   quarter >= 1 && quarter <= 4 && year >= 2012 && year <= timeDate::getRmetricsOptions("currentYear")
 }
-
-
-
-
-
-
-
-
-
-

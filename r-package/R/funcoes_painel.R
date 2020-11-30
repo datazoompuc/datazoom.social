@@ -6,12 +6,11 @@
 
 #### Create auxiliary variables and p201 identifiers
 create_p201 <- function(dados) {
-
   dados %>%
     dplyr::bind_cols(
       ### Adiciona identificadores
-      id_dom = dplyr::group_indices(.data, .data$UPA, .data$V1008, .data$V1014),
-      id_chefe = dplyr::group_indices(.data, .data$UPA, .data$V1008, .data$V1014, .data$V2005)
+      id_dom = dplyr::group_indices(dados, .data$UPA, .data$V1008, .data$V1014),
+      id_chefe = dplyr::group_indices(dados, .data$UPA, .data$V1008, .data$V1014, .data$V2005)
     ) %>%
     dplyr::mutate(id_chefe = ifelse(.data$V2005 != 1, NA, .data$id_chefe)) %>%
     dplyr::group_by(.data$id_chefe) %>%
@@ -19,8 +18,8 @@ create_p201 <- function(dados) {
       NA,
       dplyr::row_number()
     )) %>%
-    dplyr::group_by(.data$id_chefe, .data$ANO, .data$TRIMESTRE) %>%
-    dplyr::mutate(n_p = mean(.data$n_p_aux, na.rm = T)) %>%
+    dplyr::group_by(.data$id_dom, .data$ANO, .data$TRIMESTRE) %>%
+    dplyr::mutate(n_p = mean(.data$n_p_aux, na.rm = TRUE)) %>%
     dplyr::ungroup() %>%
     ### Transforma NaN em NA's
     dplyr::mutate(n_p = ifelse(is.na(.data$n_p), NA, .data$n_p)) %>%
@@ -36,10 +35,12 @@ prep_matches <- function(x, prev_id) {
   if (nrow(x) == 1) {
     tmp <- NA
   } else {
-    id <- rlang::as_name(rlang::enquo(prev_id))
-    j <- seq(nrow(x))
 
-    id_eq <- outer(x[[id]], x[[id]], `==`)
+    j <- seq(nrow(x))
+    id <- x %>% dplyr::mutate( .tmp = {{prev_id}} ) %>% dplyr::pull(.data$.tmp)
+
+
+    id_eq <- outer(id, id, `==`)
     n_p_eq <- outer(x$n_p, x$n_p, `==`)
 
 
@@ -74,22 +75,26 @@ prep_matches <- function(x, prev_id) {
 ### match0 for basic panel, the rest for the advanced
 
 match0 <- function(df, prev_id, j) {
-  id <- rlang::as_name(rlang::enquo(prev_id))
 
   out <- purrr::map2(
     seq(nrow(df)), j,
     function(x, y) {
+
+      prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp)
+      prev_id <- prev_id[[x]]
+
       if (!is.na(df$p201[x]) | all(is.na(y)) | purrr::is_empty(x)) {
-        out <- df[[x, id]]
+        out <- prev_id
       } else {
         y <- y[!is.na(y)]
         g1 <- df$V2008[x] != 99 & df$V20081[x] != 99 &
           df$V20082[x] != 9999
 
-        out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), df[[x, id]],
+        out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), prev_id,
           df[y[g1], ] %>%
-            dplyr::pull({{ prev_id }}) %>%
-            unique(.data)
+            dplyr::mutate(.tmp = {{prev_id}}) %>%
+            dplyr::pull(.data$.tmp) %>%
+            unique()
         )
       }
       return(out)
@@ -97,25 +102,32 @@ match0 <- function(df, prev_id, j) {
   )
   return(out)
 }
+
 match1 <- function(df, prev_id, j) {
-  id <- rlang::as_name(rlang::enquo(prev_id))
+
 
   V2008_99 <- df$V2008 == 99
   V20081_99 <- df$V20081 == 99
   forw <- df$forw == 1
 
   out <- purrr::map2(seq(nrow(df)), j, function(x, y) {
-    if (!is.na(df$p201[x]) | df$aux[x] == TRUE |
+
+    prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp)
+    prev_id <- prev_id[[x]]
+
+  if (!is.na(df$p201[x]) | df$aux[x] == TRUE |
       purrr::is_empty(y) | all(is.na(y)) | forw[x]) {
-      out <- df[[x, id]]
+
+      out <- prev_id
     } else {
       y <- y[!is.na(y)]
       g1 <- (!V2008_99[y] & !V20081_99[x] & !forw[y])
 
-      out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), df[[x, id]],
-        df[y[g1], ] %>%
-          dplyr::pull({{ prev_id }}) %>%
-          unique(.data)
+      out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), prev_id,
+                    df[y[g1], ] %>%
+                      dplyr::mutate(.tmp = {{prev_id}}) %>%
+                      dplyr::pull(.data$.tmp) %>%
+                      unique()
       )
     }
     return(out)
@@ -124,7 +136,7 @@ match1 <- function(df, prev_id, j) {
   return(out)
 }
 match2 <- function(df, prev_id, j) {
-  id <- rlang::as_name(rlang::enquo(prev_id))
+
 
   V2009_ager <- outer(
     df$V2009, df$V2009,
@@ -164,9 +176,13 @@ match2 <- function(df, prev_id, j) {
   forw <- df$forw == 1
 
   out <- purrr::map2(seq(nrow(df)), j, function(x, y) {
+
+    prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp)
+    prev_id <- prev_id[[x]]
+
     if (!is.na(df$p201[x]) |
       purrr::is_empty(y) | all(is.na(y)) | df$forw[x] == 1) {
-      out <- df[[x, id]]
+      out <- prev_id
     } else {
       y <- y[!is.na(y)]
       g1 <-
@@ -204,8 +220,11 @@ match2 <- function(df, prev_id, j) {
 
       #########
       out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE),
-        df[[x, id]],
-        df[y[g1], ] %>% dplyr::pull({{ prev_id }}) %>% unique(.data)
+        prev_id,
+        df[y[g1], ] %>%
+          dplyr::mutate(.tmp = {{prev_id}}) %>%
+          dplyr::pull(.data$.tmp) %>%
+          unique()
       )
     }
     return(out)
@@ -214,7 +233,7 @@ match2 <- function(df, prev_id, j) {
   return(out)
 }
 match3 <- function(df, prev_id, j, m) {
-  id <- rlang::as_name(rlang::enquo(prev_id))
+
 
   abs_V2009_m <- outer(
     df$V2009, df$V2009,
@@ -230,6 +249,10 @@ match3 <- function(df, prev_id, j, m) {
   forw <- df$forw == 1
 
   out <- purrr::map2(seq(nrow(df)), j, function(x, y) {
+
+    prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp)
+    prev_id <- prev_id[[x]]
+
     df$aux[x] <-
       (df$forw[x] == 1 & (df$n_p[x] == 1 | df$back[x] == 1)) |
         (df$back[x] == 1 & df$n_p[x] == 5) | df$dom[x] == 0
@@ -237,7 +260,9 @@ match3 <- function(df, prev_id, j, m) {
     if (!is.na(df$p201[x]) |
       !(df$dom[x] > 0 & !is.na(df$dom[x])) |
       purrr::is_empty(y) | all(is.na(y)) | forw[x] == 1) {
-      out <- df[[x, id]]
+
+      out <- prev_id
+
     } else {
       y <- y[!is.na(y)]
 
@@ -248,10 +273,11 @@ match3 <- function(df, prev_id, j, m) {
       )
 
       out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE),
-        df[[x, id]],
+        prev_id,
         df[y[g1], ] %>%
-          dplyr::pull({{ prev_id }}) %>%
-          unique(.data)
+          dplyr::mutate(.tmp = {{prev_id}}) %>%
+          dplyr::pull(.data$.tmp) %>%
+          unique()
       )
     }
     return(out)
@@ -266,7 +292,7 @@ match3 <- function(df, prev_id, j, m) {
 remove_duplicates <- function(df, prev_id, new_id, matchables) {
   prev_id <- df %>%
     dplyr::select({{ prev_id }}) %>%
-    dplyr::pull(.data)
+    dplyr::pull()
 
   j <- which(purrr::map_lgl({{ matchables }}, ~ all(!is.na(.))))
 
@@ -276,7 +302,7 @@ remove_duplicates <- function(df, prev_id, new_id, matchables) {
       if (x != z) {
         h1 <- which({{ new_id }} %in% x)
         h1 <- h1[h1 != w]
-        f <- purrr::map({{ matchables }}[h1], ~ !(w %in% .x)) %>% unlist(.data)
+        f <- purrr::map({{ matchables }}[h1], ~ !(w %in% .x)) %>% unlist()
         out <- dplyr::case_when(
           purrr::is_empty(h1) ~ x,
           all(w > h1[f]) ~ x,
@@ -339,7 +365,7 @@ find_connections <- function(x) {
 
 bind <- function(old_df, id, new_id) {
   a <- dplyr::bind_rows(old_df)
-  b <- purrr::map(id, unlist) %>% unlist(.data)
+  b <- purrr::map(id, unlist) %>% unlist()
 
   dplyr::bind_cols(a, "{{new_id}}" := b)
 }
@@ -370,7 +396,7 @@ update_back_forw <- function(df, id) {
 
 wrapper <- function(df, prev_id, new_id, M, f) {
   painel <- df %>%
-    dplyr::group_split(.data)
+    dplyr::group_split()
 
   isItMatch3 <- deparse(substitute(f)) == "match3"
 
@@ -405,13 +431,13 @@ wrapper <- function(df, prev_id, new_id, M, f) {
   isItMatch0 <- deparse(substitute(f)) == "match0"
 
   if (isItMatch0) {
-    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, .data, .data$id_1)
+    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }})
+    panel_matched <- bind(painel, panel_matched, .data$id_1)
 
     out <- panel_matched
   } else {
-    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }}) %>%
-      bind(painel, .data, .data$tmp)
+    panel_matched <- eq_index(matches_adjusted, painel, prev_id = {{ prev_id }})
+    panel_matched <- bind(painel, panel_matched, .data$tmp)
 
     out <- eq_index_across(panel_matched, {{ prev_id }}, .data$tmp, {{ new_id }}) %>%
       dplyr::select(-.data$tmp)
@@ -444,15 +470,14 @@ create_idind <- function(df, id, is_basic = TRUE) {
     dplyr::group_by({{ id }}) %>%
     dplyr::arrange(.data$ANO, .data$TRIMESTRE) %>%
     dplyr::mutate(p201 = (dplyr::first(stats::na.omit(.data$n_p)) - 1) * 100 +
-                    dplyr::first(stats::na.omit(as.numeric(as.character(.data$V2003))))
-           ) %>%
+      dplyr::first(stats::na.omit(as.numeric(as.character(.data$V2003))))) %>%
     dplyr::mutate(dplyr::across(c(.data$UF, .data$UPA, .data$V1008, .data$p201), as.character)) %>%
     dplyr::mutate(
       UPA = stringr::str_pad(.data$UPA, 9, pad = "0"),
       V1008 = stringr::str_pad(.data$V1008, 3, pad = "0"),
       p201 = stringr::str_pad(.data$p201, 3, pad = "0"),
     ) %>%
-    dplyr::ungroup(.data) %>%
+    dplyr::ungroup() %>%
     dplyr::mutate(idind = paste0(.data$V1014, .data$UF, .data$UPA, .data$V1008, .data$p201))
 
   if (is_basic) {
@@ -471,10 +496,9 @@ create_idind <- function(df, id, is_basic = TRUE) {
 
 build_panel_basic_aux <- function(original_data, add_idind = TRUE,
                                   do_nothing = FALSE) {
-
   separated_data <- original_data %>%
-    dplyr::ungroup(.data) %>%
-    dplyr::mutate(id_0 = dplyr::row_number(.data)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(id_0 = 1:dplyr::n()) %>%
     dplyr::select(-c(
       .data$ANO, .data$TRIMESTRE, .data$UF, .data$UPA, .data$V1008, .data$V1014,
       .data$V2003, .data$V2005, .data$V2007, .data$V2008,
@@ -486,13 +510,13 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
   }
 
   dados <- original_data %>%
-    dplyr::mutate(id_0 = dplyr::row_number(.data)) %>%
+    dplyr::mutate(id_0 = 1:dplyr::n()) %>%
     dplyr::select(
       .data$ANO, .data$TRIMESTRE, .data$UF, .data$UPA, .data$V1008, .data$V1014,
       .data$V2003, .data$V2005, .data$V2007, .data$V2008,
       .data$V20081, .data$V20082, .data$V2009, .data$VD3004, .data$id_0
     ) %>%
-    create_p201(.data)
+    create_p201()
 
   dados <- dados %>%
     dplyr::mutate(
@@ -503,8 +527,10 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
     )
 
   dados <- dados %>%
-    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
-                    .data$V2008, .data$V20081, .data$V20082) %>%
+    dplyr::group_by(
+      .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
+      .data$V2008, .data$V20081, .data$V20082
+    ) %>%
     dplyr::arrange(
       .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007, .data$V2008,
       .data$V20081, .data$V20082,
@@ -526,7 +552,6 @@ build_panel_basic_aux <- function(original_data, add_idind = TRUE,
 }
 
 build_panel_adv_aux <- function(original_data) {
-
   separated_data <- build_panel_basic_aux(original_data, do_nothing = TRUE)
   dados <- build_panel_basic_aux(original_data, add_idind = FALSE)
 
@@ -536,8 +561,10 @@ build_panel_adv_aux <- function(original_data) {
       aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
         (.data$back == 1 & .data$n_p == 5)
     ) %>%
-    dplyr::group_by(.data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2008,
-                    .data$V20081, .data$V2003) %>%
+    dplyr::group_by(
+      .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2008,
+      .data$V20081, .data$V2003
+    ) %>%
     dplyr::arrange(
       .data$aux, .data$UF, .data$UPA, .data$V1008, .data$V1014, .data$V2007,
       .data$V2008, .data$V20081, .data$V2003, .data$ANO, .data$TRIMESTRE
@@ -551,8 +578,9 @@ build_panel_adv_aux <- function(original_data) {
     update_back_forw(id = .data$id_1) %>%
     dplyr::mutate(
       ager = ifelse(as.numeric(as.character(.data$V2009)) >= 25 &
-                      as.numeric(as.character(.data$V2009)) < 999,
-                    exp(as.numeric(as.character(.data$V2009))/ 30), 2),
+        as.numeric(as.character(.data$V2009)) < 999,
+      exp(as.numeric(as.character(.data$V2009)) / 30), 2
+      ),
       ager2 = ifelse(as.numeric(as.character(.data$V2009)) >= 25, 2 * .data$ager, .data$ager),
       aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
         (.data$back == 1 & .data$n_p == 5)
@@ -574,7 +602,7 @@ build_panel_adv_aux <- function(original_data) {
     dplyr::mutate(dom = sum(.data$back)) %>%
     update_back_forw(id = .data$id_1) %>%
     dplyr::mutate(aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
-                    (.data$back == 1 & .data$n_p == 5))
+      (.data$back == 1 & .data$n_p == 5))
 
   dados <- wrapper3(dados, N = 1) %>%
     wrapper3(N = 2) %>%
@@ -602,7 +630,3 @@ build_panel <- function(..., basic = TRUE) {
     build_panel_adv_aux(original_data = .)
   })
 }
-
-
-
-

@@ -42,24 +42,24 @@ NULL
 #'
 #' dates <- list(c(1, 2012), c(2, 2012))
 #'
-#' microdata <- load_panel(panel = 'no', lang = 'english',
+#' microdata <- load_pnadc(panel = 'no', lang = 'english',
 #'                         sources = dates,
 #'                         download_directory = './Desktop')
 #'
 #' To load the data from a folder:
 #'
-#' microdata <- load_panel(panel = 'advanced', lang = 'english',
+#' microdata <- load_pnadc(panel = 'advanced', lang = 'english',
 #'                         sources = './Desktop/folder_name')
 #'
 #' To load an individual .txt file corresponding to a given period of the survey:
 #'
-#'   microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
+#'   microdata <- load_pnadc(panel = 'basic', sources = './PNADC_012020.txt')
 #'}
 #'
 
 
 #' @export
-load_panel <- function(panel = "no", lang = 'english',
+load_pnadc <- function(panel = "no", lang = 'english',
                        sources, download_directory = getwd()) {
 
 type_panel <- ifelse(panel == "basic", TRUE, FALSE)
@@ -73,12 +73,12 @@ dataset <- load_and_tidy_data(files = sources,
 #### each dataset
 
    dataset <- dplyr::bind_rows(dataset) %>%
-     build_panel(.data, basic = type_panel) %>%
-     purrr::map(.data,  ~ .x %>%
+     build_panel( basic = type_panel) %>%
+     purrr::map(~ .x %>%
                   dplyr::relocate(.data$idind) %>%
                   dplyr::group_by(V1014) %>%
-                  dplyr::group_split(.data)) %>%
-     purrr::flatten(.data) %>%
+                  dplyr::group_split()) %>%
+     purrr::flatten() %>%
      purrr::map(.data , ~ dplyr::ungroup(.))
 
    panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
@@ -91,7 +91,7 @@ dataset <- load_and_tidy_data(files = sources,
 
    dataset <- dplyr::bind_rows(dataset) %>%
      dplyr::group_by(.data$ANO, .data$TRIMESTRE) %>%
-     dplyr::group_split(.data) %>%
+     dplyr::group_split() %>%
      purrr::map(~ dplyr::ungroup(.))
 
    dataset_names <- purrr::map(dataset, ~ paste0('pnadc_',
@@ -151,7 +151,7 @@ pnadc_panel <- function(..., basic = TRUE, lang = 'english'){
 
   dataset <- list(...)
 
-if(purrr::map_lgl(dataset, ~ !is.data.frame(.)) %>% all(.data)){
+if(purrr::map_lgl(dataset, ~ !is.data.frame(.)) %>% all()){
 
   dataset <- purrr::flatten(dataset)
 }
@@ -183,13 +183,13 @@ if(lang == 'english'){
 
 ### build panel
   dataset <- dplyr::bind_rows(dataset) %>%
-    build_panel(.data, basic = basic) %>%
-    purrr::map(.data,  ~ .x %>%
-                 dplyr::relocate(.data$idind) %>%
-                 dplyr::group_by(V1014) %>%
-                 dplyr::group_split(.)) %>%
-    purrr::flatten(.data) %>%
-    purrr::map(.data , ~ dplyr::ungroup(.))
+    build_panel(basic = basic) %>%
+    purrr::map( ~ .x %>%
+                  dplyr::relocate(idind) %>%
+                  dplyr::group_by(V1014) %>%
+                  dplyr::group_split()) %>%
+    purrr::flatten() %>%
+    purrr::map( ~ .x %>% dplyr::ungroup(.))
 
   panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
 
@@ -213,7 +213,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 
   #### In case user wants to download from IBGE
 
-  if (purrr::map_lgl(files, is.numeric) %>% all(.data)) {
+  if (purrr::map_lgl(files, is.numeric) %>% all()) {
 
     quarters <- purrr::map(files, ~ .[[1]])
     years <- purrr::map(files, ~ .[[2]])
@@ -298,19 +298,3 @@ if(language == 'english'){
 }
 df
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

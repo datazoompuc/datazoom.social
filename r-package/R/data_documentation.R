@@ -10,7 +10,7 @@
 #' @docType data
 #' @seealso \code{\link{dictionary_eng}}
 
-'dictionary_pt.br'
+"dictionary_pt.br"
 
 #' Dictionary for PNAD-Contínua microdata - English
 #'
@@ -23,5 +23,4 @@
 #' @seealso \code{\link{dictionary_pt.br}}
 #' @docType data
 
-'dictionary_eng'
-
+"dictionary_eng"

@@ -1,4 +1,4 @@
-Package: datazoomPNADcontinua
+Package: datazoom.pnadcontinua
 Title: Compilation of PNAD Continua Microdata in R
 Version: 0.0.0.9000
 Authors@R: person(given = "Department of Economics",
