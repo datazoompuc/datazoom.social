@@ -1,4 +1,4 @@
-# datazoomPNADcontinua
+# datazoom.pnadcontinua
 
 datazoom.pnadcontinua is an R package that facilitates access to official data regarding the Continuous PNAD. The package provides functions that download and pre-process selected datasets. 
 
