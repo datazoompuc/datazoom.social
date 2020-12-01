@@ -28,29 +28,29 @@ capacity.
 ```
 library(datazoom.pnadcontinua)
 ```
-Use ```load_panel``` to load and clean microdata from a specified directory.
+Use ```load_pnadc``` to load and clean microdata from a specified directory.
 
-To download data, set sources as a list of vectors
+To download data, set ```sources``` as a list of vectors
 of time periods
 ```
 
 dates <- list(c(1, 2012), c(2, 2012))
 
-microdata <- load_panel(panel = 'no', lang = 'english',
+microdata <- load_pnadc(panel = 'no', lang = 'english',
                         sources = dates,
                         download_directory = './Desktop')
 ```
 
 To load the data from a folder:
 ```
-microdata <- load_panel(panel = 'advanced', lang = 'english',
+microdata <- load_pnadc(panel = 'advanced', lang = 'english',
                         sources = './Desktop/folder_name')
 ```
 
 To load an individual .txt file corresponding to a given period of the survey:
 
 ```
- microdata <- load_panel(panel = 'basic', sources = './PNADC_012020.txt')
+ microdata <- load_pnadc(panel = 'basic', sources = './PNADC_012020.txt')
 ```
 To build a panel with data already loaded to R, use ```pnadc_panel```. Let data1 and data2 be two dataframes with deidentified PNAD-C data:
 
