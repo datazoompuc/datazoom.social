@@ -127,7 +127,7 @@ dataset <- purrr::map(dataset,
 #' @param ... PNAD Contínua dataframes to be considered in panel
 #' @param basic Basic or advanced identification. Defaults to \code{TRUE}
 #' @param lang Idiom used on the original data. Defaults to \code{english}. If in Portuguese,
-#' set \code{lang = 'portuguese'}.
+#' set \code{land = 'portuguese'}.
 #' @return List of dataframes. Each element corresponds to a different
 #' panel present in the original dataset.
 #'

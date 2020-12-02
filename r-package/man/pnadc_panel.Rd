@@ -13,7 +13,7 @@ pnadc_panel(..., basic = TRUE, lang = "english")
 \item{basic}{Basic or advanced identification. Defaults to \code{TRUE}}
 
 \item{lang}{Idiom used on the original data. Defaults to \code{english}. If in Portuguese,
-set \code{lang = 'portuguese'}.}
+set \code{land = 'portuguese'}.}
 }
 \value{
 List of dataframes. Each element corresponds to a different
