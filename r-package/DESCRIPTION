@@ -25,7 +25,11 @@ Imports:
         timeDate,
         utils
 URL: http://www.econ.puc-rio.br/datazoom/index.html
-BugReports: https://github.com/datazoompuc/PNAD_Continua/issues	
+BugReports: https://github.com/datazoompuc/PNAD_Continua/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr	
 Depends: 
     R (>= 3.5)
 License: MIT + file LICENSE
