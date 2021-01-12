@@ -73,13 +73,13 @@ dataset <- load_and_tidy_data(files = sources,
 #### each dataset
 
    dataset <- dplyr::bind_rows(dataset) %>%
-     build_panel( basic = type_panel) %>%
+     build_panel(basic = type_panel) %>%
      purrr::map(~ .x %>%
                   dplyr::relocate(.data$idind) %>%
                   dplyr::group_by(V1014) %>%
                   dplyr::group_split()) %>%
      purrr::flatten() %>%
-     purrr::map(.data , ~ dplyr::ungroup(.))
+     purrr::map(~ dplyr::ungroup(.))
 
    panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
 
