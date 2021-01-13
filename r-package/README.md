@@ -52,7 +52,7 @@ To load an individual .txt file corresponding to a given period of the survey:
 ```
  microdata <- load_pnadc(panel = 'basic', sources = './PNADC_012020.txt')
 ```
-To build a panel with data already loaded to R, use ```pnadc_panel```. Let data1 and data2 be two dataframes with deidentified PNAD-C data:
+To build a panel with data already loaded to R, use ```pnadc_panel```. Let ```data1``` and ```data2``` be two dataframes with deidentified PNAD-C data:
 
 ```
 panel <- pnadc_panel(data1, data2, basic = TRUE, lang = 'english')
