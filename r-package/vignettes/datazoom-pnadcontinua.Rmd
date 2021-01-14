@@ -114,7 +114,7 @@ the proccess with the complete set.
 
 ### Dictionary
 
-The package also comes with dictionaries in English and Portugueses,
+The package also comes with dictionaries in English and Portuguese,
 ```dictionary_eng```, ```dictionary_pt.br```, with a description of all variables in the
 survey, as well as of the variables assumed by them.
 
