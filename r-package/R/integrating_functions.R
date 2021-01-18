@@ -233,7 +233,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 
   }
 
-  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a', n_max = 1000))
+  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a', n_max = 999999))
 
   tidy_data <- purrr::map(raw_data, ~ spread_columns(dataset = ., original_column = a))
 
