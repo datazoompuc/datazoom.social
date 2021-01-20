@@ -76,10 +76,11 @@ dataset <- load_and_tidy_data(files = sources,
      build_panel(basic = type_panel) %>%
      purrr::map(~ .x %>%
                   dplyr::relocate(.data$idind) %>%
+                  as.data.frame(.) %>%
                   dplyr::group_by(V1014) %>%
                   dplyr::group_split()) %>%
      purrr::flatten() %>%
-     purrr::map(~ dplyr::ungroup(.))
+     purrr::map(~ .x %>% dplyr::ungroup(.))
 
    panel_names <- purrr::map(dataset, ~ paste0('panel_', unique(.x$V1014)))
 
@@ -91,8 +92,9 @@ dataset <- load_and_tidy_data(files = sources,
 
    dataset <- dplyr::bind_rows(dataset) %>%
      dplyr::group_by(.data$ANO, .data$TRIMESTRE) %>%
+     as.data.frame(.) %>%
      dplyr::group_split() %>%
-     purrr::map(~ dplyr::ungroup(.))
+     purrr::map(~ .x %>% Sdplyr::ungroup(.))
 
    dataset_names <- purrr::map(dataset, ~ paste0('pnadc_',
                                           stringr::str_pad(unique(.x$TRIMESTRE),
@@ -187,6 +189,7 @@ if(lang == 'english'){
     purrr::map( ~ .x %>%
                   dplyr::relocate(idind) %>%
                   dplyr::group_by(V1014) %>%
+                  as.data.frame(.) %>%
                   dplyr::group_split()) %>%
     purrr::flatten() %>%
     purrr::map( ~ .x %>% dplyr::ungroup(.))
@@ -233,7 +236,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 
   }
 
-  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a', n_max = 999999))
+  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a', n_max = 1000))
 
   tidy_data <- purrr::map(raw_data, ~ spread_columns(dataset = ., original_column = a))
 
