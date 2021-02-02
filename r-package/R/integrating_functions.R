@@ -94,7 +94,7 @@ dataset <- load_and_tidy_data(files = sources,
      dplyr::group_by(.data$ANO, .data$TRIMESTRE) %>%
      as.data.frame(.) %>%
      dplyr::group_split() %>%
-     purrr::map(~ .x %>% Sdplyr::ungroup(.))
+     purrr::map(~ .x %>% dplyr::ungroup(.))
 
    dataset_names <- purrr::map(dataset, ~ paste0('pnadc_',
                                           stringr::str_pad(unique(.x$TRIMESTRE),
