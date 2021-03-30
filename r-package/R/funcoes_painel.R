@@ -629,7 +629,7 @@ build_panel_adv_aux <- function(original_data) {
     update_back_forw(id = .data$id_1) %>%
     dplyr::mutate(aux = (.data$forw == 1 & (.data$n_p == 1 | .data$back == 1)) |
       (.data$back == 1 & .data$n_p == 5)) %>%
-    as.data.frme(.)
+    as.data.frame(.)
 
   dados <- wrapper3(dados, N = 1) %>%
     wrapper3(N = 2) %>%
