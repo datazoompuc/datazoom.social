@@ -7,7 +7,7 @@ The package can be installed using `devtools`:
 
 ```
 if(!require(devtools)) install.packages("devtools")
-devtools::install_github("datazoompuc/PNAD_Continua/tree/rascunhos-painel/r-package")
+devtools::install_github("datazoompuc/PNAD_Continua/r-package")
 ```
 
 ## Panel of Individuals
