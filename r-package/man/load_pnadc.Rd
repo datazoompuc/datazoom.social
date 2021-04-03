@@ -5,19 +5,9 @@
 \alias{load_pnadc}
 \title{Loads and cleans PNAD Continua microdata from a specified directory.}
 \usage{
-load_pnadc(
-  panel = "no",
-  lang = "english",
-  sources,
-  download_directory = getwd()
-)
+load_pnadc(lang = "english", sources, download_directory = getwd())
 }
 \arguments{
-\item{panel}{Defaults to \code{"no"}.
-A string that indicates whether the user wants the data as a panel of individuals. If not,
-set \code{panel = "no"}. If yes, set \code{panel = "basic"} or \code{panel = "advanced"} for either
-type of identification. Check references for further explanation.}
-
 \item{lang}{Should the data come in Portuguese or in English. Default is
 \code{lang = 'english'}}
 
@@ -34,17 +24,12 @@ Alternatively, \code{sources} may be a list of full file paths}
 from IBGE, where should it be stored? Default is the working directory}
 }
 \value{
-In case \code{panel = "no"}, a list of dataframes with the microdata from each
-required period. Else, returns a list with a dataframe for each panel in the original data.
+A list of dataframes with the microdata from each
+required period.
 }
 \description{
 Loads and cleans PNAD Continua microdata from a specified directory.
 }
-\section{Warning}{
-
-Beware that it may take a long time to prepare panel data, especially if \code{panel = "advanced"}
-}
-
 \examples{
 
 \dontrun{
@@ -53,18 +38,18 @@ of time periods
 
 dates <- list(c(1, 2012), c(2, 2012))
 
-microdata <- load_pnadc(panel = 'no', lang = 'english',
+microdata <- load_pnadc(lang = 'english',
                         sources = dates,
                         download_directory = './Desktop')
 
 To load the data from a folder:
 
-microdata <- load_pnadc(panel = 'advanced', lang = 'english',
+microdata <- load_pnadc(lang = 'english',
                         sources = './Desktop/folder_name')
 
 To load an individual .txt file corresponding to a given period of the survey:
 
-  microdata <- load_pnadc(panel = 'basic', sources = './PNADC_012020.txt')
+  microdata <- load_pnadc(sources = './PNADC_012020.txt')
 }
 
 }
