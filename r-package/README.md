@@ -12,16 +12,7 @@ devtools::install_github("datazoompuc/PNAD_Continua/r-package")
 
 ## Panel of Individuals
 
-The Continuous PNAD is a panel survey, in which each household is interviewed for five consecutive quarters. Despite correctly identifying the same household in all five interviews, the Pnad Continuous does not assign the same identification number to each member of the household at every interview. 
-In case the user wishes to work with an individuals panel,
-it is necessary to construct a variable to identify each individual throughout different surveys.
-For this reason we use algorithms suggested by Ribas and Soares (2008).
-The authors elaborated a basic system identification and an advanced one. They differ by the number of 
-variables used to identify individuals in different surveys.
-The idea is to verify inconsistencies in the set of variables. Either way the program may take a resonable 
-amount of time to perform the identification process, depending on the computational
-capacity.
-
+The Continuous PNAD is a panel survey from IBGE, in which each household is interviewed for five consecutive quarters. 
 
 ## Usage
 
@@ -36,27 +27,27 @@ of time periods
 
 dates <- list(c(1, 2012), c(2, 2012))
 
-microdata <- load_pnadc(panel = 'no', lang = 'english',
+microdata <- load_pnadc(lang = 'english',
                         sources = dates,
                         download_directory = './Desktop')
 ```
 
 To load the data from a folder:
 ```
-microdata <- load_pnadc(panel = 'advanced', lang = 'english',
+microdata <- load_pnadc(lang = 'english',
                         sources = './Desktop/folder_name')
 ```
 
 To load an individual .txt file corresponding to a given period of the survey:
 
 ```
- microdata <- load_pnadc(panel = 'basic', sources = './PNADC_012020.txt')
+ microdata <- load_pnadc(sources = './PNADC_012020.txt')
 ```
-To build a panel with data already loaded to R, use ```pnadc_panel```. Let ```data1``` and ```data2``` be two dataframes with deidentified PNAD-C data:
+### Dictionary
 
-```
-panel <- pnadc_panel(data1, data2, basic = TRUE, lang = 'english')
-```
+The package also comes with dictionaries in English and Portuguese,
+```dictionary_eng```, ```dictionary_pt.br```, with a description of all variables in the
+survey, as well as of the variables assumed by them.
 
 ## Credits
 DataZoom is developed by a team at Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio), Department of Economics. Our official website is at: http://www.econ.puc-rio.br/datazoom/index.html.
