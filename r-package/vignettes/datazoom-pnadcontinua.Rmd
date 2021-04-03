@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ## Panel of Individuals
 
-The Continuous PNAD is a panel survey from Brazil's IBGE, in which each household is interviewed for five consecutive quarters. Despite correctly identifying the same household in all five interviews.
+The Continuous PNAD is a panel survey from Brazil's IBGE, in which each household is interviewed for five consecutive quarters.
 
 ## Usage
 
