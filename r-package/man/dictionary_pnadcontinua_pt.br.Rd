@@ -2,22 +2,22 @@
 % Please edit documentation in R/data_documentation.R
 \docType{data}
 \encoding{UTF-8}
-\name{dictionary_pt.br}
-\alias{dictionary_pt.br}
+\name{dictionary_pnadcontinua_pt.br}
+\alias{dictionary_pnadcontinua_pt.br}
 \title{Dictionary for PNAD-Contínua microdata - Portuguese}
 \format{
 An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 947 rows and 5 columns.
 }
 \usage{
-dictionary_pt.br
+dictionary_pnadcontinua_pt.br
 }
 \description{
 This dataframe contains information on PNAD-Contínua data. It describes,
 in portuguese, each variable, the possible values assumed by them as well
-as its class (factor or double). All information is in Portuguese. Check \code{dictionary_eng}
+as its class (factor or double). All information is in Portuguese. Check \code{dictionary_pnadcontinua_eng}
 Prices of 50,000 round cut diamonds.
 }
 \seealso{
-\code{\link{dictionary_eng}}
+\code{\link{dictionary_pnadcontinua_eng}}
 }
 \keyword{datasets}

@@ -1,5 +1,5 @@
 
-download_quarter <- function(quarter, year, directory = getwd()) {
+download_quarter_pnadc <- function(quarter, year, directory = getwd()) {
   if (!dir.exists(directory)) {
     stop("Provided directory doesn't exist")
   }
@@ -49,3 +49,51 @@ download_quarter <- function(quarter, year, directory = getwd()) {
 is_period_valid <- function(quarter, year) {
   quarter >= 1 && quarter <= 4 && year >= 2012 && year <= timeDate::getRmetricsOptions("currentYear")
 }
+
+
+
+is_period_valid_covid <- function(month, year) {
+  month >= 5 && month <= 12 && year >= 2020 && year <= timeDate::getRmetricsOptions("currentYear")
+}
+
+
+
+
+download_month_pnadcovid <- function(month, year, directory = getwd()) {
+  if (!dir.exists(directory)) {
+    stop("Provided directory doesn't exist")
+  }
+  if (!is_period_valid_covid(month, year)) {
+    stop("Provided period is not valid")
+  }
+    month <- stringr::str_pad(month,
+                                width = 2,
+                                side = "left",
+                                pad = 0
+                              )
+
+    #### Ficar de olho para ver se o IBGE muda o seu padrão de nomes nos códigos
+    file_name <- paste0("PNAD_COVID_", month, year, ".zip")
+
+  url_path <- file.path(
+    'https://ftp.ibge.gov.br/Trabalho_e_Rendimento/Pesquisa_Nacional_por_Amostra_de_Domicilios_PNAD_COVID19/Microdados/Dados/',
+    file_name
+    )
+
+  utils::download.file(
+    url = url_path,
+    destfile = file.path(directory, file_name),
+    mode = "wb"
+  )
+
+  utils::unzip(
+    zipfile = file.path(directory, file_name),
+    exdir = file.path(directory, "PNAD_COVID_microdata")
+  )
+
+  return(file.path(directory, "PNAD_COVID_microdata"))
+}
+
+
+
+

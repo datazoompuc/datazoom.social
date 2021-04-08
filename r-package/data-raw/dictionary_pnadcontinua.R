@@ -7,9 +7,9 @@ read_description <- function(directory) {
   input <- read_sas(directory)
 
   dplyr::full_join(dic, input, by = "variable") %>%
-    mutate(factor = grepl(read_format, pattern = "^\\$")) %>% # Factors in SAS start with $
-    mutate(double = grepl(read_format, pattern = "^[^\\$].*.$")) %>% # Doubles have dot separated numeric values
-    mutate(format_size = gsub(read_format, pattern = "^\\$|\\.$", replacement = "")) %>% # Removes $ from beginning and . from end to get size
+    dplyr::mutate(factor = grepl(read_format, pattern = "^\\$")) %>% # Factors in SAS start with $
+    dplyr::mutate(double = grepl(read_format, pattern = "^[^\\$].*.$")) %>% # Doubles have dot separated numeric values
+    dplyr::mutate(format_size = gsub(read_format, pattern = "^\\$|\\.$", replacement = "")) %>% # Removes $ from beginning and . from end to get size
     dplyr::select(c("position", "variable", "label", "value", "value_label", "factor", "double", "format_size"))
 }
 
@@ -56,12 +56,12 @@ read_sas <- function(directory) {
 dictionary <- read_description("C:/users/arthu/Desktop/dicionario_pnadc")
 
 dictionary <- dictionary %>%
-  mutate(var_type = ifelse(factor == TRUE, "factor", "double")) %>%
-  select(-c(factor, double))
+  dplyr::mutate(var_type = ifelse(factor == TRUE, "factor", "double")) %>%
+  dplyr::select(-c(factor, double))
 
-dictionary_pt.br <- dictionary %>%
-  select(variable, label, value, value_label, var_type) %>%
-  rename(
+dictionary_pnadcontinua_pt.br <- dictionary %>%
+  dplyr::select(variable, label, value, value_label, var_type) %>%
+  dplyr::rename(
     codigo_variavel = variable,
     descricao = label,
     valor = value,
@@ -298,7 +298,7 @@ description_en <- data.frame(
   variable = names(description_en)
 )
 
-dictionary_eng <- left_join(dictionary, description_en)
+dictionary_pnadcontinua_eng <- dplyr::left_join(dictionary, description_en)
 
 
 label_description_en <-
@@ -427,7 +427,7 @@ label_description_en <-
     "Pensionista" = "Pensioner",
     "Empregado(a) doméstico(a)" = "Housekeeper",
     "Parente do(a) empregado(a) doméstico(a)" = "Housekeeper's relative",
-    "Homem" = "Mulher",
+    "Homem" = "Man",
     "Mulher" = "Woman",
     "Dia de nascimento" = "Day of birth",
     "Não informado" = "Not informed",
@@ -820,15 +820,15 @@ label_description_en <- data.frame(
   value_label = names(label_description_en)
 )
 
-dictionary_eng <- left_join(dictionary_eng, label_description_en)
+dictionary_pnadcontinua_eng <- dplyr::left_join(dictionary_pnadcontinua_eng, label_description_en)
 
-dictionary_eng$value_label_en[862] <- "Transportation, storage, and mail"
-dictionary_eng$value_label_en[863] <- "Accommodation and food"
-dictionary_eng$value_label_en[865] <- "Public administration, defense and social security"
+dictionary_pnadcontinua_eng$value_label_en[862] <- "Transportation, storage, and mail"
+dictionary_pnadcontinua_eng$value_label_en[863] <- "Accommodation and food"
+dictionary_pnadcontinua_eng$value_label_en[865] <- "Public administration, defense and social security"
 
-dictionary_eng <- dictionary_eng %>%
-  mutate(
-    variable = case_when(
+dictionary_pnadcontinua_eng <- dictionary_pnadcontinua_eng %>%
+  dplyr::mutate(
+    variable = dplyr::case_when(
       variable == "ANO" ~ "Year",
       variable == "TRIMESTRE" ~ "Quarter",
       variable == "CAPITAL" ~ "Capital",
@@ -837,27 +837,31 @@ dictionary_eng <- dictionary_eng %>%
     )
   )
 
-data_labels <- data.frame(
-  variable_eng = dictionary_eng$variable,
-  variable_pt.br = dictionary_pt.br$codigo_variavel,
-  position = dictionary_eng$position,
-  label_eng = dictionary_eng$label_en,
-  label_pt.br = dictionary_pt.br$descricao
+data_labels_pnadcontinua <- data.frame(
+  variable_eng = dictionary_pnadcontinua_eng$variable,
+  variable_pt.br = dictionary_pnadcontinua_pt.br$codigo_variavel,
+  position = dictionary_pnadcontinua_eng$position,
+  label_eng = dictionary_pnadcontinua_eng$label_en,
+  label_pt.br = dictionary_pnadcontinua_pt.br$descricao,
+  var_type = dictionary_pnadcontinua_eng$var_type
 )
 
-data_labels <- distinct(data_labels)
+data_labels_pnadcontinua <- dplyr::distinct(data_labels_pnadcontinua)
 
-data_labels$position <- as.numeric(data_labels$position)
+data_labels_pnadcontinua$position <- as.numeric(data_labels_pnadcontinua$position)
 
 
-dictionary_eng <- dictionary_eng %>%
-  select(variable, label_en, value, value_label_en, var_type) %>%
-  rename(
+dictionary_pnadcontinua_eng <- dictionary_pnadcontinua_eng %>%
+  dplyr::select(variable, label_en, value, value_label_en, var_type) %>%
+  dplyr::rename(
     label = label_en,
     value_label = value_label_en
   )
 
 
-save(dictionary_eng, dictionary_pt.br,
-  file = "./data/data.RData"
+
+save(dictionary_pnadcontinua_eng, dictionary_pnadcontinua_pt.br,
+  file = "./data/dictionary_pnadcontinua.RData"
 )
+
+

@@ -3,7 +3,7 @@
 
 NULL
 
-#' Loads and cleans PNAD Continua microdata from a specified directory.
+#' Loads and cleans PNAD Continua microdata
 
 #'
 #' @encoding UTF-8
@@ -17,15 +17,16 @@ NULL
 #'
 #' Alternatively, \code{sources} may be a list of full file paths
 #'
-#' @param lang Should the data come in Portuguese or in English. Default is
-#' \code{lang = 'english'}
+#' @param language Choose whether the data should come in Portuguese or in English. Default is
+#' \code{language = 'eng'}. For portuguese, write instead \code{language = 'pt'}.
 #'
 #' @param download_directory In case \code{sources} is such that data is downloaded
 #' from IBGE, where should it be stored? Default is the working directory
 #'
 #'
 #' @return A list of dataframes with the microdata from each
-#' required period.
+#' required period. Downloaded raw data are stored in a folder called "PNADC_microdata"
+#' on the directory specified in argument \code{download_directory}
 #'
 #' @examples
 #'
@@ -35,27 +36,27 @@ NULL
 #'
 #' dates <- list(c(1, 2012), c(2, 2012))
 #'
-#' microdata <- load_pnadc(lang = 'english',
+#' microdata <- load_pnadcontinua(language = 'eng',
 #'                         sources = dates,
 #'                         download_directory = './Desktop')
 #'
 #' To load the data from a folder:
 #'
-#' microdata <- load_pnadc(lang = 'english',
+#' microdata <- load_pnadcontinua(language = 'eng',
 #'                         sources = './Desktop/folder_name')
 #'
 #' To load an individual .txt file corresponding to a given period of the survey:
 #'
-#'   microdata <- load_pnadc(sources = './PNADC_012020.txt')
+#'   microdata <- load_pnadcontinua(sources = './PNADC_012020.txt')
 #'}
 #'
 
 
 #' @export
-load_pnadc <- function(lang = 'english',
+load_pnadcontinua <- function(language = 'eng',
                        sources, download_directory = getwd()) {
 
-dataset <- load_and_tidy_data(files = sources,
+dataset <- load_and_tidy_data_pnadcontinua(files = sources,
                               download_location = download_directory)
 
 
@@ -73,10 +74,11 @@ dataset <- load_and_tidy_data(files = sources,
    names(dataset) <- dataset_names
 
 
-dataset <- purrr::map(dataset, convert_types)
+dataset <- purrr::map(dataset, ~ .x %>% convert_types(survey = 'continua'))
 
 dataset <- purrr::map(dataset, ~ translation_and_labels(df = .,
-                                                 language = lang))
+                                                 language = language,
+                                                 survey = 'continua'))
 
 dataset <- purrr::map(dataset,
                ~ .x %>%
@@ -96,7 +98,7 @@ dataset <- purrr::map(dataset,
 #### Label addition is left to later, after building panel
 
 
-load_and_tidy_data <- function(files, download_location = getwd()){
+load_and_tidy_data_pnadcontinua <- function(files, download_location = getwd()){
 
   #### In case user wants to download from IBGE
 
@@ -105,7 +107,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
     quarters <- purrr::map(files, ~ .[[1]])
     years <- purrr::map(files, ~ .[[2]])
 
-    download_path <- purrr::map2(quarters, years, ~ download_quarter(quarter = .x, year = .y,
+    download_path <- purrr::map2(quarters, years, ~ download_quarter_pnadc(quarter = .x, year = .y,
                                                               directory = download_location))
 
     files <- list.files(download_path[[1]], full.names = TRUE)
@@ -120,7 +122,7 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 
   }
 
-  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a'))
+  raw_data <- purrr::map(files, ~ readr::read_tsv(. , col_names = 'a', n_max = 1000))
 
   tidy_data <- purrr::map(raw_data, ~ spread_columns(dataset = ., original_column = a))
 
@@ -132,56 +134,11 @@ load_and_tidy_data <- function(files, download_location = getwd()){
 spread_columns <- function(dataset, original_column) {
   dataset %>%
     tidyr::separate({{original_column}},
-                    into = data_labels$variable_pt.br, sep = data_labels$position[-1] - 1) %>%
+                    into = data_labels_pnadcontinua$variable_pt.br, sep = data_labels_pnadcontinua$position[-1] - 1) %>%
     dplyr::mutate(dplyr::across(c(.data$V2009, .data$VD3004, .data$V2005,
                                   .data$V2008, .data$V20081, .data$V20082),
                   as.numeric))
 }
 
-convert_types <- function(df){
-
-  df %>%
-    dplyr::mutate(
-      dplyr::across(tidyselect::vars_select_helpers$where(is.factor),
-                    ~ ifelse(.data == '.', "", .) %>%
-                      as.character(.data)),
-      dplyr::across(tidyselect::everything(), ~ ifelse(stringr::str_trim(.) == "", NA, .) %>%
-               as.factor(.)),
-      dplyr::across(data_labels$variable_pt.br[data_labels$var_type == "factor"],
-             as.factor),
-      dplyr::across(data_labels$variable_pt.br[data_labels$var_type == "double"],
-             as.double)
-    )
-      }
 
 
-translation_and_labels <- function(df, language){
-
-if(language == 'english'){
-
-  labels_key <- as.list(data_labels$label_eng) %>%
-    stats::setNames(data_labels$variable_pt.br)
-
-} else{
-
-  labels_key <- as.list(data_labels$label_pt.br) %>%
-    stats::setNames(data_labels$variable_pt.br)
-
-}
-
-df <- df %>%
-    labelled::set_variable_labels(.labels = labels_key)
-
-if(language == 'english'){
-
-  df <- df %>%
-    dplyr::rename(
-      Year = .data$ANO,
-      Quarter = .data$TRIMESTRE,
-      Capital = .data$CAPITAL,
-      Stratum = .data$ESTRATO
-    )
-
-}
-df
-}
