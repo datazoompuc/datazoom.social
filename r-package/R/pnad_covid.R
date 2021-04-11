@@ -65,7 +65,7 @@ load_pnadcovid <- function(language = 'eng',
 
 
   dataset_names <- purrr::map(dataset, ~ paste0('pnadcovid_',
-                                                stringr::str_pad(unique(.x$Mes),
+                                                stringr::str_pad(unique(.x$V1013),
                                                                  width = 2, pad = "0"),
                                                 unique(.x$Ano)))
   names(dataset) <- dataset_names

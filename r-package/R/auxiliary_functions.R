@@ -44,7 +44,7 @@ convert_types <- function(df, survey) {
 translation_and_labels <- function(df, survey, language) {
   if (survey == "covid") {
     data_labels <- data_labels_pnadcovid %>%
-      dplyr::filter(variable_pt.br %in% colnames(df) | variable_eng %in% colnames(df))
+      dplyr::filter(.data$variable_pt.br %in% colnames(df) | .data$variable_eng %in% colnames(df))
   } else {
     data_labels <- data_labels_pnadcontinua
   }
@@ -71,7 +71,6 @@ translation_and_labels <- function(df, survey, language) {
     df <- df %>%
       dplyr::rename(
         Year = .data$Ano,
-        Month = .data$Mes,
         Stratum = .data$Estrato
       )
   }

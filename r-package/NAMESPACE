@@ -2,6 +2,5 @@
 
 export(load_pnadcontinua)
 export(load_pnadcovid)
-importFrom(data.table,":=")
 importFrom(dplyr,"%>%")
 importFrom(rlang,.data)

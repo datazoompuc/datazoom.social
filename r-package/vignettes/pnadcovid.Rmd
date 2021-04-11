@@ -1,8 +1,8 @@
 ---
-title: "datazoom.pnadcontinua"
+title: "datazoom.pnadcovid"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{datazoom.pnadcontinua}
+  %\VignetteIndexEntry{datazoom.pnadcovid}
   %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,11 +15,13 @@ knitr::opts_chunk$set(
 ```
 
 
-## Panel of Individuals
 
-The Continuous PNAD is a panel survey from Brazil's IBGE, in which each household is interviewed for five consecutive quarters.
+The PNAD Covid is a monthly household survey from Brazil's IBGE. The survey started in
+May of 2020 and aimed to provide a better outlook on the Corona Virus pandemic in Brazil.
+Note that, although similarly structured, its data is not directly comparable to the
+PNAD Contínua survey from IBGE.
 
-The original data and more information on the survey can be found [here](https://www.ibge.gov.br/estatisticas/sociais/trabalho/9171-pesquisa-nacional-por-amostra-de-domicilios-continua-mensal.html?=&t=o-que-e)
+The original data and more information on the survey can be found [here](https://www.ibge.gov.br/estatisticas/sociais/trabalho/27947-divulgacao-mensal-pnadcovid2.html?=&t=microdados)
 
 ## Usage
 
@@ -30,21 +32,21 @@ library(datazoom.pnadcontinua)
 
 ### Loading data
 
-Function ```load_pnadcontinua``` is flexible enough to process Continous PNAD stored in three forms:
+Function ```load_pnadcovid``` is flexible enough to process Continuous PNAD stored in three forms:
 
-* Downloading quarterly data directly from IBGE
+* Downloading monthly data directly from IBGE
 * Reading datasets on a directory
-* Reading specific .txt Continuous PNAD on the computer
+* Reading specific csv Covid PNAD on the computer
 
 To download data, be sure to set argument ```sources``` as a list of vectors, each 
 one consisting on a quarter-year pairing. The function will store the raw microdata
-on folder ```PNADC_microdata``` inside the directory set by ```download_directory```,
+on folder ```PNAD_COVID_microdata``` inside the directory set by ```download_directory```,
 which defaults to the working directory.
 
 ```{r, eval = TRUE}
-dates <- list(c(1, 2012), c(2, 2012), c(3, 2013))
+dates <- list(c(5, 2020), c(6, 2020))
 
-loaded_data <- load_pnadcontinua(sources = dates)
+loaded_data <- load_pnadcovid(sources = dates)
 
 # Set language = 'pt` to have the labels in Portuguese
 
@@ -55,7 +57,7 @@ the function will read all text files in it.
 
 ```{r,  eval=FALSE}
 
-loaded_data <- load_pnadcontinua(sources = './Desktop')
+loaded_data <- load_pnadcovid(sources = './Desktop')
 
 ``` 
 
@@ -66,11 +68,11 @@ to a different quarter and being named accordingly.
 ### Dictionary
 
 The package also comes with dictionaries in English and Portuguese,
-```dictionary_pnadcontinua_eng```, ```dictionary_pnadcontinua_pt.br```, with a description of all variables in the
-survey, as well as of the variables assumed by them.
+```dictionary_pnadcovid_eng```, ```dictionary_pnadcovid_pt.br```, with a description of all variables in the
+survey, as well as of the values assumed by them.
 
 ```{r, eval = TRUE, echo = FALSE}
-head(dictionary_pnadcontinua_eng)
+head(dictionary_pnadcovid_eng)
 ``` 
 
 
