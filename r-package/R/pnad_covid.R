@@ -125,7 +125,7 @@ load_and_tidy_data_covid <- function(files, download_location = getwd()){
 
   }
 
-  final_data <- purrr::map(files, ~ read.csv(. , nrows  = 1000, sep = ','))
+  final_data <- purrr::map(files, ~ read.csv(. , sep = ','))
 
   return(final_data)
 
