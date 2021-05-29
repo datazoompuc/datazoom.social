@@ -22,6 +22,19 @@ local y`1' = ""
 	
 foreach year in `years'{
 	foreach trim in 01 02 03 04 {
+			if (`year' == 2021) {
+			di as input "Extracting file PNADC_`trim'`year'  ..."
+				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
+				if _rc == 0 {
+					qui capture egen hous_id = concat(UPA V1008 V1014), format(%14.0g)
+					qui destring hous_id, replace
+					qui capture egen ind_id = concat(UPA V1008 V1014 V2003), format(%16.0g)
+					qui destring ind_id, replace
+					tempfile PNADC_`trim'`year'
+					save `PNADC_`trim'`year'', replace
+					}
+				else continue, break
+			}
 			if (`year' == 2020) {
 			di as input "Extracting file PNADC_`trim'`year'  ..."
 				cap infile using "`dic'", using("`original'/PNADC_`trim'`year'.txt") clear
