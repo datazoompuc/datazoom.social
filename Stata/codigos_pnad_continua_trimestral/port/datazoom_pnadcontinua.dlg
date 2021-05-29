@@ -7,7 +7,7 @@ POSITION . . 350 330
 DIALOG main, label("PNAD Contínua") tabtitle("Main")
 BEGIN
 ******************************************************************************   
-GROUPBOX caixaAnos 20 20 140 250, label("Ano(s)")
+GROUPBOX caixaAnos 20 20 140 260, label("Ano(s)")
 
    CHECKBOX    ck2012 +14 +20 120  ., label("2012")  option(2012)
    CHECKBOX    ck2013 @ +24 120    ., label("2013")  option(2013)
@@ -18,6 +18,7 @@ GROUPBOX caixaAnos 20 20 140 250, label("Ano(s)")
    CHECKBOX	   ck2018 @ +24 120	   ., label("2018")  option(2018)
    CHECKBOX	   ck2019 @ +24 120	   ., label("2019")  option(2019)
    CHECKBOX	   ck2020 @ +24 120	   ., label("2020")  option(2020)
+   CHECKBOX	   ck2021 @ +24 120	   ., label("2021")  option(2021)
    
 GROUPBOX caixaDicionários 160 20 140 250, label("Bases de Dados")
 
@@ -74,7 +75,7 @@ PROGRAM command
 		beginoptions
 			/*Parte da syntax: anos a extrair*/
 			put "years("
-			option main.ck2012 main.ck2013 main.ck2014 main.ck2015 main.ck2016 main.ck2017 main.ck2018 main.ck2019 main.ck2020
+			option main.ck2012 main.ck2013 main.ck2014 main.ck2015 main.ck2016 main.ck2017 main.ck2018 main.ck2019 main.ck2020 main.ck2021
 			put ") "
 			/*Parte da syntax: base de dados originais*/
 			put saidadata " "
