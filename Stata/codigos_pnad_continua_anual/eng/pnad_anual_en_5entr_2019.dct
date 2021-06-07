@@ -310,4 +310,7 @@ _column(813)  byte VD5009 %1f "Usual household income range per capita  "
 _column(814)  long VD5010 %8f "Usual household income  "
 _column(822)  long VD5011 %8f "Usual household income per capita  "
 _column(830)  byte VD5012 %1f "Usual household income range per capita  "
+_column(831) byte SD06001  %1f "Occupancy situation in the reference week of people aged 5 to 17 years old"
+_column(835) int  SD06002  %3f "Effective hours worked in the reference week in all jobs for people aged 5 years and over"
+_column(835) long SD06003  %8f "Income usually received from all jobs for people 5 years of age or older"
 }						
