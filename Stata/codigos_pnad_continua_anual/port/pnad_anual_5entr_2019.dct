@@ -310,4 +310,7 @@ _column(813) byte VD5009   %1f "Faixa de rend habital domiciliar per capita"
 _column(814) long VD5010   %8f "Rend habitual domiciliar"
 _column(822) long VD5011   %8f "Rend habitual domiciliar per capita"
 _column(830) byte VD5012   %1f "Faixa de rend habitual domiciliar per capita"
+_column(831) byte SD06001  %1f "Situação de ocupação na semana de referência das pessoas de 5 a 17 anos  de idade"
+_column(835) int  SD06002  %3f "Horas efetivamente trabalhadas na semana de referência em todos os trabalhos para pessoas de 5 anos ou mais de idade"
+_column(835) long SD06003  %8f "Rendimento habitualmente recebido em todos os trabalhos para pessoas de 5 anos ou mais de idade "
 }
