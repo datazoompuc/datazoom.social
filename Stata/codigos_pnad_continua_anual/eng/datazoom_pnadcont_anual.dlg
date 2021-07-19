@@ -4,7 +4,7 @@ SYNCHRONOUS_ONLY
 
 POSITION . . 350 500
 
-DIALOG main, label("PNAD Contínua Anual") tabtitle("Main")
+DIALOG main, label("PNAD ContÃŒnua Anual") tabtitle("Main")
 BEGIN
 ******************************************************************************   
 GROUPBOX caixaAnos 20 20 140 400, label("Year(s)")
@@ -28,7 +28,7 @@ GROUPBOX caixaAnos 20 20 140 400, label("Year(s)")
    CHECKBOX	   ck20192 @ +20 120	   ., label("2019_visit2")  option(20192)
    CHECKBOX	   ck20195 @ +20 120	   ., label("2019_visit5")  option(20195)   
    
-GROUPBOX caixaDicionários 160 20 140 400, label("Databases")
+GROUPBOX caixaDicionÂ·rios 160 20 140 400, label("Databases")
 
 	BUTTON	fldados 	+20 +35 100 ., label("Original Files...") onpush(script dados) 
 	BUTTON	flsalvando  @ +35 100 ., label("Saving...") onpush(script salvando) 
