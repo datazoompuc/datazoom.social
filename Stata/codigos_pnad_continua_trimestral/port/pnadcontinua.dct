@@ -216,4 +216,6 @@ _column(463) int VD4032 %3f `"Horas efetivamente trabalhadas na semana de refer�
 _column(466) int VD4033 %3f `"Horas efetivamente trabalhadas na semana de referência no trabalho secundário para pessoas de 14 anos ou mais de idade"'
 _column(469) int VD4034 %3f `"Horas efetivamente trabalhadas na semana de referência nos outros trabalhos para pessoas de 14 anos ou mais de idade"'
 _column(472) int VD4035 %3f `"Horas efetivamente trabalhadas na semana de referência em todos os trabalhos para pessoas de 14 anos ou mais de idade"'
+_column(475) byte VD4036 %1f `"Faixa das horas habitualmente trabalhadas por semana no trabalho principal para pessoas de 14 anos ou mais de idade"'
+_column(476) byte VD4037 %1f `"Faixa das horas efetivamente trabalhadas na semana de referência no trabalho principal  para pessoas de 14 anos ou mais de idade"'
 }
