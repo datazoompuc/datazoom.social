@@ -24,7 +24,8 @@ foreach year in `years'{
 	foreach trim in 01 02 03 04 {
 		local file_name "PNADC_`trim'`year'"
 	
-
+	
+		
 	di as input "Extraindo arquivo PNADC_`trim'`year'  ..."
 		cap infile using "`dic'", using("`original'/`file_name'.txt") clear
 		if _rc == 0 {
@@ -37,7 +38,7 @@ foreach year in `years'{
 		}
 		else continue, break
 	}
-}	
+}
 
 if _rc==901 exit	
 
