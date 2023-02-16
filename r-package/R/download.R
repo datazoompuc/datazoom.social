@@ -23,7 +23,7 @@ download_quarter <- function(quarter, year, directory = getwd()) {
     )
 
     #### Ficar de olho para ver se o IBGE muda o seu padrão de nomes nos códigos
-    file_name <- paste0("PNADC_", quarter, year, "_20190729.zip")
+    file_name <- paste0("PNADC_", quarter, year, "_20220916.zip")
   }
 
   url_path <- file.path(
@@ -32,7 +32,7 @@ download_quarter <- function(quarter, year, directory = getwd()) {
     file_name
   )
 
-  utils::download.file(
+utils::download.file(
     url = url_path,
     destfile = file.path(directory, file_name),
     mode = "wb"
