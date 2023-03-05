@@ -1,4 +1,4 @@
-# Datazoom Social R
+# datazoom.social - R version
 
 Nesse pacote teremos as ferramentas de consulta e acesso aos principais microdados do Brasil, usando os softwares R e Stata:
 
