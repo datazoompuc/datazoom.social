@@ -5,7 +5,7 @@
 #### Create auxiliary variables and p201 identifiers
 create_p201 <- function(dados) {
 
- dados<- junta.pnad %>%
+ dados %>%
    as.data.frame(.) %>%
    dplyr::bind_cols(
       ### Adiciona identificadores tanto para municipios quanto chefe
