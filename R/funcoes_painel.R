@@ -15,9 +15,9 @@ create_p201 <- function(dados) {
                                      .data$UPA, .data$V1008, .data$V1014, .data$V2005)
     ) %>% #Testando parte-por-parte, sabemos que daqui para cima, está tudo okay.
    dtplyr::lazy_dt(.) %>%
-   dplyr::mutate(id_chefe = ifelse(.data$V2005 != 1, as.integer(NA), .data$id_chefe)) %>%
+   dplyr::mutate(id_chefe = ifelse(as.integer(.data$V2003) != 1, as.integer(NA), .data$id_chefe)) %>%
    dplyr::group_by(.data$id_chefe) %>%
-   dplyr::mutate(n_p_aux = ifelse(.data$V2005 != 1,
+   dplyr::mutate(n_p_aux = ifelse(as.integer(.data$V2003) != 1,
                                   as.integer(NA),
                                   dplyr::row_number()
                                   )) %>%
@@ -30,7 +30,6 @@ create_p201 <- function(dados) {
                                as.numeric(as.character(.data$V2003)), as.numeric(NA))) %>%
   as.data.frame(.)
 }
-
 
 ### Prepare matches by removing for each observation units impossible to
 ### be matched: units already matched (same prev_id) or on the same date
