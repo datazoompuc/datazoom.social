@@ -2,34 +2,32 @@
 #' @importFrom data.table :=
 #' @importFrom rlang .data
 
-
-
 #### Create auxiliary variables and p201 identifiers
 create_p201 <- function(dados) {
 
-  dados %>%
+ dados<- junta.pnad %>%
    as.data.frame(.) %>%
    dplyr::bind_cols(
-      ### Adiciona identificadores
+      ### Adiciona identificadores tanto para municipios quanto chefe
      id_dom = dplyr::group_indices(as.data.frame(dados),
                                    .data$UPA, .data$V1008, .data$V1014),
      id_chefe = dplyr::group_indices(as.data.frame(dados),
                                      .data$UPA, .data$V1008, .data$V1014, .data$V2005)
-    ) %>%
+    ) %>% #Testando parte-por-parte, sabemos que daqui para cima, está tudo okay.
    dtplyr::lazy_dt(.) %>%
-   dplyr::mutate(id_chefe = ifelse(.data$V2005 != 1, NA, .data$id_chefe)) %>%
+   dplyr::mutate(id_chefe = ifelse(.data$V2005 != 1, as.integer(NA), .data$id_chefe)) %>%
    dplyr::group_by(.data$id_chefe) %>%
    dplyr::mutate(n_p_aux = ifelse(.data$V2005 != 1,
-                                  NA,
+                                  as.integer(NA),
                                   dplyr::row_number()
                                   )) %>%
-   dplyr::group_by(.data$id_dom, .data$ANO, .data$TRIMESTRE) %>%
+   dplyr::group_by(.data$id_dom, .data$Ano, .data$Trimestre) %>%
    dplyr::mutate(n_p = mean(.data$n_p_aux, na.rm = TRUE)) %>%
    dplyr::ungroup(.) %>%
    ### Transforma NaN em NA's
-   dplyr::mutate(n_p = ifelse(is.na(.data$n_p), NA, .data$n_p)) %>%
+   dplyr::mutate(n_p = ifelse(is.na(.data$n_p), as.integer(NA), .data$n_p)) %>%
    dplyr::mutate(p201 = ifelse(.data$n_p == 1,
-                               as.numeric(as.character(.data$V2003)), NA)) %>%
+                               as.numeric(as.character(.data$V2003)), as.numeric(NA))) %>%
   as.data.frame(.)
 }
 
