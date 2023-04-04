@@ -83,24 +83,31 @@ prep_matches <- function(x, prev_id) {
 
 match0 <- function(df, prev_id, j) {
 
+  #applying the function(x,y) to both elements 2 lines below, seq(nrow(df)) and j (what's j?)
   out <- purrr::map2(
     seq(nrow(df)), j,
     function(x, y) {
 
-      prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp)
+      prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp) #pull is similar to $, it just looks nicer in pipes
+      #from these lines, we can see that x in the function represents the row that we want to pull from the variable prev_id
       prev_id <- prev_id[[x]]
-
+      #all function- testing if all the values of that condition are TRUE
       if (!is.na(df$p201[x]) | all(is.na(y)) | purrr::is_empty(x)) {
         out <- prev_id
       } else {
+        #y receives all the y values that are not NA
         y <- y[!is.na(y)]
+        #g1 is a logical variable that is TRUE if the observations of each one of df's row that have day, month and year in the declared birth date
         g1 <- df$V2008[x] != 99 & df$V20081[x] != 99 &
           df$V20082[x] != 9999
-
+        # if g1 is empty or all of g1's observations are fake, then out still receives prev_id,
+        #else, then we create a new data frame, that filters df to only have the conditions of g1.
         out <- ifelse(purrr::is_empty(g1) | all(g1 == FALSE), prev_id,
           df[y[g1], ] %>%
+            #extracting the prev_id variable from this new data frame
             dplyr::mutate(.tmp = {{prev_id}}) %>%
             dplyr::pull(.data$.tmp) %>%
+            #remove any duplicate values and applying this vector to the "out" object
             unique()
         )
       }
