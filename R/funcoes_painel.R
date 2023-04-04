@@ -13,7 +13,7 @@ create_p201 <- function(dados) {
                                    .data$UPA, .data$V1008, .data$V1014),
      id_chefe = dplyr::group_indices(as.data.frame(dados),
                                      .data$UPA, .data$V1008, .data$V1014, .data$V2005)
-    ) %>% #Testando parte-por-parte, sabemos que daqui para cima, está tudo okay.
+    ) %>% 
    dtplyr::lazy_dt(.) %>%
    dplyr::mutate(id_chefe = ifelse(as.integer(.data$V2003) != 1, as.integer(NA), .data$id_chefe)) %>%
    dplyr::group_by(.data$id_chefe) %>%
