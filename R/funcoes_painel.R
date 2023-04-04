@@ -86,6 +86,7 @@ match0 <- function(df, prev_id, j) {
   #applying the function(x,y) to both elements 2 lines below, seq(nrow(df)) and j (what's j?)
   out <- purrr::map2(
     seq(nrow(df)), j,
+    #in the function below, x will be seq(nrow(df)) and y will be j, as they will be iterated simultaneouly in this function
     function(x, y) {
 
       prev_id <- df %>% dplyr::mutate(.tmp = {{prev_id}}) %>% dplyr::pull(.data$.tmp) #pull is similar to $, it just looks nicer in pipes
@@ -95,7 +96,7 @@ match0 <- function(df, prev_id, j) {
       if (!is.na(df$p201[x]) | all(is.na(y)) | purrr::is_empty(x)) {
         out <- prev_id
       } else {
-        #y receives all the y values that are not NA
+        #y receives all the y values that are not NA- y is j, in this case
         y <- y[!is.na(y)]
         #g1 is a logical variable that is TRUE if the observations of each one of df's row that have day, month and year in the declared birth date
         g1 <- df$V2008[x] != 99 & df$V20081[x] != 99 &
