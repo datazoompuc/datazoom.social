@@ -31,7 +31,8 @@ create_p201 <- function(dados) {
   as.data.frame(.)
 }
 
-### Prepare matches by removing for each observation units impossible to
+x<-create_p201(vars2021_1)
+### Prepare matches by removing for each observation, units impossible to
 ### be matched: units already matched (same prev_id) or on the same date
 ### (same n_p)
 
