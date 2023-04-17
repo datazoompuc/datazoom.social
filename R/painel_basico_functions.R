@@ -1,8 +1,15 @@
 #creating the basic panel 
 library(tidyverse)
-#filtering the data base received by the user to not have year, month and day =99 or =9999
 
-filtra_dados= function(dados_recebidos){
+#auxilar code to run tests
+#to be deleted
+pnad_tri1<- pnadjunta21_1_22_1 %>% filter(Ano == 2021, Trimestre== 1)
+pnad_tri2<- pnadjunta21_1_22_1 %>% filter(Ano == 2021, Trimestre== 2)
+pnad_tri3<- pnadjunta21_1_22_1 %>% filter(Ano == 2021, Trimestre== 3)
+pnad_tri4<- pnadjunta21_1_22_1 %>% filter(Ano == 2021, Trimestre== 4)
+pnad_tri5<- pnadjunta21_1_22_1 %>% filter(Ano == 2022, Trimestre== 1)
+
+filtra_dados = function(dados_recebidos){
   dados_raw = dados_recebidos %>%
     as.data.frame()
   
