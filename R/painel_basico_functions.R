@@ -32,8 +32,9 @@ builds_identifiers = function(character_dat) {
   
   #creates individual identifier
   #id_ind concatenates household identifier (id_dom), birthday in Ymd format and gender
+  #We also added the variables UF and V1023, which configurate a good municipality identifer in the context
   basic_panel = w_id_dom %>%
-    dplyr::mutate(id_ind = paste(id_dom, V20082, V20081, V2008, V2007))
+    dplyr::mutate(id_ind = paste(UF,V1023,id_dom, V20082, V20081, V2008, V2007))
   
   #returns the final product
   return(basic_panel)
