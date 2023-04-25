@@ -6,13 +6,15 @@ cleans_dat = function(incoming_dat){
     as.data.frame()
   
   #filtering the data base received by the user to not have year, month and day =99 or =9999
-  #filter V2007 != 99?
+  #filter V2007 != 99? according to dictionary, there should be no 99
   filtered_dat = raw_dat %>% dplyr::filter(V2008 != "99" | V20081!= "99" | V20082!= "9999")
   
   #consider mutate_at, could be faster
   #or simply create the identifier w/ paste0()
   character_dat = filtered_dat %>%
     dplyr::mutate(V2007 = as.character(V2007)) %>%
+    #factorizes gender according to code establhised in the dictionary. 1 == man; 2 == woman
+    dplyr::mutate(V2007 = ifelse(V2007 == "Homem", "1", "2")) %>%
     dplyr::mutate(V2008 = as.character(V2008)) %>%
     dplyr::mutate(V20081 = as.character(V20081)) %>%
     dplyr::mutate(V20082 = as.character(V20082))
