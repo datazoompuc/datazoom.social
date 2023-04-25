@@ -45,4 +45,11 @@ builds_identifiers = function(character_dat) {
 # Se colocarmos como base de comparacao só a variavel id_ind, já que só conseguiremos parear por municipio mesmo, 
 # devemos ter uma identificacao sem problemas.
 
+# minha ideia é: Criar duas variaveis que assumem 0 se o match já aconteceu,
+# uma para trimestres futuros ("prox"- meaning proximo), outra para tri passados ("ant"- meaning anterior)
+
+# Depois, fazemos um comando para verificar se um certo id_ind existe no trimestre seguinte, se existir, a variavel "prox" adquire 1
+# O mesmo é feito para a variavel ant
+
+
 
