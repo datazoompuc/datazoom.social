@@ -39,3 +39,9 @@ builds_identifiers = function(character_dat) {
   return(basic_panel)
 }
 
+# Ideia do painel- Pegar e fazer um loop, trimestre por trimestre, comparando Cada indivíduo até que ele seja matcheado, 
+# podemos fazer uma estrutura de stop ou de while, em um for/if, para compararmos o id de cada individuo
+# Se colocarmos como base de comparacao só a variavel id_ind, já que só conseguiremos parear por municipio mesmo, 
+# devemos ter uma identificacao sem problemas.
+
+
