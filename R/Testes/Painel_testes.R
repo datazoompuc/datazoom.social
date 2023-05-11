@@ -44,9 +44,6 @@ View(junta.pnad)
 pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 
-pnad_list <- list()
-vars_list <- list()
-
 for (i in 2012:2023) {
   for(j in 1:4){
     pnad_list[[paste0("pnad", i, "_", j)]] <- get_pnadc(year = i, quarter = j, labels = TRUE)
