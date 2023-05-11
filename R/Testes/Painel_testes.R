@@ -6,6 +6,18 @@ library(magrittr)
 library(purrr)
 #tirando a notação científica
 options(scipen = 999)
+
+#iniciar paineis
+painel_1 = as.data.frame()
+painel_2 = as.data.frame()
+painel_3 = as.data.frame()
+painel_4 = as.data.frame()
+painel_5 = as.data.frame()
+painel_6 = as.data.frame()
+painel_7 = as.data.frame()
+painel_8 = as.data.frame()
+painel_9 = as.data.frame()
+
 #testando outro método
 
 pnad_2021_1 <- get_pnadc(year = 2021, quarter = 1,  labels = TRUE)
@@ -27,6 +39,24 @@ junta.pnad<- rbind(vars2021_1,vars2021_2,vars2021_3,vars2021_4, vars2022_1)
 
 write.csv(junta.pnad, "junta_pnad.csv", row.names = FALSE)
 View(junta.pnad)
+
+#fazendo um loop pra baixar cada trimestre da PNAD desde 2012
+pnad_list <- list() # create an empty list to store the data frames
+vars_list <- list() # create an empty list to store the data frames
+
+pnad_list <- list()
+vars_list <- list()
+
+for (i in 2012:2023) {
+  for(j in 1:4){
+    pnad_list[[paste0("pnad", i, "_", j)]] <- get_pnadc(year = i, quarter = j, labels = TRUE)
+    vars_list[[paste0("vars", i, "_", j)]] <- get(paste0("pnad", i, "_", j))$variables %>% 
+      select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>% 
+      as.data.frame()
+  }
+}
+#in this case, the variables we'll want will be in the vars_list object
+# For example, pnad_list[["pnad2012_1"]] should give you the data frame for the first quarter of 2012.
 
 ############## corringindo e testando as funcções do painel
 #creating the basic panel 
