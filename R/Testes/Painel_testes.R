@@ -68,8 +68,9 @@ divide_trimestres<- function(vars_list_compiled){ #recebe como objeto um datafra
   junta_pnad_2 <- junta_pnad_1 %>% split(.$Tri_ano)
   
 }
-
-
+#testando a função
+pnads_divididas<-divide_trimestres(junta_pnad)
+####################################################################################################################################################
 cleans_dat = function(incoming_dat){
   raw_dat = incoming_dat %>%
     as.data.frame()
@@ -94,7 +95,7 @@ cleans_dat = function(incoming_dat){
   
 }
 
-
+####################################################################################################################################################
 builds_identifiers = function(character_dat) {
   w_id_dom = character_dat %>%
     dplyr::bind_cols(
@@ -113,11 +114,6 @@ builds_identifiers = function(character_dat) {
 }
 
 ############
-#Rodando as duas funções na pnad toda junta de 2021.1 até 2022.1 (incluso)
-
-Y<-junta_pnad %>% cleans_dat() %>% builds_identifiers()
-View(Y)
-
 # Ideia do painel- Pegar e fazer um loop, trimestre por trimestre, comparando Cada indivíduo até que ele seja matcheado, 
 # podemos fazer uma estrutura de stop ou de while, em um for/if, para compararmos o id de cada individuo
 # Se colocarmos como base de comparacao só a variavel id_ind, já que só conseguiremos parear por municipio mesmo, 
@@ -129,6 +125,4 @@ View(Y)
 # Depois, fazemos um comando para verificar se um certo id_ind existe no trimestre seguinte, se existir, a variavel "prox" adquire 1
 # O mesmo é feito para a variavel ant
 
-
-unique(junta_pnad)
 
