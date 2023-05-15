@@ -114,6 +114,16 @@ builds_identifiers = function(character_dat) {
 }
 
 ############
+#primeiro, vamos criar um dataframe que tem o primeiro objeto da lista, depois, vamos aplicar cada uma das duas funções ao objeto subsequente da lista e dar um r_bind juntando o objeto anterior à ele
+
+trata_e_junta_trimestres<-function(x){
+  objeto_inicial<- data.frame(x[[1]]) %>% cleans_dat() %>% builds_identifiers()
+  for (i in 2:length(x)) {
+    objeto_intermediario<-data.frame(x[[i]]) %>% cleans_dat() %>% builds_identifiers()
+  objeto_inicial<-rbind(objeto_inicial,objeto_intermediario)
+  }
+  return(objeto_inicial)
+}
 # Ideia do painel- Pegar e fazer um loop, trimestre por trimestre, comparando Cada indivíduo até que ele seja matcheado, 
 # podemos fazer uma estrutura de stop ou de while, em um for/if, para compararmos o id de cada individuo
 # Se colocarmos como base de comparacao só a variavel id_ind, já que só conseguiremos parear por municipio mesmo, 
