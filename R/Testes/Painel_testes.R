@@ -47,7 +47,7 @@ vars_list <- list() # create an empty list to store the data frames
 for (i in 2012:2023) {
   for(j in 1:4){
     pnad_list[[paste0("pnad", i, "_", j)]] <- get_pnadc(year = i, quarter = j, labels = TRUE)
-    vars_list[[paste0("vars", i, "_", j)]] <- get(paste0("pnad", i, "_", j))$variables %>% 
+    vars_list[[paste0("vars", i, "_", j)]] <- pnad_list[[paste0("pnad", i, "_", j)]]$variables %>% 
       select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>% 
       as.data.frame()
   }
@@ -58,6 +58,17 @@ for (i in 2012:2023) {
 ############## corringindo e testando as funcções do painel
 #creating the basic panel 
 library(tidyverse)
+
+
+#criando uma função que lê o data frame e divide ele em trimestres, para assim podermos criar o id_dom corretamente para cada domicílio 
+#(se fizermos para vários trimestres, ele cria id_dom diferentes, mesmo se for o mesmo domicílio, repetido ao longo do tempo)
+divide_trimestres<- function(vars_list_compiled){ #recebe como objeto um dataframe com vários trimestres da PNAD
+  junta_pnad_1<- vars_list_compiled %>% mutate(Tri_ano = paste0(Ano,Trimestre))
+  junta_pnad_2<- list()
+  junta_pnad_2 <- junta_pnad_1 %>% split(.$Tri_ano)
+  
+}
+
 
 cleans_dat = function(incoming_dat){
   raw_dat = incoming_dat %>%
