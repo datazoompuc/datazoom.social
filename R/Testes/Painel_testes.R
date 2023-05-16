@@ -18,6 +18,35 @@ painel_7 = as.data.frame()
 painel_8 = as.data.frame()
 painel_9 = as.data.frame()
 
+#### loop para criar identificadores por painel por trimestre e salvar
+#fazendo um loop pra baixar cada trimestre da PNAD desde 2012
+pnad_list <- list() # create an empty list to store the data frames
+vars_list <- list() # create an empty list to store the data frames
+panel_list <- list() # create an empty list to store the data frames
+
+years = c(2021, 2022)
+
+for (i in years) {
+  for(j in 1:4) {
+    for(k in 1:9) {
+      pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
+      vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>% 
+        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>% 
+        as.data.frame()
+      panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
+        as.data.frame() %>%
+        dplyr::filter(V1014 = k) %>%
+        cleans_dat() %>%
+        builds_identifiers() %>%
+        saveRDS(file = paste0("pnad", i, "_", j, "_", k))
+    }  
+  }
+}
+
+
+
+
+
 #testando outro método
 
 pnad_2021_1 <- get_pnadc(year = 2021, quarter = 1,  labels = TRUE)
