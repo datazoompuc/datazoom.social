@@ -196,5 +196,6 @@ frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
 matriz<- data.frame(frequencia, contagem= seq(1:12))
 
 ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+ 
-  geom_col()+
+  +   geom_col(fill= "black")+
+  geom_text(aes(label = frequencia), position = position_stack(vjust = 1.20 ), color= "red", size= 4)
   
