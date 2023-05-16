@@ -28,17 +28,17 @@ years = c(2021, 2022)
 
 for (i in years) {
   for(j in 1:4) {
-    for(k in 1:9) {
       pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
       vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>% 
         select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>% 
         as.data.frame()
+      for(k in 1:9) {
       panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
         as.data.frame() %>%
-        dplyr::filter(V1014 = k) %>%
+        dplyr::filter(V1014 == k) %>%
         cleans_dat() %>%
         builds_identifiers() %>%
-        saveRDS(file = paste0("pnad", i, "_", j, "_", k))
+        saveRDS(file = paste0(".\\pnad", i, "_", j, "_", k))
     }  
   }
 }
