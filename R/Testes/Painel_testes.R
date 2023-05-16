@@ -175,5 +175,26 @@ trata_e_junta_trimestres<-function(x){
 
 # Depois, fazemos um comando para verificar se um certo id_ind existe no trimestre seguinte, se existir, a variavel "prox" adquire 1
 # O mesmo é feito para a variavel ant
+pnad_certa<-trata_e_junta_trimestres(pnads_divididas)
 
+x<- sort(table(pnad_certa$id_ind), decreasing= T)
+x<- data.frame(x)
+frequencia<- c()
+frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
+frequencia[2]<-filter(data.frame(x), Freq== 2)%>% nrow()
+frequencia[3]<-filter(data.frame(x), Freq== 3)%>% nrow()
+frequencia[4]<-filter(data.frame(x), Freq== 4)%>% nrow()
+frequencia[5]<-filter(data.frame(x), Freq== 5)%>% nrow()
+frequencia[6]<-filter(data.frame(x), Freq== 6)%>% nrow()
+frequencia[7]<-filter(data.frame(x), Freq== 7)%>% nrow()
+frequencia[8]<-filter(data.frame(x), Freq== 8)%>% nrow()
+frequencia[9]<-filter(data.frame(x), Freq== 9)%>% nrow()
+frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
+frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
+frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
 
+matriz<- data.frame(frequencia, contagem= seq(1:12))
+
+ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+ 
+  geom_col()+
+  
