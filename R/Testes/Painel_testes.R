@@ -112,7 +112,7 @@ builds_identifiers = function(character_dat) {
   w_id_dom = character_dat %>%
     dplyr::bind_cols(
       # creates household identifier
-      id_dom = dplyr::group_indices(as.data.frame(character_dat), character_dat$UPA, character_dat$V1008, character_dat$V1014))
+      id_dom = paste0(character_dat$UPA, character_dat$V1008, character_dat$V1014))
   
   #creates individual identifier
   #id_ind concatenates household identifier (id_dom), birthday in Ymd format and gender
