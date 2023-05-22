@@ -13,7 +13,7 @@ pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
 
-years = c(2021, 2022)
+years = c(2017,2018,2019)
 
 for (i in years) {
   for(j in 1:4) {
@@ -32,8 +32,8 @@ for (i in years) {
   }
 }
 
-painel_9 = rbind(readRDS(".\\pnad2021_1_9"), readRDS(".\\pnad2021_2_9"), readRDS(".\\pnad2021_3_9"), readRDS(".\\pnad2021_4_9"), readRDS(".\\pnad2022_1_9"), readRDS(".\\pnad2022_2_9"), readRDS(".\\pnad2022_3_9"), readRDS(".\\pnad2022_4_9"))
-
+painel_6 = rbind(readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6"), readRDS(".\\pnad2019_2_6"), readRDS(".\\pnad2019_3_6"))
+write.csv(painel_6, file= "painel_6.csv")
 x<- sort(table(painel_9$id_ind), decreasing= T)
 x<- data.frame(x)
 frequencia<- c()
@@ -119,7 +119,7 @@ divide_trimestres<- function(vars_list_compiled){ #recebe como objeto um datafra
   
 }
 #testando a função
-pnads_divididas<-divide_trimestres(junta_pnad)
+#pnads_divididas<-divide_trimestres(junta_pnad)
 ####################################################################################################################################################
 cleans_dat = function(incoming_dat){
   raw_dat = incoming_dat %>%
