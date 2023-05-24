@@ -357,29 +357,22 @@ painel6_met2 <- resultado_painel6_met2 |> filter(!is.na(id_pes))
 
 
 #Mantém somente quem aparece nas 5 visitas
-painel6_met2 <- painel1 %>% group_by(id_pes) %>% filter(n()==5) |> select(Ano, Trimestre, id_pes, everything())
+painel6_met2 <- painel6_met2 %>% group_by(id_pes) %>% filter(n()<=5) |> select(Ano, Trimestre, id_pes, everything())
 
 ###########################################################
 #testando os resultados
 ###########################################################
 
-tabela_resultados<- sort(table(painel1$id_pes), decreasing= T) %>% as.data.frame()
+tabela_resultados<- sort(table(painel6_met2$id_pes), decreasing= T) %>% as.data.frame()
 frequencia<- c()
-frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
-frequencia[2]<-filter(data.frame(x), Freq== 2)%>% nrow()
-frequencia[3]<-filter(data.frame(x), Freq== 3)%>% nrow()
-frequencia[4]<-filter(data.frame(x), Freq== 4)%>% nrow()
-frequencia[5]<-filter(data.frame(x), Freq== 5)%>% nrow()
-frequencia[6]<-filter(data.frame(x), Freq== 6)%>% nrow()
-frequencia[7]<-filter(data.frame(x), Freq== 7)%>% nrow()
-frequencia[8]<-filter(data.frame(x), Freq== 8)%>% nrow()
-frequencia[9]<-filter(data.frame(x), Freq== 9)%>% nrow()
-frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
-frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
-frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
+frequencia[1]<-filter(data.frame(tabela_resultados), Freq== 1)%>% nrow()
+frequencia[2]<-filter(data.frame(tabela_resultados), Freq== 2)%>% nrow()
+frequencia[3]<-filter(data.frame(tabela_resultados), Freq== 3)%>% nrow()
+frequencia[4]<-filter(data.frame(tabela_resultados), Freq== 4)%>% nrow()
+frequencia[5]<-filter(data.frame(tabela_resultados), Freq== 5)%>% nrow()
 
-matriz<- data.frame(frequencia, contagem= seq(1:12))
+matriz<- data.frame(frequencia, contagem= seq(1:5))
 
 ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+ 
-  geom_col()
-
+  geom_col()+geom_text(mapping = aes(label= frequencia, color= "red", vjust=-1))
+library(stargazer)
