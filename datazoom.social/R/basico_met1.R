@@ -1,6 +1,3 @@
-#creating the basic panel
-library(tidyverse)
-
 cleans_dat = function(incoming_dat){
   raw_dat = incoming_dat %>%
     as.data.frame()
@@ -44,7 +41,6 @@ builds_identifiers = function(character_dat) {
 # junta tudo
 
 basic_panel = function(incoming_dat) {
-  library(tidyverse)
 
   cleans_dat() %>%
     builds_identifiers()
