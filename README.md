@@ -27,9 +27,9 @@ cleansing and building the basic panel.
 
 |                               |                                                         |
 |-------------------------------|---------------------------------------------------------|
-| **[cleans_dat]                | *Prepares data to build identifiers*                    |
-| **[builds_identifiers]        | *Creates household and individual identifiers*          |
-| **[basic_panel]               | *Runs the other two automatically*                      |
+| [cleans_dat]                  | *Prepares data to build identifiers*                    |
+| [builds_identifiers]          | *Creates household and individual identifiers*          |
+| [basic_panel]                 | *Runs the other two automatically*                      |
 
 </td>
 </tr>
