@@ -13,7 +13,7 @@ pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
 
-years = c(2021, 2022)
+years = c(2020)
 
 for (i in years) {
   for(j in 1:4) {
@@ -32,9 +32,37 @@ for (i in years) {
   }
 }
 
-painel_9 = rbind(readRDS(".\\pnad2021_1_9"), readRDS(".\\pnad2021_2_9"), readRDS(".\\pnad2021_3_9"), readRDS(".\\pnad2021_4_9"), readRDS(".\\pnad2022_1_9"), readRDS(".\\pnad2022_2_9"), readRDS(".\\pnad2022_3_9"), readRDS(".\\pnad2022_4_9"))
+painel_9 = rbind(readRDS(".\\pnad2020_4_9"),readRDS(".\\pnad2021_1_9"), readRDS(".\\pnad2021_2_9"), readRDS(".\\pnad2021_3_9"), readRDS(".\\pnad2021_4_9"), readRDS(".\\pnad2022_1_9"), readRDS(".\\pnad2022_2_9"), readRDS(".\\pnad2022_3_9"), readRDS(".\\pnad2022_4_9"))
 
 x<- sort(table(painel_9$id_ind), decreasing= T)
+x<- data.frame(x)
+frequencia<- c()
+frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
+frequencia[2]<-filter(data.frame(x), Freq== 2)%>% nrow()
+frequencia[3]<-filter(data.frame(x), Freq== 3)%>% nrow()
+frequencia[4]<-filter(data.frame(x), Freq== 4)%>% nrow()
+frequencia[5]<-filter(data.frame(x), Freq== 5)%>% nrow()
+frequencia[6]<-filter(data.frame(x), Freq== 6)%>% nrow()
+frequencia[7]<-filter(data.frame(x), Freq== 7)%>% nrow()
+frequencia[8]<-filter(data.frame(x), Freq== 8)%>% nrow()
+frequencia[9]<-filter(data.frame(x), Freq== 9)%>% nrow()
+frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
+frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
+frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
+
+matriz<- data.frame(frequencia, contagem= seq(1:12))
+
+ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+ 
+  geom_col()+geom_text(aes(label= frequencia), position= position_stack(vjust= 1.20), color= "red", size=4)
+
+
+#### rodando metodo 1 para o painel 6
+# arthur baixou e enviou csv para laura por email, por isso aqui nao temos a parte do download
+# painel 6 vai 2017.3 até 2019.3
+
+painel_6 = read.csv(file = ".\\painel_6.csv")
+
+x<- sort(table(painel_6$id_ind), decreasing= T)
 x<- data.frame(x)
 frequencia<- c()
 frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
