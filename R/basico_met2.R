@@ -310,3 +310,69 @@ painel1 <- painel1 %>% group_by(id_pes) %>% filter(n()==5)
 painel1 <- painel1 %>%  mutate(AnoTrim=paste(Ano,Trimestre,sep="-"))
 
 
+###############################################################################################
+# Versão DZ para esse método- transformando tudo feito em uma função, para facilitar a execução
+###############################################################################################
+
+
+# cada funcao é aplicada para um trimestre, entao podemos usar a funcao divide_trismestres, criada no arquivo basico_met1, para dividir qualquer base de dados por trimestres
+divide_trimestres<- function(vars_list_compiled){ #recebe como objeto um dataframe com vários trimestres da PNAD
+  junta_pnad_1<- vars_list_compiled %>% mutate(Tri_ano = paste0(Ano,Trimestre))
+  junta_pnad_2<- list()
+  junta_pnad_2 <- junta_pnad_1 %>% split(.$Tri_ano)
+  return(junta_pnad_2)
+}
+
+cria_painel_met2<- function(x){
+  x_1 <- x %>% filter(V2008 != 99 & V20081 != 99)
+  x_2 <- x_1 %>% mutate(id_dom = as.numeric(paste(UPA,V1008,V1014, sep = "")),
+                        datanasc=as.numeric(paste(V2008,V20081,V20082, sep = "")))
+  
+  #Rankear os moradores do mesmo domicílio a partir da data de nascimento
+  PDC2018_1 <- x_2 %>% group_by(id_dom) %>% mutate(rankdata=rank(datanasc))
+  
+  #Corrige problemas no rankeamento
+  x_2 <- PDC2018_1 %>% filter(rankdata==round(rankdata, digits = 0)) %>% mutate(id_pes=paste(id_dom,datanasc, sep = ""))
+  return(x_2)
+}
+
+#aplicando para o painel 6
+#dividindo o data frame em todos as combinacoes Ano-trimestre que ele contem
+painel_6_trimestres_divididos<-divide_trimestres(painel_6)
+#aplicando o metodo para cada trimestre, depois juntando-o (depois, percebi que isso não seria necessário, mas o método funciona, então não quero mudar)
+painel_met2<- list()
+for (i in 1:length(painel_6_trimestres_divididos)) {
+  painel_met2[[i]]<-painel_6_trimestres_divididos[[i]] %>% as.data.frame() |> cria_painel_met2()
+}
+#juntando tudo em um só dataframe
+resultado_painel6_met2<- data.frame()
+for (i in 1:length(painel_met2)) {
+  resultado_painel6_met2<- dplyr::bind_rows(resultado_painel6_met2, painel_met2[[i]])
+}
+#primeiro comentário- tamanho do painel_6 com met1 = 1.898.413
+#tamanho do painel 6 com met2= 1,886,671- eu imagino que seja devido ao comando na linha 335, que filtra para os ind sem problemas no rankeamento
+
+#Remove quem está com missing na variável de identificação de indivíduo
+painel6_met2 <- resultado_painel6_met2 |> filter(!is.na(id_pes))
+
+
+#Mantém somente quem aparece nas 5 visitas
+painel6_met2 <- painel6_met2 %>% group_by(id_pes) %>% filter(n()<=5) |> select(Ano, Trimestre, id_pes, everything())
+
+###########################################################
+#testando os resultados
+###########################################################
+
+tabela_resultados<- sort(table(painel6_met2$id_pes), decreasing= T) %>% as.data.frame()
+frequencia<- c()
+frequencia[1]<-filter(data.frame(tabela_resultados), Freq== 1)%>% nrow()
+frequencia[2]<-filter(data.frame(tabela_resultados), Freq== 2)%>% nrow()
+frequencia[3]<-filter(data.frame(tabela_resultados), Freq== 3)%>% nrow()
+frequencia[4]<-filter(data.frame(tabela_resultados), Freq== 4)%>% nrow()
+frequencia[5]<-filter(data.frame(tabela_resultados), Freq== 5)%>% nrow()
+
+matriz<- data.frame(frequencia, contagem= seq(1:5))
+
+ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+ 
+  geom_col()+geom_text(mapping = aes(label= frequencia, color= "red", vjust=-1))
+library(stargazer)
