@@ -121,21 +121,8 @@ for (i in 2012:2023) {
       as.data.frame()
   }
 }
-#in this case, the variables we'll want will be in the vars_list object
+#in this case, the variables we'll want will be in the "vars_list" object
 # For example, pnad_list[["pnad2012_1"]] should give you the data frame for the first quarter of 2012.
-
-#doing a loop for 2016 and beyond because the 2nd quarter of 2014 and the 4th of 2015 had a timeout problem we'll fix later
-pnad_list_2016 <- list() # create an empty list to store the data frames
-vars_list_2016 <- list() # create an empty list to store the data frames
-
-for (i in 2016:2023) {
-  for(j in 1:4){
-    pnad_list_2016[[paste0("pnad", i, "_", j)]] <- get_pnadc(year = i, quarter = j, labels = TRUE)
-    vars_list_2016[[paste0("vars", i, "_", j)]] <- pnad_list_2016[[paste0("pnad", i, "_", j)]]$variables %>%
-      select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>%
-      as.data.frame()
-  }
-}
 
 #creating the basic panel
 library(tidyverse)
@@ -177,6 +164,7 @@ cleans_dat = function(incoming_dat){
 }
 
 ####################################################################################################################################################
+#building the identifiers for household (id_dom) and individuals (id_ind)
 builds_identifiers = function(character_dat) {
   w_id_dom = character_dat %>%
     dplyr::bind_cols(
