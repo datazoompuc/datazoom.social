@@ -15,7 +15,7 @@ panel_list <- list() # create an empty list to store the data frames
 
 years = c(2017,2018,2019)
 
-for (i in years) {
+for (i in 2012:2023) {
   for(j in 1:4) {
       pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
       vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
@@ -27,11 +27,11 @@ for (i in years) {
         dplyr::filter(as.integer(V1014) == k) %>%
         cleans_dat() %>%
         builds_identifiers()
-      painel.intermediary<-panel_list[[paste0("pnad", i, "_", j, "_", k)]]
-      if(object.size(painel.intermediary)>5000){
-        saveRDS(file = paste0(".\\pnad", i, "_", j, "_", k))
-      } else { 
-        rm(painel.intermediary)}
+      panel.intermediary<-panel_list[[paste0("pnad", i, "_", j, "_", k)]] %>% as.data.frame()
+      if(nrow(panel.intermediary)>5000){
+        saveRDS(panel.intermediary, file = paste0(".\\pnad", i, "_", j, "_", k))
+      } else {
+        rm(panel.intermediary)}
     }
   }
 }
