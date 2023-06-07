@@ -116,9 +116,15 @@ vars_list <- list() # create an empty list to store the data frames
 for (i in 2012:2023) {
   for(j in 1:4){
     pnad_list[[paste0("pnad", i, "_", j)]] <- get_pnadc(year = i, quarter = j, labels = TRUE)
-    vars_list[[paste0("vars", i, "_", j)]] <- pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
-      select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>%
-      as.data.frame()
+    vars <- pnad_list[[paste0("pnad", i, "_", j)]]$variables #Now an intermediary variable receives the data
+    
+    if(object.size(vars) > 5000) { #if the data's size is bigger than 4900 bytes, we keep it, because this means it is not empty (the average size of an empty file 4488 bytes)
+      vars_list[[paste0("vars", i, "_", j)]] <- vars %>%
+        select(Ano, Trimestre, UF, UPA, V1008, V1014, V2003, V2005, V2007, V2008, V20081, V20082, V1023) %>%
+        as.data.frame()
+    } else {
+      rm(vars)
+    }
   }
 }
 #in this case, the variables we'll want will be in the "vars_list" object
