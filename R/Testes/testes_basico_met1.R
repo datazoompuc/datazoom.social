@@ -26,8 +26,12 @@ for (i in years) {
         as.data.frame() %>%
         dplyr::filter(as.integer(V1014) == k) %>%
         cleans_dat() %>%
-        builds_identifiers() %>%
+        builds_identifiers()
+      painel.intermediary<-panel_list[[paste0("pnad", i, "_", j, "_", k)]]
+      if(object.size(painel.intermediary)>5000){
         saveRDS(file = paste0(".\\pnad", i, "_", j, "_", k))
+      } else { 
+        rm(painel.intermediary)}
     }
   }
 }
