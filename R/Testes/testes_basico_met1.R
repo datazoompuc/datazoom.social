@@ -18,9 +18,8 @@ years = c(2017,2018,2019)
 for (i in years) {
   for(j in 1:4) {
       pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
-      vars = pnad_list[[paste0("pnad", i, "_", j)]]$variables 
-      if(object.size(vars)){
-        vars_list[[paste0("vars", i, "_", j)]]<- vars %>% select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>%
+      vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
+        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>%
         as.data.frame()
       for(k in 1:9) {
       panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
@@ -29,9 +28,6 @@ for (i in years) {
         cleans_dat() %>%
         builds_identifiers() %>%
         saveRDS(file = paste0(".\\pnad", i, "_", j, "_", k))
-      }
-      } else{
-      rm(vars)
     }
   }
 }
