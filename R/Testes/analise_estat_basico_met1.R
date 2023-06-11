@@ -15,3 +15,14 @@ atrito = table(com_contagem$contagem) %>% as.data.frame() %>%
   mutate(porcentagem = (ocorrencias/total)*100)
 
 #atrito via domicilio
+
+contagem_dom = table(painel_6$id_dom) %>% as.data.frame() %>%
+  rename("id_dom" = "Var1", "contagem" = "Freq")
+
+com_contagem_dom = left_join(painel_6, contagem_dom) %>%
+  dplyr::filter(V1016 == 1)
+
+atrito_dom = table(com_contagem_dom$contagem) %>% as.data.frame() %>%
+  rename("quantidades" = "Var1", "ocorrencias" = "Freq") %>%
+  mutate(total = sum(ocorrencias)) %>%
+  mutate(porcentagem = (ocorrencias/total)*100)
