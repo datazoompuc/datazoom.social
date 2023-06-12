@@ -34,7 +34,8 @@ for (i in 2019:2023) {
   }
 }
 
-painel_9 = rbind(readRDS(".\\pnad2020_4_9"),readRDS(".\\pnad2021_1_9"), readRDS(".\\pnad2021_2_9"), readRDS(".\\pnad2021_3_9"), readRDS(".\\pnad2021_4_9"), readRDS(".\\pnad2022_1_9"), readRDS(".\\pnad2022_2_9"), readRDS(".\\pnad2022_3_9"), readRDS(".\\pnad2022_4_9"))
+# Create an empty list to store the data frames for each panel
+panel_data_list <- list()
 
 painel_6 = rbind(readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6"), readRDS(".\\pnad2019_2_6"), readRDS(".\\pnad2019_3_6"))
 write.csv(painel_6, file= "painel_6.csv")
