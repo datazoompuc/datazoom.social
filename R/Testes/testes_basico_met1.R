@@ -13,7 +13,7 @@ pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
 
-for (i in 2012:2023) {
+for (i in 2019:2023) {
   for(j in 1:4) {
       pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
       vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
@@ -55,7 +55,8 @@ frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
 frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
 frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
 
-matriz<- data.frame(frequencia, contagem= seq(1:12))
+# Create an empty list to store the data frames for each panel
+panel_data_list <- list()
 
 ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+
   geom_col()+geom_text(aes(label= frequencia), position= position_stack(vjust= 1.20), color= "red", size=4)
