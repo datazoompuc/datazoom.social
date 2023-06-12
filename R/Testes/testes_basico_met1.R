@@ -39,21 +39,8 @@ painel_9 = rbind(readRDS(".\\pnad2020_4_9"),readRDS(".\\pnad2021_1_9"), readRDS(
 painel_6 = rbind(readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6"), readRDS(".\\pnad2019_2_6"), readRDS(".\\pnad2019_3_6"))
 write.csv(painel_6, file= "painel_6.csv")
 
-x<- sort(table(painel_9$id_ind), decreasing= T)
-x<- data.frame(x)
-frequencia<- c()
-frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
-frequencia[2]<-filter(data.frame(x), Freq== 2)%>% nrow()
-frequencia[3]<-filter(data.frame(x), Freq== 3)%>% nrow()
-frequencia[4]<-filter(data.frame(x), Freq== 4)%>% nrow()
-frequencia[5]<-filter(data.frame(x), Freq== 5)%>% nrow()
-frequencia[6]<-filter(data.frame(x), Freq== 6)%>% nrow()
-frequencia[7]<-filter(data.frame(x), Freq== 7)%>% nrow()
-frequencia[8]<-filter(data.frame(x), Freq== 8)%>% nrow()
-frequencia[9]<-filter(data.frame(x), Freq== 9)%>% nrow()
-frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
-frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
-frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
+  # Get the list of files in the directory that match the pattern
+  file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
 
 # Create an empty list to store the data frames for each panel
 panel_data_list <- list()
