@@ -59,6 +59,20 @@ for (panel in 1:9) {
 }
 ################################################################################
 
+
+for (i in 1:length(panel_data_list)) {
+
+  coluna_desejada<- panel_data_list[[2]] %>% dplyr::pull(id_ind) %>% data.frame()
+  x <- sort(table(coluna_desejada), decreasing = TRUE) %>% data.frame()
+tabela.matches<-x |> group_by(Freq) %>% summarise(contagem= n()) |> mutate(porcentagem= round(100*(contagem/sum(contagem)),2))
+
+  plot <- ggplot(data = tabela.matches, mapping = aes(x = Freq, y = contagem)) +
+    geom_col() +
+    geom_text(aes(label = paste0(porcentagem,"%")), position = position_stack(vjust = 1.15), color = "red", size = 3)
+
+  # Save the plot to a file
+  ggsave(paste0("grafico_painel_", i, ".png"), plot = plot)
+}
 #### rodando metodo 1 para o painel 6
 # arthur baixou e enviou csv para laura por email, por isso aqui nao temos a parte do download
 # painel 6 vai 2017.3 até 2019.3
