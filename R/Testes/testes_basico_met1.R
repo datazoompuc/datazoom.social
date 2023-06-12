@@ -37,18 +37,27 @@ for (i in 2019:2023) {
 # Create an empty list to store the data frames for each panel
 panel_data_list <- list()
 
-painel_6 = rbind(readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6"), readRDS(".\\pnad2019_2_6"), readRDS(".\\pnad2019_3_6"))
-write.csv(painel_6, file= "painel_6.csv")
+# Loop through panels 1 to 9
+for (panel in 1:9) {
+  # Create a regular expression pattern to match the files for the current panel
+  pattern <- paste0("_", panel,"$")
 
   # Get the list of files in the directory that match the pattern
   file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
 
-# Create an empty list to store the data frames for each panel
-panel_data_list <- list()
+  # Create an empty data frame to store the combined data for the current panel
+  panel_data <- data.frame()
 
-ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+
-  geom_col()+geom_text(aes(label= frequencia), position= position_stack(vjust= 1.20), color= "red", size=4)
+  # Read and combine the RDS files that match the pattern for the current panel
+  for (file in file_list) {
+    panel_file_data <- readRDS(file)  # Load the RDS file
+    panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
+  }
 
+  # Store the combined data frame for the current panel in the list
+  panel_data_list[[panel]] <- panel_data
+}
+################################################################################
 
 #### rodando metodo 1 para o painel 6
 # arthur baixou e enviou csv para laura por email, por isso aqui nao temos a parte do download
