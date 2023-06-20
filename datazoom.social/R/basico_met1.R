@@ -104,6 +104,10 @@ for (panel in 1:9) {
   # Store the combined data frame for the current panel in the list
   panel_data_list[[panel]] <- panel_data
 
+  if (length(file_list) < 8) {
+      warning("Less than 8 files were download. Likely there are files missing from this panel. Please check your command.")
+  }
+
   }
 }
 
