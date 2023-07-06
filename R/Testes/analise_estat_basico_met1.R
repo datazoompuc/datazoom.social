@@ -21,20 +21,24 @@ lista_unique<- list()
 for (i in 1:length(painel_dividido)) {
   lista_unique[[i]] <-painel_dividido[[i]] %>% dplyr::pull(id_dom)%>% unique()%>% data.frame()
 }
+
 #criando uma coluna com todos ids únicos de cada trimestre do painel
 unique_id_dom<- unlist(lista_unique)%>% data.frame()
 unique_id_dom<-unique_id_dom |> rename("id_dom"=".")
+
 #obtendo as estatísticas para calcular o atrito
 contagem_dom = table(unique_id_dom$id_dom) %>% as.data.frame() %>%
   rename("quantidades" = "Var1", "ocorrencias" = "Freq")%>%
   mutate(total = sum(ocorrencias)) %>%
   mutate(porcentagem = (ocorrencias/total)*100)
+
 #agrupando as observações pelo número de ocorrências, contamos cada uma tem e dividimos pelo total de domicílios únicos
 atrito_dom= contagem_dom |> group_by(ocorrencias) |> summarise(quantidade= n()/nrow(contagem_dom))
 
 #fazendo um loop para termos, em uma lista, um data frame com o atrito individual para cada painel
 painel_desejado<-data.frame()
 atritos_juntos_painel<- list()
+
 for (i in 2:9) { #não existe, no painel 1, nenhum indivíduo que está na 1a entrevista, penso que por ser uma fase de transição entre PNAD e PNADc, ou algo do tipo
 
 painel_desejado<- panel_data_list[[i]]
