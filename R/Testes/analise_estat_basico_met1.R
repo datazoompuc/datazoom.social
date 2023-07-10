@@ -1,5 +1,8 @@
+options(scipen=999)
+
 painel_6 = rbind(readRDS(".\\pnad2017_1_6"), readRDS(".\\pnad2017_2_6"), readRDS(".\\pnad2017_3_6"), readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6")) %>%
   mutate(id_ind = as.character(id_ind))
+
 #atrito via individuo- exemplo usando o painel 6
 contagem_ind = table(painel_6$id_ind) %>% as.data.frame() %>%
   rename("id_ind" = "Var1", "contagem" = "Freq")
@@ -7,12 +10,17 @@ com_contagem = left_join(painel_6, contagem_ind) %>%
   dplyr::filter(V1016 == 1) #filtrando para só contarmos as pessoas que fizeram a 1a entrevista
 #assim, medimos o real atrito, que é a quantidade de pessoas que fomos capazes de acompanhar ao longo das 5 entrevistas
 
-atrito = table(com_contagem$contagem) %>% as.data.frame() %>%
+atrito_ind = table(com_contagem$contagem) %>% as.data.frame() %>%
   rename("quantidades" = "Var1", "ocorrencias" = "Freq") %>%
   mutate(total = sum(ocorrencias)) %>%
   mutate(porcentagem = (ocorrencias/total)*100)
 
+#####################
 #atrito via domicilio
+#####################
+
+# tentativa 1
+#####################
 
 #primeiro, vamos splitar o data frame de atrito em cada par (ano-trimestre) usando a função divide_trimestres, criada no doc "testes_basico_met1.R"
 painel_dividido<- divide_trimestres(painel_6)
@@ -55,3 +63,37 @@ atrito = table(com_contagem$contagem) %>% as.data.frame()%>%
   mutate(porcentagem = (ocorrencias/total)*100)
 atritos_juntos_painel[[i-1]]<- atrito #deve-se comentar que o 1o objeto nessa lista é referente ao SEGUNDO painel, por conta do problema citado na linha 33
 }
+#####################
+
+# tentativa 2
+#####################
+
+val_unicos = painel_6 %>%
+  dplyr::select(Ano, Trimestre, V1016, id_dom) %>%
+  unique()
+
+contagem_ind = table(val_unicos$id_dom) %>% as.data.frame() %>%
+  rename("id_dom" = "Var1", "contagem" = "Freq")
+
+com_contagem_dom = left_join(val_unicos, contagem_ind) %>%
+  dplyr::filter(V1016 == 1) #filtrando para só contarmos os id_dom que aparecem na 1a entrevista
+#assim, medimos o real atrito, que é a quantidade de domicilios que fomos capazes de acompanhar ao longo das 5 entrevistas
+
+atrito_dom = table(com_contagem_dom$contagem) %>% as.data.frame() %>%
+  rename("quantidades" = "Var1", "ocorrencias" = "Freq") %>%
+  mutate(total = sum(ocorrencias)) %>%
+  mutate(porcentagem = (ocorrencias/total)*100)
+
+#####################
+
+# atrito total (%)
+# ao longo do arquivo chamamos de atrito_ind,
+# mas na verdade ele só aparece ao nível do indivíduo
+# mas já tem o atrito de domicílio embutido
+# 100 - 72.0961666518 = 27.90383
+
+# atrito via domicílio (%)
+# 100 - 83.102051 = 16.89795
+
+# logo o atrito (%) via domicílio é
+# 27.90383 - 16.89795 = 11.00588
