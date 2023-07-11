@@ -21,13 +21,13 @@ atrito_ind = table(com_contagem$contagem) %>% as.data.frame() %>%
 
 # tentativa 1
 #####################
-
+lista_dom_1aentrevista<- painel_6 |> filter(V1016== "1") |> unique() |> pull(id_dom) |> as.vector()
 #primeiro, vamos splitar o data frame de atrito em cada par (ano-trimestre) usando a função divide_trimestres, criada no doc "testes_basico_met1.R"
 painel_dividido<- divide_trimestres(painel_6)
 #agora criamos uma nova lista, com os valores únicos de id_dom de cada data frame da lista criada acima
 lista_unique<- list()
 for (i in 1:length(painel_dividido)) {
-  lista_unique[[i]] <-painel_dividido[[i]] %>% dplyr::pull(id_dom)%>% unique()%>% data.frame()
+  lista_unique[[i]] <-painel_dividido[[i]] %>% filter(id_dom %in% lista_dom_1aentrevista)|> dplyr::pull(id_dom)%>% unique()%>% data.frame()
 }
 
 #criando uma coluna com todos ids únicos de cada trimestre do painel
