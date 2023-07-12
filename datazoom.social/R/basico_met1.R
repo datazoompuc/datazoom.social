@@ -81,6 +81,60 @@ for (i in years) {
   }
 }
 
+### new edition that takes "panel" as parameter
+############
+
+download_panel = function(panel){
+  pnad_list <- list() # create an empty list to store the data frames
+  vars_list <- list() # create an empty list to store the data frames
+  panel_list <- list() # create an empty list to store the data frames
+
+  if (panel == 1) {
+    x = c("2012.1", "2012.2", "2012.3", "2012.4")
+  } else if (panel == 2) {
+    x = c("2012.1", "2012.2", "2012.3", "2012.4", "2013.1", "2013.2", "2013.3", "2013.4", "2014.1")
+  } else if (panel == 3) {
+    x = c("2013.2", "2013.3", "2013.4", "2014.1", "2014.2", "2014.3", "2014.4", "2015.1", "2015.2")
+  } else if (panel == 4) {
+    x = c("2014.3", "2014.4", "2015.1", "2015.2", "2015.3", "2015.4", "2016.1", "2016.2", "2016.3")
+  } else if (panel == 5) {
+    x = c("2015.4", "2016.1", "2016.2", "2016.3", "2016.4", "2017.1", "2017.2", "2017.3", "2017.4")
+  } else if (panel == 6) {
+    x = c("2017.1", "2017.2", "2017.3", "2017.4", "2018.1", "2018.2", "2018.3", "2018.4", "2019.1")
+  } else if (panel == 7) {
+    x = c("2018.2", "2018.3", "2018.4", "2019.1", "2019.2", "2019.3", "2019.4", "2020.1", "2020.2")
+  } else if (panel == 8) {
+    x = c("2019.3", "2019.4", "2020.1", "2020.2", "2020.3", "2020.4", "2021.1", "2021.2", "2021.3")
+  } else { #(panel == 9)
+    x = c("2020.4", "2021.1", "2021.2", "2021.3", "2021.4", "2022.1", "2022.2", "2022.3", "2022.4")
+  }
+
+
+  for (i in x) {
+      separated = stringr::str_split_1(i, ".")
+      j = separated[[1]]
+      k = separated[[2]]
+
+      pnad_list[[paste0("pnad", j, "_", k)]] = get_pnadc(year = j, quarter = k, labels = TRUE)
+      vars_list[[paste0("vars", j, "_", k)]] = pnad_list[[paste0("pnad", j, "_", k)]]$variables %>%
+        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023, V1016) %>%
+        as.data.frame()
+
+        panel_list[[paste0("pnad", j, "_", k, "_", panel)]] = vars_list[[paste0("vars", j, "_", k)]] %>%
+          as.data.frame() %>%
+          dplyr::filter(as.integer(V1014) == panel) %>%
+          cleans_dat() %>%
+          builds_identifiers()
+        panel.intermediary<-panel_list[[paste0("pnad", j, "_", k, "_", panel)]] %>% as.data.frame()
+
+        if(nrow(panel.intermediary)>5000){
+          saveRDS(panel.intermediary, file = paste0(".\\pnad", j, "_", k, "_", panel))
+        } else {
+          rm(panel.intermediary)}
+  }
+
+############
+
 # Create an empty list to store the data frames for each panel
 panel_data_list <- list()
 
