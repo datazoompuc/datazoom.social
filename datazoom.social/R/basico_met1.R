@@ -55,7 +55,7 @@ basic_panel = function(incoming_dat) {
 # attention! the function takes a "years" vector - not panel- as parameter.
 # therefore, the user should know which years contain the panel of interest
 
-download_panel = function(years){
+download_years = function(years){
 pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
@@ -79,6 +79,7 @@ for (i in years) {
         rm(panel.intermediary)}
     }
   }
+}
 }
 
 ### new edition that takes "panel" as parameter
@@ -111,9 +112,9 @@ download_panel = function(panel){
 
 
   for (i in x) {
-      separated = stringr::str_split_1(i, ".")
-      j = separated[[1]]
-      k = separated[[2]]
+      s_plit = stringi::stri_split_fixed(i, pattern = ".", simplify = FALSE)
+      j = s_plit[[1]][1]
+      k = s_plit[[1]][2]
 
       pnad_list[[paste0("pnad", j, "_", k)]] = get_pnadc(year = j, quarter = k, labels = TRUE)
       vars_list[[paste0("vars", j, "_", k)]] = pnad_list[[paste0("pnad", j, "_", k)]]$variables %>%
@@ -132,6 +133,7 @@ download_panel = function(panel){
         } else {
           rm(panel.intermediary)}
   }
+}
 
 ############
 
