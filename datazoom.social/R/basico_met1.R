@@ -135,35 +135,37 @@ download_panel = function(panel){
 
 ############
 
-# Create an empty list to store the data frames for each panel
-panel_data_list <- list()
+bundle_panel<- function(directory){ #we have to add on READ.ME that the person should put directory= the place in which she/he has their donwloaded files from the latest function
+    #we should also put a warning that this function right here is only advised to be used within a paste that only has the files downloaded in the previous version
+    panel_data_list <- list()
+    # Loop through panels 1 to 9
+    for (panel in 1:9) {
+      # Create a regular expression pattern to match the files for the current panel
+      pattern <- paste0("_", panel,"$")
 
-# Loop through panels 1 to 9
-for (panel in 1:9) {
-  # Create a regular expression pattern to match the files for the current panel
-  pattern <- paste0("_", panel,"$")
+      # Get the list of files in the directory that match the pattern
+      file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
 
-  # Get the list of files in the directory that match the pattern
-  file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
+      # Create an empty data frame to store the combined data for the current panel
+      panel_data <- data.frame()
 
-  # Create an empty data frame to store the combined data for the current panel
-  panel_data <- data.frame()
+      # Read and combine the RDS files that match the pattern for the current panel
+      for (file in file_list) {
+        panel_file_data <- readRDS(file)  # Load the RDS file
+        panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
+      }
 
-  # Read and combine the RDS files that match the pattern for the current panel
-  for (file in file_list) {
-    panel_file_data <- readRDS(file)  # Load the RDS file
-    panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
+      # Store the combined data frame for the current panel in the list
+      panel_data_list[[panel]] <- panel_data
+
+      if (length(file_list) < 8) {
+        warning("Less than 8 files were downloaded. Likely, there are files missing from this panel. Please check your command.")
+      }
+
     }
-
-  # Store the combined data frame for the current panel in the list
-  panel_data_list[[panel]] <- panel_data
-
-  if (length(file_list) < 8) {
-      warning("Less than 8 files were download. Likely there are files missing from this panel. Please check your command.")
+    resultado<- panel_data_list
+    return(panel_data_list)
   }
-
-  }
-}
 
 ### download_quarter function replaces the get_pnadc function. in dev, we only use get_pnadc. download_quarter is mostly a backup
 download_quarter <- function(quarter, year, directory = getwd()) {
