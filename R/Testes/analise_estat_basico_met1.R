@@ -1,4 +1,5 @@
 options(scipen=999)
+setwd("C:\\Users\\laura\\OneDrive\\Laura\\economia\\pibic")
 
 painel_6 = rbind(readRDS(".\\pnad2017_1_6"), readRDS(".\\pnad2017_2_6"), readRDS(".\\pnad2017_3_6"), readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6")) %>%
   mutate(id_ind = as.character(id_ind))
@@ -141,3 +142,52 @@ atrito_domicilio = function(panel) {
 
 ######################
 
+# agora para diferentes períodos (1-2), (1-3), (1-4)
+
+# atrito total por periodo
+
+atrito_total_per = function(panel, per) {
+
+updated_panel = panel %>%
+  dplyr::filter(V1016 <= per)
+  
+contagem_ind =
+  table(updated_panel$id_ind) %>% as.data.frame() %>%
+  rename("id_ind" = "Var1", "contagem" = "Freq")
+com_contagem = left_join(updated_panel, contagem_ind) %>%
+  dplyr::filter(V1016 == 1) #filtrando para só contarmos as pessoas que fizeram a 1a entrevista
+#assim, medimos o real atrito, que é a quantidade de pessoas que fomos capazes de acompanhar ao longo das 5 entrevistas
+
+atrito_ind = table(com_contagem$contagem) %>% as.data.frame() %>%
+  rename("quantidades" = "Var1", "ocorrencias" = "Freq") %>%
+  mutate(total = sum(ocorrencias)) %>%
+  mutate(porcentagem = (ocorrencias/total)*100)
+
+return(atrito_ind)
+
+}
+
+# atrito de domicílio por período
+
+atrito_dom_per = function(panel, per) {
+  updated_panel = panel %>%
+    dplyr::filter(V1016 <= per)
+  
+  val_unicos = updated_panel %>%
+    dplyr::select(Ano, Trimestre, V1016, id_dom) %>%
+    unique()
+  
+  contagem_ind_2 = table(val_unicos$id_dom) %>% as.data.frame() %>%
+    rename("id_dom" = "Var1", "contagem" = "Freq")
+  
+  com_contagem_dom_2 = left_join(val_unicos, contagem_ind_2) %>%
+    dplyr::filter(V1016 == 1) #filtrando para só contarmos os id_dom que aparecem na 1a entrevista
+  #assim, medimos o real atrito, que é a quantidade de domicilios que fomos capazes de acompanhar ao longo das 5 entrevistas
+  
+  atrito_dom_2 = table(com_contagem_dom_2$contagem) %>% as.data.frame() %>%
+    rename("quantidades" = "Var1", "ocorrencias" = "Freq") %>%
+    mutate(total = sum(ocorrencias)) %>%
+    mutate(porcentagem = (ocorrencias/total)*100)
+  
+  return(atrito_dom_2)
+}
