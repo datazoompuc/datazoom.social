@@ -28,7 +28,7 @@ builds_identifiers = function(character_dat) {
   w_id_dom = character_dat %>%
     dplyr::bind_cols(
       # creates household identifier
-      id_dom = dplyr::group_indices(as.data.frame(character_dat), character_dat$UPA, character_dat$V1008, character_dat$V1014))
+      id_dom = paste0(character_dat$UPA, character_dat$V1008, character_dat$V1014))
   
   #creates individual identifier
   #id_ind concatenates household identifier (id_dom), birthday in Ymd format and gender
@@ -44,5 +44,12 @@ builds_identifiers = function(character_dat) {
 # podemos fazer uma estrutura de stop ou de while, em um for/if, para compararmos o id de cada individuo
 # Se colocarmos como base de comparacao só a variavel id_ind, já que só conseguiremos parear por municipio mesmo, 
 # devemos ter uma identificacao sem problemas.
+
+# minha ideia é: Criar duas variaveis que assumem 0 se o match já aconteceu,
+# uma para trimestres futuros ("prox"- meaning proximo), outra para tri passados ("ant"- meaning anterior)
+
+# Depois, fazemos um comando para verificar se um certo id_ind existe no trimestre seguinte, se existir, a variavel "prox" adquire 1
+# O mesmo é feito para a variavel ant
+
 
 
