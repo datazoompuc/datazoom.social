@@ -31,8 +31,8 @@ cleansing and building the basic panel.
 |-------------------------------|---------------------------------------------------------|
 | **[cleans_dat](#cleans_dat)**                | *Prepares data to build identifiers*                    |
 | **[builds_identifiers](#builds_identifiers)**      | *Creates household and individual identifiers*          |
-| **[basic_panel](#basic_panel)**                | *Runs the other two functions automatically to the data provided by the user* |
-| [download_years] Facilitates the retrieval of PNAD Contínua data for user-specified years.*  |
+| **[basic_panel](#basic_panel)**                | *Applies both functions above to the data provided* |
+| **[download_years](#download_years)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
 
 </td>
 </tr>
@@ -85,3 +85,13 @@ This variable is created in the **[builds_identifiers](#builds_identifiers)** fu
 **Actions**
 1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
 
+## download_years()
+**Description**
+This function in quite dense in many ways, so we'll try to 
+**Arguments** 
+
+1.  *Data received*: `"incoming_dat"`
+This variable is created in the **[builds_identifiers](#builds_identifiers)** function described above.
+
+**Actions**
+1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
