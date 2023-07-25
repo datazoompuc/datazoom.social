@@ -87,7 +87,25 @@ This variable is created in the **[builds_identifiers](#builds_identifiers)** fu
 
 ## download_years()
 **Description**
-This function in quite dense in many ways, so we'll try to 
+
+This function in quite dense in many ways, so we'll try to disentangle it in this section.
+
+We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets.
+______________________________________________________________________________________________________
+
+Firstly, we must state that, to the current state of this package, you can only download selected years worth of PNADc datasets, so, if you wish to do a panel regression analysis of the PNADc data from the 2nd and 3rd quarters of 2015, we suggest that you use the *`get_pnadc`* function (documentation above) and apply our *[basic_panel](#basic_panel)* function after that.
+Our function could do that as well, but you'd have downloaded also the data from the 1st and 4th quarters of 2015, therefore wasting valuable resources like computer capacity, internet and, most of all, time.
+______________________________________________________________________________________________________
+What our function does do is not only download the PNADc files for all the quarters of a given year. But it also reads the data and divides all the observations by which panel they belong (variable  `V1014` allows us to do that with a simple `filter`).
+
+After that, our function cleans the data and builds the identifiers(applying the *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)* functions), allowing us to have a tidy, identified (both individually and by household) data frame.
+
+Finally, we save the valid (those with >5000 rows, which is an arbitraty measure we use to test if that panel existed in that interview) dataframes into .RDS files.
+
+PS: We are developing a function that gets all those files and turns them into a list with one dataframe per panel (combining the quarters).
+
+
+
 **Arguments** 
 
 1.  *Data received*: `"incoming_dat"`
