@@ -1,5 +1,5 @@
 ##########################
-###                    Download PNADC
+###                 Build basic PNADC panel
 ### This file contains PNADC basic panel related functions
 ##########################
 
