@@ -1,6 +1,6 @@
 ##########################
-###                    Download PNAD
-### This file contains PNAD download-related functions
+###                    Download PNADC
+### This file contains PNADC download-related functions
 ##########################
 
 
