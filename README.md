@@ -94,7 +94,9 @@ ________________________________________________________________________________
 First, we must state that, to the current state of this package, you can only download selected years worth of PNADc datasets, so, if you wish to do a panel regression analysis of the PNADc data from the 2nd and 3rd quarters of 2015, we suggest that you use the *`get_pnadc`* function (documentation above) and apply our *[basic_panel](#basic_panel)* function after that.
 Our function could do that as well, but you'd have downloaded also the data from the 1st and 4th quarters of 2015, therefore wasting valuable resources like computer capacity, internet and, most of all, time.
 ______________________________________________________________________________________________________
-What our function does do is not only download the PNADc files for all the quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable  `V1014` allows us to do that with a simple `filter`). The goal is to organize and store the data frames in a structured manner for further analysis. The function performs the following steps:
+What our function does do is not only download the PNADc files for all the quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable  `V1014` allows us to do that with a simple `filter`). The goal is to organize and store the data frames in a structured manner for further analysis. 
+
+The function performs the following steps:
 
 1. Initializes empty lists: `pnad_list`, `vars_list`, and `panel_list` to store different data frames.
 2. Loops through the input `years`:
@@ -109,7 +111,7 @@ What our function does do is not only download the PNADc files for all the quart
      
    - If the number of rows in the intermediary panel data exceeds 5000 (this is an arbitrary number we defined based on the observation of existent data frames), it is saved as an RDS file in the current directory with a specific naming convention (the naming is based on the correspondent number of year, quarter and panel of the file). Otherwise, the intermediary data is removed from memory.
      
-Example of RDS file naming:
+     Example of RDS file naming:
  `“2021_1_2”` (this file corresponds to the second panel of the first quarter of the year 2021).
 
 3. The process is repeated for each quarter of each year specified in the input.
