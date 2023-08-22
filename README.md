@@ -105,7 +105,7 @@ The function performs the following steps:
      
    - Fetches PNADC (Continuous National Household Sample Survey) data for the given year and quarter using the `get_pnadc` function. The resulting data is stored in the `pnad_list` with a specific naming convention.
      
-   - Selects specific variables of interest from the PNAD data: year, quarter, UF (Federal Unit), UPA (Analytical Planning Unit), V1008, V1014, V2003, V2005, V2007, V2008, V20081, V20082 and V1023. These selected variables are stored in the `vars_list` with appropriate naming.
+   - Selects specific variables of interest from the PNAD data: `year, quarter, UF (Federal Unit), UPA (Analytical Planning Unit), V1008, V1014, V2003, V2005, V2007, V2008, V20081, V20082 and V1023`. These selected variables are stored in the `vars_list` with appropriate naming.
      
    - Subsets the data based on specific conditions (integer value of `V1014`) and applies data cleaning and identifier-building functions (`cleans_dat()` and `builds_identifiers()`) to create intermediary panel data frames for each condition.
      
