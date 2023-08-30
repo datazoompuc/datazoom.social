@@ -2,9 +2,12 @@
 
 library(dplyr)
 library(tidyr)
+directory<- "C:/Users/tuca1/OneDrive/Documentos/Datazoom/Painel_PNAD/Paineis"
+paineis_juntos<-bundle_panel(directory)
+lista_atrito<-list()
 
 # Create the data frame
-data <- painel_6
+cria_df_de_atrito<-function(data){
 data$V1016<- as.integer(data$V1016)
 presentes_na_1a_entrevista= data |> filter(V1016== 1) |> pull(id_ind) |> as.vector()
 #filtrando para a base só ter as pessoas que participaram da 1a entrevista
@@ -23,7 +26,6 @@ summary_data <- data %>%
          fourt_interview= ifelse("4" %in% unlist(disappearances), 1, 0),
          fifth_interview= ifelse("5" %in% unlist(disappearances), 1, 0))
 
-View(summary_data)
 soma_quinta_int<-sum(as.integer(summary_data$fifth_interview))
 # comparando a soma dessa coluna da quinta entrevista com a diferença de pessoas entre a 1a e 5a entrevista:
 # vemos que a soma da coluna(116848) é bem semelhante à diferença (calculada abaixo)
@@ -49,3 +51,13 @@ for (i in 5:ncol(summary_data)) {
 }  
 
 atrito_definite$Percentage_found= 100*(round(1-(atrito_definite$Contagem.de.faltantes/nrow(summary_data)),5))
+return(atrito_definite)
+}
+
+lista_atrito<- lapply(paineis_juntos, cria_df_de_atrito)
+df_atrito<- unlist(lista_atrito) |> data.frame()
+#adicionando cada data frame de lista_atrito à uma planilha de excel
+library(writexl)
+
+writexl::write_xlsx(df_atrito, "output.xlsx")
+
