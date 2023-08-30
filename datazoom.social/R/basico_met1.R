@@ -64,7 +64,7 @@ for (i in years) {
   for(j in 1:4) {
     pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
     vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
-      select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023, V1016) %>%
+      select(everything()) %>%
       as.data.frame()
     for(k in 1:9) {
       panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
@@ -118,7 +118,7 @@ download_panel = function(panel){
 
       pnad_list[[paste0("pnad", j, "_", k)]] = get_pnadc(year = j, quarter = k, labels = TRUE)
       vars_list[[paste0("vars", j, "_", k)]] = pnad_list[[paste0("pnad", j, "_", k)]]$variables %>%
-        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023, V1016) %>%
+        select(everything()) %>%
         as.data.frame()
 
         panel_list[[paste0("pnad", j, "_", k, "_", panel)]] = vars_list[[paste0("vars", j, "_", k)]] %>%
