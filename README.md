@@ -118,13 +118,3 @@ The function performs the following steps:
 
 
 PS: We are developing a function that gets all those files and turns them into a list with one dataframe per panel (combining the quarters).
-
-
-
-**Arguments** 
-
-1.  *Data received*: `"incoming_dat"`
-This variable is created in the **[builds_identifiers](#builds_identifiers)** function described above.
-
-**Actions**
-1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
