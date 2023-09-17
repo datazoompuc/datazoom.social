@@ -115,6 +115,60 @@ The function performs the following steps:
  `“2021_1_2”` (this file corresponds to the second panel of the first quarter of the year 2021).
 
 3. The process is repeated for each quarter of each year specified in the input.
+------------------------------------------------------------------------
+**Example**: Downloading all files from the year 2014
 
+```{r}
+# setwd("desired directory where you'd like the files to be downloaded")
 
-PS: We are developing a function that gets all those files and turns them into a list with one dataframe per panel (combining the quarters).
+download_years(2014)
+
+```
+
+PS: the year should be typed as an integer, always
+## bundle_panel()
+**Description**
+
+This function aims to combine and organize data from different PNADC panel files. The PNADC survey's data is collected in different quarters, and the individuals are divided into panels. You can use these panels (specified by the variable V1016 in PNADc datasets) to try and "follow" individuals over time.
+
+For more information about this process, please check out the IBGE's website section about the Continuous PNAD: [available here](https://www.ibge.gov.br/estatisticas/sociais/trabalho/2511-np-pnad-continua/30980-pnadc-divulgacao-pnadc4.html?=&t=o-que-e).
+
+ The bundle_panel function is used to combine data from different panels into a single dataset. Essentially, this function helps organize and combine data from different quarters and years of the PNADC into a format that is easier to analyze. It's particlarly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[download_years](#download_years)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
+____________________________________________________________________________________________________
+
+**Requirements**
+
+In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[download_years](#download_years)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
+
+Here's a detailed explanation of how the function works:
+
+1) It takes a directory parameter, which should be the directory where the panel data files are located.
+
+2) The function iterates through different panels (from 1 to 9).
+
+3) For each panel, it creates a regular expression pattern to find files related to that panel in the directory. For example, for panel 1, the pattern will be _1$.
+
+4) It then lists all files in the directory that match the current panel's pattern.
+
+5) For each found file, it reads the data (which should be in RDS format, a serialization format for R data) and combines it into a single dataset for the current panel.
+
+6) It stores the combined dataset for the current panel in a list.
+
+7) If there are fewer than 9 files for a specific panel, the function issues a warning, indicating that some files may be missing for that panel.
+
+8) Finally, the function returns a list of combined datasets for each of the 9 panels.
+
+**Example**: This example was designed assuming you have downloaded all files that contain data for the sixth and seventh panel of the PNADc.
+
+For context, the quarters contain observations that belong to this panel range from 2017.1 to 2020.2 (all included)
+
+```{r}
+# to download the desired files for these 2 panels, run the commented code below
+# setwd("desired directory where you'd like the files to be downloaded")
+# download_years(c(2016,2017))
+
+# then, to get a list that has 2 dataframes (one for panel 6, another for panel 7), run the code below
+
+panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded")
+
+```
