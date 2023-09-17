@@ -52,11 +52,11 @@ cleansing and building the basic panel.
 3. Returns the variable `character_dat`, which is the treated data frame.
 
 ------------------------------------------------------------------------
-Example:
+**Example**:
 
 ```{r}
 # data_untreated= data downloaded from an external source, a PNADC dataframe for a specific period.
-data <- incoming_dat(data_untreated)
+treated_data <- incoming_dat(data_untreated)
 ```
 
 ## builds_identifiers ()
@@ -74,12 +74,18 @@ This variable is created in the **[cleans_dat](#cleans_dat)** function described
 2. Creates each individual's unique identifer by pasting together the variables: `UF` , `V1023` , `id_dom` , `V20082` , `V20081` , `V2008` , `V2007`.
 
 3. Returns the variable `b_panel`, which represents the original, treated data frame with the 2 columns (representing the 2 identifiers) added to it.
+------------------------------------------------------------------------
+**Example**:
 
+```{r}
+# treated_data= A treated dataset (using our cleans_dat function)
+identified_data <- builds_identifiers(treated_data)
+```
 ## basic_panel()
 
 **Arguments** 
 
-1.  *Data received*: `"incoming_dat"`
+1.  *Data received*: `"identied_data"`
 This variable is created in the **[builds_identifiers](#builds_identifiers)** function described above.
 
 **Actions**
