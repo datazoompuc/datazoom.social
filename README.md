@@ -191,6 +191,6 @@ For context, the quarters contain observations that belong to this panel range f
 
 # then, to get a list that has 2 dataframes (one for panel 6, another for panel 7), run the code below
 
-panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded")
+panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded", desired_panel= c(6:7))
 
 ```
