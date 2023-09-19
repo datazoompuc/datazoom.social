@@ -194,3 +194,40 @@ For context, the quarters contain observations that belong to this panel range f
 panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded", desired_panel= c(6:7))
 
 ```
+# load_pnad_panel()
+
+**Description**
+
+This R function, `load_pnad_panel`, is designed to load and process data from a panel dataset of the Brazilian National Household Sample Survey (PNAD) based on specified panel periods. The function takes one argument, `panel`, which determines the panel period to be loaded and processed.
+
+**Input**
+
+- `panel`: An integer representing the panel period to be loaded. The available panels range from 1 to 9, each corresponding to a specific time period.
+
+**Output**
+
+- A list of .RDS files saved in the user's working directory. 
+- These files correspond to the PNAD's quarters that contain observations that belong to the specified panel the user deserves to analyze.
+
+**Example**
+```{r}
+load_pnad_panel(panel= c(6:7))
+```
+
+**Parameters**
+- `panel`: An integer (ranging from 1 to 9) representing the panel period to be loaded.
+
+**Example**
+```{r}
+# Load and process data for panel 3
+load_pnad_panel(panel = 3)
+```
+
+**Details**
+
+- The function determines the time periods to load based on the `panel` argument.
+- It iterates through the specified time periods, extracting PNAD data, variables, and processing panel data.
+- Panel data is filtered based on a specified value (`panel`) in the V1014 column.
+- Processed panel data with more than 5000 rows is saved as an .RDS file.
+
+Please ensure that you have the necessary functions ([*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc), **[cleans_dat](#cleans_dat)**, **[builds_identifiers](#builds_identifiers)**), RAM memory and internet available to run this function successfully. Additionally, make sure to specify a valid `panel` value to load the desired panel data.
