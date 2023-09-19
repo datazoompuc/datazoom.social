@@ -20,8 +20,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 
 # PNAD Contínua
 
-The following functions are available. They allow data 
-cleansing and building the basic panel.
+The following functions are available.
 
 <table>
 <tr>
