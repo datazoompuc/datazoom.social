@@ -32,7 +32,7 @@ cleansing and building the basic panel.
 | **[cleans_dat](#cleans_dat)**                | *Prepares data to build identifiers*                    |
 | **[builds_identifiers](#builds_identifiers)**      | *Creates household and individual identifiers*          |
 | **[basic_panel](#basic_panel)**                | *Applies both functions above to the data provided* |
-| **[download_years](#download_years)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
+| **[load_pnad](#load_pnad)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
 
 </td>
 </tr>
@@ -91,28 +91,32 @@ This variable is created in the **[builds_identifiers](#builds_identifiers)** fu
 **Actions**
 1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
 
-## download_years()
+## load_pnad()
+
+**Parameters default**
+```{r}
+load_pnad(year, quarters= c(1:4))
+#the year should always be specified, the quarters default is c(1:4)
+
+```
+
 **Description**
 
 We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets.
 ______________________________________________________________________________________________________
 
-First, we must state that, to the current state of this package, you can only download selected years worth of PNADc datasets, so, if you wish to do a panel regression analysis of the PNADc data from the 2nd and 3rd quarters of 2015, we suggest that you use the *`get_pnadc`* function (documentation above) and apply our *[basic_panel](#basic_panel)* function after that.
-Our function could do that as well, but you'd have downloaded also the data from the 1st and 4th quarters of 2015, therefore wasting valuable resources like computer capacity, internet and, most of all, time.
-______________________________________________________________________________________________________
-What our function does do is not only download the PNADc files for all the quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable  `V1014` allows us to do that with a simple `filter`). The goal is to organize and store the data frames in a structured manner for further analysis. 
+In conclusion:
+What our function do is not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable  `V1014` allows us to do that with a simple `filter`). The goal is to organize and store the data frames in a structured manner for further analysis. 
 
 The function performs the following steps:
 
 1. Initializes empty lists: `pnad_list`, `vars_list`, and `panel_list` to store different data frames.
 2. Loops through the input `years`:
    
-   - For each year, it further loops through quarters 1 to 4.
+   - For each year, it further loops through quarters designated by the user (if the user does not specify, it loops through 1 to 4).
      
-   - Fetches PNADC (Continuous National Household Sample Survey) data for the given year and quarter using the `get_pnadc` function. The resulting data is stored in the `pnad_list` with a specific naming convention.
-     
-   - Selects specific variables of interest from the PNAD data: `year, quarter, UF (Federal Unit), UPA (Analytical Planning Unit), V1008, V1014, V2003, V2005, V2007, V2008, V20081, V20082 and V1023`. These selected variables are stored in the `vars_list` with appropriate naming.
-     
+   - Fetches PNADC (Continuous National Household Sample Survey) data for the given year and quarter using the `get_pnadc` function. The resulting data is stored in the `pnad_list` with a specific naming convention (which we'll discuss below).
+       
    - Subsets the data based on specific conditions (integer value of `V1014`) and applies data cleaning and identifier-building functions (`cleans_dat()` and `builds_identifiers()`) to create intermediary panel data frames for each condition.
      
    - If the number of rows in the intermediary panel data exceeds 5000 (this is an arbitrary number we defined based on the observation of existent data frames), it is saved as an RDS file in the current directory with a specific naming convention (the naming is based on the correspondent number of year, quarter and panel of the file). Otherwise, the intermediary data is removed from memory.
@@ -122,16 +126,16 @@ The function performs the following steps:
 
 3. The process is repeated for each quarter of each year specified in the input.
 ------------------------------------------------------------------------
-**Example**: Downloading all files from the year 2014
+**Example**: Downloading the files from the year 2014, specifically from the first through the third quarters.
 
 ```{r}
 # setwd("desired directory where you'd like the files to be downloaded")
 
-download_years(2014)
+load_pnad(year= 2014, panel= c(1:3))
 
 ```
 
-PS: the year should be typed as an integer, always
+PS: the year should be typed as an integer, always, as well as the quarters.
 ## bundle_panel()
 **Description**
 
@@ -171,7 +175,7 @@ For context, the quarters contain observations that belong to this panel range f
 ```{r}
 # to download the desired files for these 2 panels, run the commented code below
 # setwd("desired directory where you'd like the files to be downloaded")
-# download_years(c(2016,2017))
+# load_pnad(c(2016,2017))
 
 # then, to get a list that has 2 dataframes (one for panel 6, another for panel 7), run the code below
 
