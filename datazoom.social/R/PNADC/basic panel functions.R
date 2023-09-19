@@ -58,13 +58,13 @@ basic_panel = function(incoming_dat) {
 # attention! the function takes a "years" vector - not panel- as parameter.
 # therefore, the user should know which years contain the panel of interest
 
-download_years = function(years){
+load_pnad = function(years, quarters= c(1:4)){
 pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
 
 for (i in years) {
-  for(j in 1:4) {
+  for(j in quarters) {
     pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
     vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
       select(everything()) %>%
@@ -88,7 +88,7 @@ for (i in years) {
 ### new edition that takes "panel" as parameter
 ############
 
-download_panel = function(panel){
+load_pnad_panel = function(panel){
   pnad_list <- list() # create an empty list to store the data frames
   vars_list <- list() # create an empty list to store the data frames
   panel_list <- list() # create an empty list to store the data frames
@@ -140,11 +140,11 @@ download_panel = function(panel){
 
 ############
 
-bundle_panel<- function(directory){ #we have to add on READ.ME that the person should put directory= the place in which she/he has their donwloaded files from the latest function
+bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on READ.ME that the person should put directory= the place in which she/he has their donwloaded files from the latest function
     #we should also put a warning that this function right here is only advised to be used within a paste that only has the files downloaded in the previous version
     panel_data_list <- list()
     # Loop through panels 1 to 9
-    for (panel in 1:9) {
+    for (panel in desired_panels) {
       # Create a regular expression pattern to match the files for the current panel
       pattern <- paste0("_", panel,"$")
 
@@ -163,8 +163,9 @@ bundle_panel<- function(directory){ #we have to add on READ.ME that the person s
       # Store the combined data frame for the current panel in the list
       panel_data_list[[panel]] <- panel_data
 
-      if (length(file_list) < 8) {
-        warning("Less than 8 files were downloaded. Likely, there are files missing from this panel. Please check your command.")
+      if (length(file_list) < 9) {
+        message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check your command." )
+        warning(message_problem)
       }
 
     }
