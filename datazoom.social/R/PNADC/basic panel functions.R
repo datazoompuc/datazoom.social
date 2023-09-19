@@ -58,7 +58,7 @@ basic_panel = function(incoming_dat) {
 # attention! the function takes a "years" vector - not panel- as parameter.
 # therefore, the user should know which years contain the panel of interest
 
-load_pnad = function(years, quarters= c(1:4)){
+load_pnadc = function(years, quarters= c(1:4)){
 pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
@@ -88,7 +88,7 @@ for (i in years) {
 ### new edition that takes "panel" as parameter
 ############
 
-load_pnad_panel = function(panel){
+load_pnadc_panel = function(panel){
   pnad_list <- list() # create an empty list to store the data frames
   vars_list <- list() # create an empty list to store the data frames
   panel_list <- list() # create an empty list to store the data frames
