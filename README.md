@@ -137,18 +137,29 @@ load_pnad(year= 2014, panel= c(1:3))
 
 PS: the year should be typed as an integer, always, as well as the quarters.
 ## bundle_panel()
-**Description**
+
+**Parameters default**
+```{r}
+bundle_panel(directory, desired_panel= c(1:9))
+#the directory should always be specified, the desired_panel's default are c(1:9)
+
+```
+**Background**
 
 This function aims to combine and organize data from different PNADC panel files. The PNADC survey's data is collected in different quarters, and the individuals are divided into panels. You can use these panels (specified by the variable V1016 in PNADc datasets) to try and "follow" individuals over time.
 
 For more information about this process, please check out the IBGE's website section about the Continuous PNAD: [available here](https://www.ibge.gov.br/estatisticas/sociais/trabalho/2511-np-pnad-continua/30980-pnadc-divulgacao-pnadc4.html?=&t=o-que-e).
 
- The bundle_panel function is used to combine data from different panels into a single dataset. Essentially, this function helps organize and combine data from different quarters and years of the PNADC into a format that is easier to analyze. It's particlarly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[download_years](#download_years)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
+**Description**
+
+ The bundle_panel function is used to combine data from different panels into a single dataset (assuming this data is stored in .RDS format in a single directory). Essentially, this function helps organize and combine data from different panels of the PNADC into a format that is easier to analyze. It's particularly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[load_pnad](#load_pnad)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
 ____________________________________________________________________________________________________
 
 **Requirements**
 
-In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[download_years](#download_years)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
+In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[load_pnad](#load_pnad)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
+
+**Actions**
 
 Here's a detailed explanation of how the function works:
 
@@ -168,7 +179,9 @@ Here's a detailed explanation of how the function works:
 
 8) Finally, the function returns a list of combined datasets for each of the 9 panels.
 
-**Example**: This example was designed assuming you have downloaded all files that contain data for the sixth and seventh panel of the PNADc.
+**Example**
+
+This example was designed assuming you have downloaded all files that contain data for the sixth and seventh panel of the PNADc.
 
 For context, the quarters contain observations that belong to this panel range from 2017.1 to 2020.2 (all included)
 
