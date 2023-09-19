@@ -162,13 +162,27 @@ bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on R
 
       # Store the combined data frame for the current panel in the list
       panel_data_list[[panel]] <- panel_data
+      #adding a warning message if the user tries o bundle a number of files smaller than it should be for that panel (for panel 1, 4 files, for all other panels, 9 files)
+      #the alternative message for Panel 1 still does not work, I'll solve that in the future
+      if(panel== 1){
+        if (length(file_list) < 4) {
+          message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
+          warning(message_problem)
+      } else{
 
       if (length(file_list) < 9) {
-        message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check your command." )
+        message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
         warning(message_problem)
       }
-
+      }
+    }
     }
     resultado<- panel_data_list
-    return(panel_data_list)
-  }
+#nomeando os objetos da lista resultante
+    char_vector<-as.vector(desired_panels)
+    nomes_painel <- paste("Panel ", char_vector)
+    names(resultado)= nomes_painel
+    return(resultado)
+}
+x<- bundle_panel(directory = "C:/Users/tuca1/OneDrive/Documentos/Datazoom/Painel_PNAD/Paineis")
+
