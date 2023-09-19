@@ -31,7 +31,7 @@ The following functions are available.
 | **[cleans_dat](#cleans_dat)**                | *Prepares data to build identifiers*                    |
 | **[builds_identifiers](#builds_identifiers)**      | *Creates household and individual identifiers*          |
 | **[basic_panel](#basic_panel)**                | *Applies both functions above to the data provided* |
-| **[load_pnad](#load_pnad)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
+| **[load_pnadc](#load_pnadc)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
 
 </td>
 </tr>
@@ -90,11 +90,11 @@ This variable is created in the **[builds_identifiers](#builds_identifiers)** fu
 **Actions**
 1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
 
-## load_pnad()
+## load_pnadc()
 
 **Parameters default**
 ```{r}
-load_pnad(year, quarters= c(1:4))
+load_pnadc(year, quarters= c(1:4))
 #the year should always be specified, the quarters default is c(1:4)
 
 ```
@@ -130,7 +130,7 @@ The function performs the following steps:
 ```{r}
 # setwd("desired directory where you'd like the files to be downloaded")
 
-load_pnad(year= 2014, panel= c(1:3))
+load_pnadc(year= 2014, panel= c(1:3))
 
 ```
 
@@ -151,7 +151,7 @@ For more information about this process, please check out the IBGE's website sec
 
 **Description**
 
- The bundle_panel function is used to combine data from different panels into a single dataset (assuming this data is stored in .RDS format in a single directory). Essentially, this function helps organize and combine data from different panels of the PNADC into a format that is easier to analyze. It's particularly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[load_pnad](#load_pnad)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
+ The bundle_panel function is used to combine data from different panels into a single dataset (assuming this data is stored in .RDS format in a single directory). Essentially, this function helps organize and combine data from different panels of the PNADc into a format that is easier to analyze. It's particularly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[load_pnad](#load_pnad)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
 ____________________________________________________________________________________________________
 
 **Requirements**
@@ -194,11 +194,11 @@ For context, the quarters contain observations that belong to this panel range f
 panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded", desired_panel= c(6:7))
 
 ```
-# load_pnad_panel()
+# load_pnadc_panel()
 
 **Description**
 
-This R function, `load_pnad_panel`, is designed to load and process data from a panel dataset of the Brazilian National Household Sample Survey (PNAD) based on specified panel periods. The function takes one argument, `panel`, which determines the panel period to be loaded and processed.
+This R function, `load_pnadc_panel`, is designed to load and process data from a panel dataset of the Brazilian National Household Sample Survey (PNAD Continuous) based on specified panel periods. The function takes one argument, `panel`, which determines the panel period to be loaded and processed.
 
 **Input**
 
@@ -207,11 +207,11 @@ This R function, `load_pnad_panel`, is designed to load and process data from a 
 **Output**
 
 - A list of .RDS files saved in the user's working directory. 
-- These files correspond to the PNAD's quarters that contain observations that belong to the specified panel the user deserves to analyze.
+- These files correspond to the PNADc's quarters that contain observations that belong to the specified panel the user deserves to analyze.
 
 **Example**
 ```{r}
-load_pnad_panel(panel= c(6:7))
+load_pnadc_panel(panel= c(6:7))
 ```
 
 **Parameters**
@@ -220,7 +220,7 @@ load_pnad_panel(panel= c(6:7))
 **Example**
 ```{r}
 # Load and process data for panel 3
-load_pnad_panel(panel = 3)
+load_pnadc_panel(panel = 3)
 ```
 
 **Details**
