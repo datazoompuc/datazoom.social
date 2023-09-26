@@ -184,5 +184,4 @@ bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on R
     names(resultado)= nomes_painel
     return(resultado)
 }
-x<- bundle_panel(directory = "C:/Users/tuca1/OneDrive/Documentos/Datazoom/Painel_PNAD/Paineis")
 
