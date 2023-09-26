@@ -40,57 +40,6 @@ The following functions are available.
 
 # Functions' Details
 
-## cleans_dat
-
-**Arguments** 
-
-1.  *Data received*: `"incoming_dat"`
-
-**Actions**
-1. Filters for missing values (`"99"` or `"9999"`) in variables that refer to the individual's reported birthday ( `V2008`- Day , `V20081`- Month ,  `V20082`- Year ).
-2. Turns 4 variables (the 3 cited above + `V2007`) into characters, in order to facilitate the identifier's creation later.
-3. Returns the variable `character_dat`, which is the treated data frame.
-
-------------------------------------------------------------------------
-**Example**:
-
-```{r}
-# data_untreated= data downloaded from an external source, a PNADC dataframe for a specific period.
-treated_data <- incoming_dat(data_untreated)
-```
-
-## builds_identifiers ()
-
-**Arguments** 
-
-1.  *Data received*: `"character_dat"`
-This variable is created in the **[cleans_dat](#cleans_dat)** function described above.
-
-**Actions**
-1. Creates each household's unique identifier ( `id_dom` ) by binding each individual's `UPA` , `V1008` and  `V1014` variables.
-
-    PS: All of those variables should be the same for every member of the same household, but differ between every household in the time sample, hence the described action above. This identifier should be the same for the household across time.
-
-2. Creates each individual's unique identifer by pasting together the variables: `UF` , `V1023` , `id_dom` , `V20082` , `V20081` , `V2008` , `V2007`.
-
-3. Returns the variable `b_panel`, which represents the original, treated data frame with the 2 columns (representing the 2 identifiers) added to it.
-------------------------------------------------------------------------
-**Example**:
-
-```{r}
-# treated_data= A treated dataset (using our cleans_dat function)
-identified_data <- builds_identifiers(treated_data)
-```
-## basic_panel()
-
-**Arguments** 
-
-1.  *Data received*: `"identied_data"`
-This variable is created in the **[builds_identifiers](#builds_identifiers)** function described above.
-
-**Actions**
-1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
-
 ## load_pnadc()
 
 **Parameters default**
@@ -232,3 +181,54 @@ load_pnadc_panel(panel = 3)
 - Processed panel data with more than 5000 rows is saved as an .RDS file.
 
 Please ensure that you have the necessary functions ([*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc), **[cleans_dat](#cleans_dat)**, **[builds_identifiers](#builds_identifiers)**), RAM memory and internet available to run this function successfully. Additionally, make sure to specify a valid `panel` value to load the desired panel data.
+
+## cleans_dat
+
+**Arguments** 
+
+1.  *Data received*: `"incoming_dat"`
+
+**Actions**
+1. Filters for missing values (`"99"` or `"9999"`) in variables that refer to the individual's reported birthday ( `V2008`- Day , `V20081`- Month ,  `V20082`- Year ).
+2. Turns 4 variables (the 3 cited above + `V2007`) into characters, in order to facilitate the identifier's creation later.
+3. Returns the variable `character_dat`, which is the treated data frame.
+
+------------------------------------------------------------------------
+**Example**:
+
+```{r}
+# data_untreated= data downloaded from an external source, a PNADC dataframe for a specific period.
+treated_data <- incoming_dat(data_untreated)
+```
+
+## builds_identifiers ()
+
+**Arguments** 
+
+1.  *Data received*: `"character_dat"`
+This variable is created in the **[cleans_dat](#cleans_dat)** function described above.
+
+**Actions**
+1. Creates each household's unique identifier ( `id_dom` ) by binding each individual's `UPA` , `V1008` and  `V1014` variables.
+
+    PS: All of those variables should be the same for every member of the same household, but differ between every household in the time sample, hence the described action above. This identifier should be the same for the household across time.
+
+2. Creates each individual's unique identifer by pasting together the variables: `UF` , `V1023` , `id_dom` , `V20082` , `V20081` , `V2008` , `V2007`.
+
+3. Returns the variable `b_panel`, which represents the original, treated data frame with the 2 columns (representing the 2 identifiers) added to it.
+------------------------------------------------------------------------
+**Example**:
+
+```{r}
+# treated_data= A treated dataset (using our cleans_dat function)
+identified_data <- builds_identifiers(treated_data)
+```
+## basic_panel()
+
+**Arguments** 
+
+1.  *Data received*: `"identied_data"`
+This variable is created in the **[builds_identifiers](#builds_identifiers)** function described above.
+
+**Actions**
+1. Applies both functions ( *[cleans_dat](#cleans_dat)* and *[builds_identifiers](#builds_identifiers)*) to the received dataset.
