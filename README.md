@@ -31,7 +31,8 @@ The following functions are available.
 | **[cleans_dat](#cleans_dat)**                | *Prepares data to build identifiers*                    |
 | **[builds_identifiers](#builds_identifiers)**      | *Creates household and individual identifiers*          |
 | **[basic_panel](#basic_panel)**                | *Applies both functions above to the data provided* |
-| **[load_pnadc](#load_pnadc)** | *Facilitates the retrieval (from IBGE) of PNAD Contínua data for user-specified years, while also applying the functions above to the data.*  |
+| **[load_pnadc](#load_pnadc)** | *Facilitates the retrieval (from IBGE) of Continuous PNAD data for user-specified years, while also applying the functions above to the data.*  |
+| **[load_pnadc_panel](#load_pnadc_panel)** | *Loads and processes panel data from the Brazilian National Household Sample Survey (Continuous PNAD) based on IBGE-specified panel periods.*  |
 
 </td>
 </tr>
@@ -194,7 +195,7 @@ For context, the quarters contain observations that belong to this panel range f
 panels_6_and_7<-bundle_panel("desired directory where you'd like the files to be downloaded", desired_panel= c(6:7))
 
 ```
-# load_pnadc_panel()
+## load_pnadc_panel()
 
 **Description**
 
