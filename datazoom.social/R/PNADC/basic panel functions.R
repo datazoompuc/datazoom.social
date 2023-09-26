@@ -166,7 +166,7 @@ bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on R
       #the alternative message for Panel 1 still does not work, I'll solve that in the future
       if(panel== 1){
         if (length(file_list) < 4) {
-          message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
+          message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 4 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
           warning(message_problem)
       } else{
 
