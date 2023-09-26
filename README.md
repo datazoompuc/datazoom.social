@@ -151,12 +151,12 @@ For more information about this process, please check out the IBGE's website sec
 
 **Description**
 
- The bundle_panel function is used to combine data from different panels into a single dataset (assuming this data is stored in .RDS format in a single directory). Essentially, this function helps organize and combine data from different panels of the PNADc into a format that is easier to analyze. It's particularly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[load_pnad](#load_pnad)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
+ The bundle_panel function is used to combine data from different panels into a single dataset (assuming this data is stored in .RDS format in a single directory). Essentially, this function helps organize and combine data from different panels of the PNADc into a format that is easier to analyze. It's particularly useful when paired with the functions from this package, since the files will already be named in a specific way (as specified at the end of the *[load_pnadc](#load_pnadc)* section of this READ.ME) that facilitates the recognition of which file contains data from which panel.
 ____________________________________________________________________________________________________
 
 **Requirements**
 
-In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[load_pnad](#load_pnad)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
+In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[load_pnadc](#load_pnadc)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
 
 **Actions**
 
@@ -226,7 +226,7 @@ load_pnadc_panel(panel = 3)
 **Details**
 
 - The function determines the time periods to load based on the `panel` argument.
-- It iterates through the specified time periods, extracting PNAD data, variables, and processing panel data.
+- It iterates through the specified time periods, extracting PNADc data, variables, and processing panel data.
 - Panel data is filtered based on a specified value (`panel`) in the V1014 column.
 - Processed panel data with more than 5000 rows is saved as an .RDS file.
 
