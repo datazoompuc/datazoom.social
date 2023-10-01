@@ -75,7 +75,7 @@ The function performs the following steps:
 
 3. The process is repeated for each quarter of each year specified in the input.
 ------------------------------------------------------------------------
-**Example**: Downloading the files from the year 2014, specifically from the first through the third quarters.
+**Example**: Downloading PNADc data files for the year 2014, specifically for the first through third quarters.
 
 ```{r}
 # setwd("desired directory where you'd like the files to be downloaded")
@@ -106,7 +106,7 @@ ________________________________________________________________________________
 
 **Requirements**
 
-In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[load_pnadc](#load_pnadc)* function (we are working on a function that downloads specifically the data for a designated PNADc panel, which will be much more efficient in these types of cases).
+In a designed file in your PC, download every single file that composes a designed PNADc Panel, you can easily do that using our *[load_pnadc](#load_pnadc)* or *[load_pnadc_panel](#load_pnadc_panel)* functions.
 
 **Actions**
 
