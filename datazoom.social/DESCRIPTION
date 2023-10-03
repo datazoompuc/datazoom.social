@@ -1,11 +1,25 @@
 Package: datazoom.social
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Simplify Acess to Brazilian Social Data
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Authors@R: c(
+	person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = c("aut", "cre")),
+	person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
+	person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
+	person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
+	person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
+	person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut")
+)
+Description: Functions to download and treat brazilian social data from a variety of official sources.
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: MIT + file LICENSE
+URL: https://www.econ.puc-rio.br/datazoom/
+Depends:
+Imports:
+Suggests:
+VignetteBuilder:
+	knitr
 Encoding: UTF-8
 LazyData: true
+Roxygen:
+RoxygenNote:

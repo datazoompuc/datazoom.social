@@ -13,13 +13,11 @@ pnad_list <- list() # create an empty list to store the data frames
 vars_list <- list() # create an empty list to store the data frames
 panel_list <- list() # create an empty list to store the data frames
 
-years = c(2017,2018,2019)
-
-for (i in 2012:2023) {
+for (i in 2019:2023) {
   for(j in 1:4) {
       pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
       vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
-        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023) %>%
+        select(Ano, Trimestre, UF, UPA,V1008, V1014, V2003,V2005, V2007, V2008,V20081, V20082, V1023, V1016) %>%
         as.data.frame()
       for(k in 1:9) {
       panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
@@ -36,33 +34,45 @@ for (i in 2012:2023) {
   }
 }
 
-painel_9 = rbind(readRDS(".\\pnad2020_4_9"),readRDS(".\\pnad2021_1_9"), readRDS(".\\pnad2021_2_9"), readRDS(".\\pnad2021_3_9"), readRDS(".\\pnad2021_4_9"), readRDS(".\\pnad2022_1_9"), readRDS(".\\pnad2022_2_9"), readRDS(".\\pnad2022_3_9"), readRDS(".\\pnad2022_4_9"))
+# Create an empty list to store the data frames for each panel
+panel_data_list <- list()
 
-painel_6 = rbind(readRDS(".\\pnad2017_4_6"), readRDS(".\\pnad2018_1_6"), readRDS(".\\pnad2018_2_6"), readRDS(".\\pnad2018_3_6"), readRDS(".\\pnad2018_4_6"), readRDS(".\\pnad2019_1_6"), readRDS(".\\pnad2019_2_6"), readRDS(".\\pnad2019_3_6"))
-write.csv(painel_6, file= "painel_6.csv")
+# Loop through panels 1 to 9
+for (panel in 1:9) {
+  # Create a regular expression pattern to match the files for the current panel
+  pattern <- paste0("_", panel,"$")
 
-x<- sort(table(painel_9$id_ind), decreasing= T)
-x<- data.frame(x)
-frequencia<- c()
-frequencia[1]<-filter(data.frame(x), Freq== 1)%>% nrow()
-frequencia[2]<-filter(data.frame(x), Freq== 2)%>% nrow()
-frequencia[3]<-filter(data.frame(x), Freq== 3)%>% nrow()
-frequencia[4]<-filter(data.frame(x), Freq== 4)%>% nrow()
-frequencia[5]<-filter(data.frame(x), Freq== 5)%>% nrow()
-frequencia[6]<-filter(data.frame(x), Freq== 6)%>% nrow()
-frequencia[7]<-filter(data.frame(x), Freq== 7)%>% nrow()
-frequencia[8]<-filter(data.frame(x), Freq== 8)%>% nrow()
-frequencia[9]<-filter(data.frame(x), Freq== 9)%>% nrow()
-frequencia[10]<-filter(data.frame(x), Freq== 10)%>% nrow()
-frequencia[11]<-filter(data.frame(x), Freq== 11)%>% nrow()
-frequencia[12]<-filter(data.frame(x), Freq== 12)%>% nrow()
+  # Get the list of files in the directory that match the pattern
+  file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
 
-matriz<- data.frame(frequencia, contagem= seq(1:12))
+  # Create an empty data frame to store the combined data for the current panel
+  panel_data <- data.frame()
 
-ggplot(data= matriz, mapping = aes(x= contagem, y= frequencia))+
-  geom_col()+geom_text(aes(label= frequencia), position= position_stack(vjust= 1.20), color= "red", size=4)
+  # Read and combine the RDS files that match the pattern for the current panel
+  for (file in file_list) {
+    panel_file_data <- readRDS(file)  # Load the RDS file
+    panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
+  }
+
+  # Store the combined data frame for the current panel in the list
+  panel_data_list[[panel]] <- panel_data
+}
+################################################################################
 
 
+for (i in 1:length(panel_data_list)) {
+
+  coluna_desejada<- panel_data_list[[2]] %>% dplyr::pull(id_ind) %>% data.frame()
+  x <- sort(table(coluna_desejada), decreasing = TRUE) %>% data.frame()
+tabela.matches<-x |> group_by(Freq) %>% summarise(contagem= n()) |> mutate(porcentagem= round(100*(contagem/sum(contagem)),2))
+
+  plot <- ggplot(data = tabela.matches, mapping = aes(x = Freq, y = contagem)) +
+    geom_col() +
+    geom_text(aes(label = paste0(porcentagem,"%")), position = position_stack(vjust = 1.15), color = "red", size = 3)
+
+  # Save the plot to a file
+  ggsave(paste0("grafico_painel_", i, ".png"), plot = plot)
+}
 #### rodando metodo 1 para o painel 6
 # arthur baixou e enviou csv para laura por email, por isso aqui nao temos a parte do download
 # painel 6 vai 2017.3 até 2019.3

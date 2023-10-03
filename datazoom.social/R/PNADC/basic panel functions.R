@@ -1,0 +1,187 @@
+##########################
+###                 Build basic PNADC panel
+### This file contains PNADC basic panel related functions
+##########################
+
+### cleans_dat cleans incoming PNADC data, preparing it to create identifiers
+cleans_dat = function(incoming_dat){
+  raw_dat = incoming_dat %>%
+    as.data.frame()
+
+  #filtering the data base received by the user to not have year, month and day =99 or =9999
+  #filter V2007 != 99? according to dictionary, there should be no 99
+  filtered_dat = raw_dat %>% dplyr::filter(V2008 != "99" | V20081!= "99" | V20082!= "9999")
+
+  #consider mutate_at, could be faster
+  #or simply create the identifier w/ paste0()
+  character_dat = filtered_dat %>%
+    dplyr::mutate(V2007 = as.character(V2007)) %>%
+    #factorizes gender according to code establhised in the dictionary. 1 == man; 2 == woman
+    dplyr::mutate(V2007 = ifelse(V2007 == "Homem", "1", "2")) %>%
+    dplyr::mutate(V2008 = as.character(V2008)) %>%
+    dplyr::mutate(V20081 = as.character(V20081)) %>%
+    dplyr::mutate(V20082 = as.character(V20082))
+
+  return(character_dat)
+
+}
+
+### builds_identifiers takes clean PNADC data and builds household (dom) and individual (ind) identifiers
+# the identifiers are simply the concatenation of variables that characterize household/the individual
+builds_identifiers = function(character_dat) {
+  w_id_dom = character_dat %>%
+    dplyr::bind_cols(
+      # creates household identifier
+      id_dom = paste0(character_dat$UPA, character_dat$V1008, character_dat$V1014))
+
+  #creates individual identifier
+  #id_ind concatenates household identifier (id_dom), birthday in Ymd format and gender
+  #We also added the variables UF and V1023, which configurate a good municipality identifier in the context
+  b_panel = w_id_dom %>%
+    dplyr::mutate(id_ind = paste(UF,V1023,id_dom, V20082, V20081, V2008, V2007))
+
+  #returns the final product
+  return(b_panel)
+}
+
+
+### basic_panel function runs both clean_dat and builds_identifiers
+basic_panel = function(incoming_dat) {
+
+  cleans_dat() %>%
+    builds_identifiers()
+
+}
+
+### download_panel function downloads PNADC files from source, separates them by panel and then puts the panel files together
+# attention! data comes out non-identified. to identify data, either basic_panel or cleans_dat + builds_identifiers must be used
+# attention! the function takes a "years" vector - not panel- as parameter.
+# therefore, the user should know which years contain the panel of interest
+
+load_pnadc = function(years, quarters= c(1:4)){
+pnad_list <- list() # create an empty list to store the data frames
+vars_list <- list() # create an empty list to store the data frames
+panel_list <- list() # create an empty list to store the data frames
+
+for (i in years) {
+  for(j in quarters) {
+    pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
+    vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
+      select(everything()) %>%
+      as.data.frame()
+    for(k in 1:9) {
+      panel_list[[paste0("pnad", i, "_", j, "_", k)]] = vars_list[[paste0("vars", i, "_", j)]] %>%
+        as.data.frame() %>%
+        dplyr::filter(as.integer(V1014) == k) %>%
+        cleans_dat() %>%
+        builds_identifiers()
+      panel.intermediary<-panel_list[[paste0("pnad", i, "_", j, "_", k)]] %>% as.data.frame()
+      if(nrow(panel.intermediary)>5000){
+        saveRDS(panel.intermediary, file = paste0(".\\pnad", i, "_", j, "_", k))
+      } else {
+        rm(panel.intermediary)}
+    }
+  }
+}
+}
+
+### new edition that takes "panel" as parameter
+############
+
+load_pnadc_panel = function(panel){
+  pnad_list <- list() # create an empty list to store the data frames
+  vars_list <- list() # create an empty list to store the data frames
+  panel_list <- list() # create an empty list to store the data frames
+
+  if (panel == 1) {
+    x = c("2012.1", "2012.2", "2012.3", "2012.4")
+  } else if (panel == 2) {
+    x = c("2012.1", "2012.2", "2012.3", "2012.4", "2013.1", "2013.2", "2013.3", "2013.4", "2014.1")
+  } else if (panel == 3) {
+    x = c("2013.2", "2013.3", "2013.4", "2014.1", "2014.2", "2014.3", "2014.4", "2015.1", "2015.2")
+  } else if (panel == 4) {
+    x = c("2014.3", "2014.4", "2015.1", "2015.2", "2015.3", "2015.4", "2016.1", "2016.2", "2016.3")
+  } else if (panel == 5) {
+    x = c("2015.4", "2016.1", "2016.2", "2016.3", "2016.4", "2017.1", "2017.2", "2017.3", "2017.4")
+  } else if (panel == 6) {
+    x = c("2017.1", "2017.2", "2017.3", "2017.4", "2018.1", "2018.2", "2018.3", "2018.4", "2019.1")
+  } else if (panel == 7) {
+    x = c("2018.2", "2018.3", "2018.4", "2019.1", "2019.2", "2019.3", "2019.4", "2020.1", "2020.2")
+  } else if (panel == 8) {
+    x = c("2019.3", "2019.4", "2020.1", "2020.2", "2020.3", "2020.4", "2021.1", "2021.2", "2021.3")
+  } else { #(panel == 9)
+    x = c("2020.4", "2021.1", "2021.2", "2021.3", "2021.4", "2022.1", "2022.2", "2022.3", "2022.4")
+  }
+
+
+  for (i in x) {
+      s_plit = stringi::stri_split_fixed(i, pattern = ".", simplify = FALSE)
+      j = s_plit[[1]][1]
+      k = s_plit[[1]][2]
+
+      pnad_list[[paste0("pnad", j, "_", k)]] = get_pnadc(year = j, quarter = k, labels = TRUE)
+      vars_list[[paste0("vars", j, "_", k)]] = pnad_list[[paste0("pnad", j, "_", k)]]$variables %>%
+        select(everything()) %>%
+        as.data.frame()
+
+        panel_list[[paste0("pnad", j, "_", k, "_", panel)]] = vars_list[[paste0("vars", j, "_", k)]] %>%
+          as.data.frame() %>%
+          dplyr::filter(as.integer(V1014) == panel) %>%
+          cleans_dat() %>%
+          builds_identifiers()
+        panel.intermediary<-panel_list[[paste0("pnad", j, "_", k, "_", panel)]] %>% as.data.frame()
+
+        if(nrow(panel.intermediary)>5000){
+          saveRDS(panel.intermediary, file = paste0(".\\pnad", j, "_", k, "_", panel))
+        } else {
+          rm(panel.intermediary)}
+  }
+}
+
+############
+
+bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on READ.ME that the person should put directory= the place in which she/he has their donwloaded files from the latest function
+    #we should also put a warning that this function right here is only advised to be used within a paste that only has the files downloaded in the previous version
+    panel_data_list <- list()
+    # Loop through panels 1 to 9
+    for (panel in desired_panels) {
+      # Create a regular expression pattern to match the files for the current panel
+      pattern <- paste0("_", panel,"$")
+
+      # Get the list of files in the directory that match the pattern
+      file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
+
+      # Create an empty data frame to store the combined data for the current panel
+      panel_data <- data.frame()
+
+      # Read and combine the RDS files that match the pattern for the current panel
+      for (file in file_list) {
+        panel_file_data <- readRDS(file)  # Load the RDS file
+        panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
+      }
+
+      # Store the combined data frame for the current panel in the list
+      panel_data_list[[panel]] <- panel_data
+      #adding a warning message if the user tries o bundle a number of files smaller than it should be for that panel (for panel 1, 4 files, for all other panels, 9 files)
+      #the alternative message for Panel 1 still does not work, I'll solve that in the future
+      if(panel== 1){
+        if (length(file_list) < 4) {
+          message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 4 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
+          warning(message_problem)
+      } else{
+
+      if (length(file_list) < 9) {
+        message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
+        warning(message_problem)
+      }
+      }
+    }
+    }
+    resultado<- panel_data_list
+#nomeando os objetos da lista resultante
+    char_vector<-as.vector(desired_panels)
+    nomes_painel <- paste("Panel ", char_vector)
+    names(resultado)= nomes_painel
+    return(resultado)
+}
+
