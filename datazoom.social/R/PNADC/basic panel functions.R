@@ -2,8 +2,7 @@
 ###                 Build basic PNADC panel
 ### This file contains PNADC basic panel related functions
 ##########################
-library(tidyverse)
-library(PNADcIBGE)
+
 ### cleans_dat cleans incoming PNADC data, preparing it to create identifiers
 cleans_dat = function(incoming_dat){
   raw_dat = incoming_dat %>%
@@ -49,9 +48,9 @@ builds_identifiers = function(character_dat) {
 ### basic_panel function runs both clean_dat and builds_identifiers
 basic_panel = function(incoming_dat) {
 
-  data_resultado= incoming_dat |> cleans_dat() %>%
+  cleans_dat() %>%
     builds_identifiers()
-return(data_resultado)
+
 }
 
 ### download_panel function downloads PNADC files from source, separates them by panel and then puts the panel files together
@@ -66,7 +65,7 @@ panel_list <- list() # create an empty list to store the data frames
 
 for (i in years) {
   for(j in quarters) {
-    pnad_list[[paste0("pnad", i, "_", j)]] = PNADcIBGE::get_pnadc(year = i, quarter = j, labels = TRUE)
+    pnad_list[[paste0("pnad", i, "_", j)]] = get_pnadc(year = i, quarter = j, labels = TRUE)
     vars_list[[paste0("vars", i, "_", j)]] = pnad_list[[paste0("pnad", i, "_", j)]]$variables %>%
       select(everything()) %>%
       as.data.frame()
@@ -141,54 +140,48 @@ load_pnadc_panel = function(panel){
 
 ############
 
-bundle_panel <- function(directory, desired_panels = c(1:9)) {
-  # List to store data frames for each panel
-  panel_data_list <- list()
+bundle_panel<- function(directory, desired_panels= c(1:9)){ #we have to add on READ.ME that the person should put directory= the place in which she/he has their donwloaded files from the latest function
+    #we should also put a warning that this function right here is only advised to be used within a paste that only has the files downloaded in the previous version
+    panel_data_list <- list()
+    # Loop through panels 1 to 9
+    for (panel in desired_panels) {
+      # Create a regular expression pattern to match the files for the current panel
+      pattern <- paste0("_", panel,"$")
 
-  # Loop through panels 1 to 9
-  for (panel in desired_panels) {
-    # Create a regular expression pattern to match the files for the current panel
-    pattern <- paste0("_", panel, "$")
+      # Get the list of files in the directory that match the pattern
+      file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
 
-    # Get the list of files in the directory that match the pattern
-    file_list <- list.files(directory, pattern = pattern, full.names = TRUE)
+      # Create an empty data frame to store the combined data for the current panel
+      panel_data <- data.frame()
 
-    # Create an empty data frame to store the combined data for the current panel
-    panel_data <- data.frame()
-
-    # Read and combine the RDS files that match the pattern for the current panel
-    for (file in file_list) {
-      panel_file_data <- readRDS(file)  # Load the RDS file
-      panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
-    }
-
-    # Store the combined data frame for the current panel in the list
-    panel_data_list[[panel]] <- panel_data
-
-    # Adding a warning message if the user tries to bundle a number of files smaller than expected
-    if (panel == 1) {
-      if (length(file_list) < 4) {
-        message_problem <- paste0("Dear user, referring to panel ", panel,
-                                  ", there are less than 4 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified.")
-        warning(message_problem)
+      # Read and combine the RDS files that match the pattern for the current panel
+      for (file in file_list) {
+        panel_file_data <- readRDS(file)  # Load the RDS file
+        panel_data <- rbind(panel_data, panel_file_data)  # Combine with existing data
       }
-    } else {
+
+      # Store the combined data frame for the current panel in the list
+      panel_data_list[[panel]] <- panel_data
+      #adding a warning message if the user tries o bundle a number of files smaller than it should be for that panel (for panel 1, 4 files, for all other panels, 9 files)
+      #the alternative message for Panel 1 still does not work, I'll solve that in the future
+      if(panel== 1){
+        if (length(file_list) < 4) {
+          message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 4 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
+          warning(message_problem)
+      } else{
+
       if (length(file_list) < 9) {
-        message_problem <- paste0("Dear user, referring to panel ", panel,
-                                  ", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified.")
+        message_problem=paste0("Dear user, referring to panel ", panel ,", there are less than 9 files in the file you indicated. Likely, there are files missing from this panel. Please check the directory you have specified." )
         warning(message_problem)
       }
+      }
     }
-  }
-
-  # Filter out empty data frames from the list
-  panel_data_list <- Filter(function(x) !is.null(x) && nrow(x) > 0, panel_data_list)
-
-  # Rename the list elements
-  char_vector <- as.vector(desired_panels)
-  nomes_painel <- paste("Panel ", char_vector)
-  names(panel_data_list) <- nomes_painel
-
-  return(panel_data_list)
+    }
+    resultado<- panel_data_list
+#nomeando os objetos da lista resultante
+    char_vector<-as.vector(desired_panels)
+    nomes_painel <- paste("Panel ", char_vector)
+    names(resultado)= nomes_painel
+    return(resultado)
 }
 
