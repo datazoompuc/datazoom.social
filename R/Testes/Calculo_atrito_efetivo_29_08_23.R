@@ -1,6 +1,7 @@
 #novo método de cálculo do atrito
 library(tidyverse)
 library(readxl)
+library(data.table)
 directory<- "C:/Users/tuca1/OneDrive/Documentos/Datazoom/Painel_PNAD/Paineis"
 paineis_juntos<-bundle_panel(directory)
 lista_atrito<-list()
@@ -47,3 +48,26 @@ df_atrito<- unlist(lista_atrito) |> data.frame() #dando unlist nesses dados e ge
 
 writexl::write_xlsx(df_atrito, "output.xlsx")
 
+#calculating the friction for panels 2 through 7
+
+# Set the working directory to the folder where your files are located
+setwd("C:/Users/tuca1/OneDrive/Documentos/Datazoom/Painel_PNAD/paineis_novos_advanced")
+
+# List the files in the directory that match your criteria
+file_list <- list.files(pattern = "^PNAD_")
+
+# Create an empty list to store the data frames for each file
+dataframes <- list()
+
+# Use a loop to read each file into a data frame and append it to the list
+for (filename in file_list) {
+  df <- read_dta(filename)  # You can use read.xlsx() for Excel files
+  dataframes[[filename]] <- df
+}
+
+lista_atrito_avancado_1<- lapply(dataframes, panel_advanced_1st_level)
+df_atrito_avancado<- do.call(cbind, lista_atrito_avancado_1)
+
+#writing this file in excel
+
+writexl::write_xlsx(df_atrito_avancado, "atritos_avancado_1_painel2a7.xlsx")
