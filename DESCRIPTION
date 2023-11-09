@@ -1,0 +1,19 @@
+Package: datazoom.social
+Title: Simplify Access to Brazilian Social Data
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = c("aut", "cre")),
+    person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
+    person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
+    person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
+    person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
+    person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut")
+  )
+Description: Functions to download and treat brazilian social data from a variety of official sources.
+License: MIT + file LICENSE
+URL: https://www.econ.puc-rio.br/datazoom/
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    PNADcIBGE
