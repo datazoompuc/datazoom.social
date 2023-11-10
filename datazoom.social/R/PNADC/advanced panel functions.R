@@ -192,7 +192,7 @@ df_2nd_phase<- dataframe_1st_stage |> mutate(id_2nd_stage= paste(V2003,V2007,V20
 #first, dividing the df into a list of dataframes, one per household, to facilitate the function we'll do next
 list_doms_2nd_phase<- split(df_2nd_phase,df_2nd_phase$id_dom)
 
-group_similar <- function(df) {
+# group_similar <- function(df) {
   df_summarised<- df |> group_by(id_2nd_stage) |> summarise(Mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008),mini_id= paste(V2003,V2007))
   for (i in 1:nrow(df_summarised)) {
     for (j in 1:nrow(df_summarised)) {
@@ -207,13 +207,26 @@ group_similar <- function(df) {
   }
   return(df_summarised)
 }
+group_similar_2 <- function(df) {
+  df_summarised<- df |> group_by(id_2nd_stage) |> summarise(mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008))
+  for (i in 1:nrow(df)) {
+    similar_indices <- which(
+      abs(df_summarised$Mes_nascimento - df_summarised$Mes_nascimento[i]) <= 2 &
+        abs(df_summarised$dia_nascimento - df_summarised$dia_nascimento[i]) <= 4
+    )
+    if (length(similar_indices) > 1) {
+      df_summarised$id_2nd_stage[similar_indices] <- df_summarised$id_2nd_stage[i]
+    }
+  }
+  return(df_summarised)
+}
 
 
 # Apply the grouping function to each household
-matched_households <- lapply(list_doms_2nd_phase, group_similar)
+matched_households <- lapply(list_doms_2nd_phase, group_similar_2)
 
 # Combine the grouped households back into a single dataframe
-df_grouped <-rbindlist(grouped_households)
+df_grouped <-rbindlist(matched_households)
 
 
 
