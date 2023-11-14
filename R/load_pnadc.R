@@ -1,14 +1,15 @@
-load_pnadc <- function(source = "download", year, quarter = 1:4, panel = "advanced", raw_data = FALSE) {
+load_pnadc <- function(save_to = getwd(), year,
+                       quarter = 1:4, panel = "advanced", raw_data = FALSE) {
   ###########
   ## Setup ##
   ###########
 
   param <- list()
-  param$source <- source
   param$year <- year
   param$quarter <- quarter
   param$panel <- panel
   param$raw_data <- raw_data
+  param$save_to <- save_to
 
   # parsing quarters as lists of quarters for each year
 
@@ -33,114 +34,123 @@ load_pnadc <- function(source = "download", year, quarter = 1:4, panel = "advanc
   ##################
   ## Loading data ##
   ##################
+  
+  # store info on all panels and column names
+  
+  panel_list <- c()
+  cnames <- NULL
+  
+  # download to the saving directory
 
-  # if the user feeds in a list of dataframes, we read those
-
-  if (is.list(source)) {
-    dat <- param$source
-  }
-
-  # otherwise, download using download_pnadc
-
-  else {
-    dat <- purrr::map2(
-      param$year, param$quarter,
-      function(year, quarter) {
-        PNADcIBGE::get_pnadc(year = year, quarter = quarter, labels = TRUE, design = FALSE)
-      }
-    )
-  }
+  source_files <- purrr::map2(
+    param$year, param$quarter,
+    function(year, quarter) {
+      
+      base::message(
+        paste0("Downloading PNADC ", year, " Q", quarter, "\n")
+      )
+      
+      df <- PNADcIBGE::get_pnadc(
+        year = year, quarter = quarter, labels = FALSE, design = FALSE
+      )
+      
+      panel_list <<- c(panel_list, unique(df$V1014))
+      cnames <<- names(df)
+      
+      # download each quarter to a separate file
+      file_path <- file.path(
+        param$save_to, paste0("pnadc", year, "_", quarter, ".rds")
+      )
+      readr::write_rds(df, file_path, compress = "gz")
+      
+      return(file_path)
+    }
+  )
 
   ## Return Raw Data
 
   if (param$raw_data) {
-    return(dat)
+    return(paste("Raw Data saved to", param$save_to))
   }
 
-  ######################
-  ## Data Engineering ##
-  ######################
+  #################
+  ## Panel Files ##
+  #################
 
-  ## Sort dataframes into panels
+  ## Split data into panels
+  
+  panel_list <- unique(panel_list)
 
-  dat <- dat %>%
-    purrr::map(~ split(., .$V1014)) # splitting each df by panel
+  # set up .csv file paths for each panel such as "pnadc_panel_2.csv"
+  
+  panel_files <- purrr::map(
+    panel_list,
+    function(panel) {
+      file_path <- file.path(
+        param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
+      )
+      
+      file_path
+    }
+  )
+  
+  # write an empty dataframe into each
+  
+  purrr::map(
+    panel_files,
+    function(path) {
+      readr::write_csv(data.frame(), path, col_names = cnames)
+    }
+  )
 
-  dat <- dat %>%
-    purrr::transpose() %>% # clumps all equal panels together
-    purrr::map(dplyr::bind_rows)
-
-  ## Everything in clean_panel
-
-  # add NA values
-
-  dat <- dat %>%
-    purrr::map(
-      function(df) {
-        df %>%
-          dplyr::mutate(
-            dplyr::across(
-              c(V2008, V20081),
-              ~ dplyr::case_match(
-                ., "99" ~ NA,
-                .default = .
-              )
-            ),
-            dplyr::across(
-              c(V20082),
-              ~ dplyr::case_match(
-                ., "9999" ~ NA,
-                .default = .
-              )
+  # read each of the source files, split into panels, and append
+  # to their corresponding .csv files
+  
+  purrr::map(
+    source_files,
+    function(file) {
+      dat <- readr::read_rds(file) %>%
+        split(.$V1014)
+      
+      dat %>%
+        purrr::imap(
+          function(df, panel) {
+            file_path <- file.path(
+              param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
             )
-          )
-      }
-    )
+            readr::write_csv(df, file_path, append = TRUE)
+          }
+        )
+    }
+  )
 
   ##########################
   ## Panel Identification ##
   ##########################
+
+  # read each file in panel_files and apply the identification algos
   
-  if (panel != "none") {
-    
-    # creating numeric variables to build identifiers
-    
-    dat <- dat %>%
-      purrr::map(
-        function(df) {
-          df %>%
-            dplyr::mutate(
-              dplyr::across(c(UPA, V1008, V1014, UF, V1023, id_dom, V20082, V20081, V2008, V2007),
-                            ~ as.numeric(as.factor(.)),
-                            .names = "n_{.col}")
-            )
-        }
-      )
-    
-    dat <- dat %>%
-      purrr::map(
-        function(df) {
-          df %>% dplyr::mutate(
-            id_dom = paste0(n_UPA, n_V1008, n_V1014),
-            id_ind = paste0(n_UF, n_V1023, n_id_dom, n_V20082, n_V20081, n_V2008, n_V2007)
-          )
-        }
-      )
-  }
-
-  ## Calls panel functions
-
+  purrr::map(
+    panel_files,
+    function(path) {
+      df <- readr::read_csv(path, col_names = cnames) %>%
+        build_pnadc_panel(panel = param$panel)
+      
+      readr::write_csv(df, path)
+    }
+  )
+  
+  ######################
+  ## Data Engineering ##
+  ######################
+  
   ##############################
   ## Harmonize Variable Names ##
   ##############################
-
-  ## Just rename, maybe relocate
-
-  dat_mod <- dat
 
   ####################
   ## Returning Data ##
   ####################
 
-  return(dat_mod)
+  return(paste("Panel files saved to", param$save_to))
 }
