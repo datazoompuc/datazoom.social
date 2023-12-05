@@ -1,5 +1,7 @@
+# Function to build a panel dataset from PNADC data based on the chosen panel algorithm
 build_pnadc_panel <- function(dat, panel) {
   
+  # Check if the panel type is 'none'; if so, return the original data
   if (panel == "none") {
     return(dat)
   }
@@ -8,18 +10,17 @@ build_pnadc_panel <- function(dat, panel) {
   ## Basic Identification ##
   ##########################
   
+  # If the panel type is not 'none', perform basic identification steps
   if (panel != "none") {
     
-    # household identifier combines UPA, selection number, and panel
-    
+    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
       dplyr::mutate(
         id_dom = dplyr::cur_group_id(),
         .by = c(UPA, V1008, V1014)
       )
     
-    # individual id combines the household id with state, type of area, sex, and date of birth
-    
+    # Individual id combines the household id with UF, V1023, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
@@ -31,22 +32,23 @@ build_pnadc_panel <- function(dat, panel) {
   ## Advanced Identification ##
   #############################
   
+  # Placeholder for advanced identification steps (currently empty)
   if (panel == "advanced") {
-    
+    # Additional steps for advanced panel identification can be added here
   }
   
   #################
   ## Return Data ##
   #################
   
-  ## unidentifiable observations due to missing values
-  
+  # Handle unidentifiable observations due to missing values
   dat <- dat %>% dplyr::mutate(
-          id_ind = dplyr::case_when(
-            V2008 != "99" | V20081 != "99" | V20082 != "9999" ~ NA,
-            .default = id_ind
-          )
-        )
+    id_ind = dplyr::case_when(
+      V2008 != "99" | V20081 != "99" | V20082 != "9999" ~ NA,
+      .default = id_ind
+    )
+  )
   
+  # Return the modified dataset
   return(dat)
 }
