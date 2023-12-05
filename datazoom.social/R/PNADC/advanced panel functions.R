@@ -7,6 +7,7 @@ setwd("C:/Users/tuca1/OneDrive/Documentos/GitHub/Datazoom-Social_R/datazoom.soci
 library(haven)
 library(tidyverse)
 library(ggplot2)
+library(data.table)
 source("basic panel functions.R")
 # We will create the advanced panel for Panel 6 first, as an example, and then generalize it with functions and lists in order to apply the advanced panel to all panels.
 
@@ -192,21 +193,21 @@ df_2nd_phase<- dataframe_1st_stage |> mutate(id_2nd_stage= paste(V2003,V2007,V20
 #first, dividing the df into a list of dataframes, one per household, to facilitate the function we'll do next
 list_doms_2nd_phase<- split(df_2nd_phase,df_2nd_phase$id_dom)
 
-# group_similar <- function(df) {
-  df_summarised<- df |> group_by(id_2nd_stage) |> summarise(Mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008),mini_id= paste(V2003,V2007))
-  for (i in 1:nrow(df_summarised)) {
-    for (j in 1:nrow(df_summarised)) {
-      if (i != j) {
-        if (abs(df_summarised$Mes_nascimento[i] - df_summarised$Mes_nascimento[j]) <= 2 &&
-            abs(df_summarised$dia_nascimento[i] - df_summarised$dia_nascimento[j]) <= 4 &&
-            df_summarised$mini_id[i]== df_summarised$mini_id[j]) {
-          df_summarised$id_2nd_stage[i] <- df_summarised$id_2nd_stage[j]
-        }
-      }
-    }
-  }
-  return(df_summarised)
-}
+# # group_similar <- function(df) {
+#   df_summarised<- df |> group_by(id_2nd_stage) |> summarise(Mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008),mini_id= paste(V2003,V2007))
+#   for (i in 1:nrow(df_summarised)) {
+#     for (j in 1:nrow(df_summarised)) {
+#       if (i != j) {
+#         if (abs(df_summarised$Mes_nascimento[i] - df_summarised$Mes_nascimento[j]) <= 2 &&
+#             abs(df_summarised$dia_nascimento[i] - df_summarised$dia_nascimento[j]) <= 4 &&
+#             df_summarised$mini_id[i]== df_summarised$mini_id[j]) {
+#           df_summarised$id_2nd_stage[i] <- df_summarised$id_2nd_stage[j]
+#         }
+#       }
+#     }
+#   }
+#   return(df_summarised)
+# }
 group_similar_2 <- function(df) {
   df_summarised<- df |> group_by(id_2nd_stage) |> summarise(mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008))
   for (i in 1:nrow(df)) {
@@ -228,8 +229,13 @@ matched_households <- lapply(list_doms_2nd_phase, group_similar_2)
 # Combine the grouped households back into a single dataframe
 df_grouped <-rbindlist(matched_households)
 
+saveRDS(df_grouped, file = "df_2nd_phase_panel_calculated_panel_6.RDS")
 
+# substiuting the previous id_2nd_phase with the new, edited one
 
+df_2nd_phase$id_2nd_stage<- df_grouped$id_2nd_stage
+
+#calculating the friction regarding this stage
 
 # From this spot on, you can ignore my code, it is just me going insane trying to create perfect matches in a way that will make sense in the future, just not now
 ############### IGNORE THIS IGNORE THIS, IGNORE THIS ##################################
