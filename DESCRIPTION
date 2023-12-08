@@ -7,7 +7,8 @@ Authors@R: c(
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
     person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
     person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
-    person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut")
+    person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut"),
+    person("Igor", "Rigolon", , "igor.rilave@hotmail.com", role = "aut"),
   )
 Description: Functions to download and treat brazilian social data from a variety of official sources.
 License: MIT + file LICENSE
@@ -19,4 +20,5 @@ Imports:
     dplyr,
     PNADcIBGE,
     purrr,
-    readr
+    readr,
+    tidyverse
