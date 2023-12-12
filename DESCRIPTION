@@ -3,7 +3,7 @@ Title: Simplify Access to Brazilian Social Data
 Version: 0.0.0.9000
 Authors@R: c(
     person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = c("aut", "cre")),
-    person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
+    person("DataZoom (PUC-Rio)", ,  "datazoom@econ.puc-rio.br", role = "fnd"),
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
     person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
     person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
