@@ -21,4 +21,3 @@ Imports:
     PNADcIBGE,
     purrr,
     readr,
-    tidyverse
