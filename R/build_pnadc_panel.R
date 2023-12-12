@@ -1,4 +1,31 @@
-# Function to build a panel dataset from PNADC data based on the chosen panel algorithm
+#' Build PNADc Panel
+#'
+#' This function is designed to build a panel dataset from PNADC data based on the chosen panel algorithm. It performs basic and, if specified, advanced identification steps to create household and individual identifiers for panel construction.
+#'
+#' @param dat The current PNAD observations.
+#' @param panel The type of panelling transformation you wish to apply to \code{dat}. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
+#' 
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
+#' 
+#' @export
+#' 
+#' @examples
+#' \dontrun{
+#' # Example usage:
+#' data <- read.csv("path/to/PNADC_data.csv")
+#' panel_data <- build_pnadc_panel(dat = data, panel = "basic")
+#' }
+#' 
+#' @importFrom dplyr mutate
+#' @importFrom dplyr cur_group_id
+#' @importFrom dplyr case_when
+#' @importFrom data.table rbindlist
+#' @importFrom magrittr %>%
+#' @references 
+#' Ribas, Rafael Perez, and Sergei Suarez Dillon Soares. Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE. No. 1348. Texto para discussão, 2008.
+#' Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
+#'
+#' @author Data Zoom
 build_pnadc_panel <- function(dat, panel) {
   
   # Check if the panel type is 'none'; if so, return the original data
