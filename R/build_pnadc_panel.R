@@ -7,7 +7,6 @@
 #' 
 #' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
 #' 
-#' @export
 #' 
 #' @examples
 #' \dontrun{
