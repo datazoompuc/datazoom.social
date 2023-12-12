@@ -1,3 +1,26 @@
+#' Load PNADc Data
+#'
+#' This function downloads PNADc data for specified years and quarters, applies panel identification algorithms, and saves the data to .rds (the individual quarter files) and .csv (the individual panel files) files for each panel.
+#'
+#' @param save_to The directory in which the user desires to save the downloaded files.
+#' @param year The years of the PNADc the user would like to download.
+#' @param quarter The quarters within those years to be downloaded.
+#' @param panel Which panel algorithm to apply to this data (none, basic, or advanced). Check the README for a detailed explanation.
+#' @param raw_data A command to define if the user would like to download the raw or treated data.
+#'
+#' @return A message indicating the successful save of panel files.
+#'
+#' @examples 
+#' \dontrun{
+#' load_pnadc(
+#'   save_to = "Directory/You/Would/like/to/save/the/files",
+#'   year = 2016,
+#'   quarter = 1:4,
+#'   panel = "basic",
+#'   raw_data = FALSE
+#' )}
+#' @export
+
 load_pnadc <- function(save_to = getwd(), year,
                        quarter = 1:4, panel = "advanced", raw_data = FALSE) {
   ###########
