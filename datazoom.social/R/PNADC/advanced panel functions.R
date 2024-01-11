@@ -86,13 +86,6 @@ df_2nd_phase<- dataframe_1st_stage |> mutate(id_2nd_stage= paste(V2003,V2007,V20
 #first, dividing the df into a list of dataframes, one per household, to facilitate the function we'll do next
 list_doms_2nd_phase<- split(df_2nd_phase,df_2nd_phase$id_dom)
 
-# # group_similar <- function(df) {
-#   df_summarised<- df |> group_by(id_2nd_stage) |> summarise(Mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008),mini_id= paste(V2003,V2007))
-#   for (i in 1:nrow(df_summarised)) {
-#     for (j in 1:nrow(df_summarised)) {
-#       if (i != j) {
-#         if (abs(df_summarised$Mes_nascimento[i] - df_summarised$Mes_nascimento[j]) <= 2 &&
-#             abs(df_summarised$dia_nascimento[i] - df_summarised$dia_nascimento[j]) <= 4 &&
 #             df_summarised$mini_id[i]== df_summarised$mini_id[j]) {
 #           df_summarised$id_2nd_stage[i] <- df_summarised$id_2nd_stage[j]
 #         }
