@@ -37,7 +37,7 @@ build_pnadc_panel <- function(dat, panel) {
   ##########################
   
   # If the panel type is not 'none', perform basic identification steps
-  if (panel != "none") {
+  if (panel == "basic") {
     
     # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%

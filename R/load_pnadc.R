@@ -9,7 +9,8 @@
 #' @param raw_data A command to define if the user would like to download the raw or treated data.
 #'
 #' @return A message indicating the successful save of panel files.
-#'
+#' @importFrom PNADcIBGE get_pnadc
+#' @importFrom purrr map2
 #' @examples 
 #' \dontrun{
 #' load_pnadc(
@@ -28,7 +29,7 @@ load_pnadc <- function(save_to = getwd(), year,
   ###########
 # The param list contains the various objects that will be used as parameters for this function
   param <- list()
-  param$year <- year#the years the user would like to download
+  param$year <- year #the years the user would like to download
   param$quarter <- quarter #the quarters within those years to be downloaded
   param$panel <- panel # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data <- raw_data #A command to define if the user would like to download the raw data from the IBGE website directly

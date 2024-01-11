@@ -1,15 +1,21 @@
-#' Create a friction dataframe for a panel file
+#' Create a friction table for a panel file
 #'
-#' This function takes a dataset and generates a summary data frame indicating the count of missing interviews for each individual and the percentage of interviews attendeded, allowing for the friction calculation, a panel-efficiency measuring method.
+#' This function generates a summary dataframe indicating the count of missing
+#' interviews for each individual and the percentage of interviews attended,
+#' allowing for the friction, a panel-efficiency measuring method, to be
+#' calculated for any PNADc database.
 #'
-#' @param data The input dataset, preferably a PNADc panel file with all 5 interviews of the individuals of that panel, with a certain panel method already applied.
+#' @param data The input dataset, preferably a PNADc panel file with all 5
+#'   interviews of the individuals of that panel, with a certain panel method
+#'   already applied.
 #'
-#' @return A data frame summarizing missing interviews and the percentage of interviews attended for the individuals forming that panel.
+#' @return A data frame summarizing missing interviews and the percentage of
+#'   interviews attended for the individuals forming that panel.
 #'
 #' @examples
 #' \dontrun{
-#' data <- read.csv("path/to/your/painel_6_PNADc.csv")
-#' atrito_df_panel_6_PNADc <- cria_df_de_atrito(data)
+#' data <- read.csv("path/to/your/database/pnadc_panel_6.csv")
+#' friction_panel_6_PNADc <- cria_df_de_atrito(data)
 #' }
 cria_df_de_atrito <- function(data) {
   data$V1016 <- as.integer(data$V1016)
