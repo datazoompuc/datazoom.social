@@ -60,14 +60,21 @@ data_basic<- data |> basic_panel()
 ###########################################################
 #turning this into a function
 
-panel_advanced_1st_level<- function(data){
+panel_advanced_1st_level <- function(data) {
   # creating the column for the 1st stage id, which is created only to those who were not fully matched and match the criteria below
-  dataframe_1st_stage <- data_joined %>%
-    mutate(id_1st_stage = ifelse(V2005 %in% c("1", "2", "3") & missing_quarters!= "" | (V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 & missing_quarters!= ""),
-                                 paste(V20081, V2008, V2003),
-                                 id_ind))
+  dataframe_1st_stage <- data %>%
+    mutate(
+      id_1st_stage = ifelse(
+        (V2005 %in% c("1", "2", "3") & missing_quarters != "") |
+          (V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 & missing_quarters != ""),
+        cur_group_id(c(V20081, V2008, V2003)),
+        id_ind
+      ),
+      .by = c(V20081, V2008, V2003)
+    )
   return(dataframe_1st_stage)
 }
+
 ##############################################################
 #2nd level of strictness (column 3 at the Ribas and Soares article:if the observations match the specified criteria for this panel, they get the new id, which consists in:paste(V2007,V20081+-2,V2008+-4,V2003)
 #criteria= either head of the house or their spouse
