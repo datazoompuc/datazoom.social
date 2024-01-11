@@ -2,22 +2,28 @@
 % Please edit documentation in R/cria_df_de_atrito.R
 \name{cria_df_de_atrito}
 \alias{cria_df_de_atrito}
-\title{Create a friction dataframe for a panel file}
+\title{Create a friction table for a panel file}
 \usage{
 cria_df_de_atrito(data)
 }
 \arguments{
-\item{data}{The input dataset, preferably a PNADc panel file with all 5 interviews of the individuals of that panel, with a certain panel method already applied.}
+\item{data}{The input dataset, preferably a PNADc panel file with all 5
+interviews of the individuals of that panel, with a certain panel method
+already applied.}
 }
 \value{
-A data frame summarizing missing interviews and the percentage of interviews attended for the individuals forming that panel.
+A data frame summarizing missing interviews and the percentage of
+interviews attended for the individuals forming that panel.
 }
 \description{
-This function takes a dataset and generates a summary data frame indicating the count of missing interviews for each individual and the percentage of interviews attendeded, allowing for the friction calculation, a panel-efficiency measuring method.
+This function generates a summary dataframe indicating the count of missing
+interviews for each individual and the percentage of interviews attended,
+allowing for the friction, a panel-efficiency measuring method, to be
+calculated for any PNADc database.
 }
 \examples{
 \dontrun{
-data <- read.csv("path/to/your/painel_6_PNADc.csv")
-atrito_df_panel_6_PNADc <- cria_df_de_atrito(data)
+data <- read.csv("path/to/your/database/pnadc_panel_6.csv")
+friction_panel_6_PNADc <- cria_df_de_atrito(data)
 }
 }
