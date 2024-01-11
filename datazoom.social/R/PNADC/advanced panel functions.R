@@ -82,9 +82,9 @@ panel_advanced_1st_level <- function(data) {
 ##########################################
 
 #first, we'll filter the dataframe to get only the people who have not been matched fully yet, considering both basic and advanced panels (the past criterias, of course)
-
-appearances_2nd_phase_ids<- summary_appearances |> filter(missing_quarters!= "") |> pull(id_1st_stage)
-#here we have 60327 individuals not identified fully yet
+panel_advanced_2nd_level<- function(data){
+  
+appearances_2nd_phase_ids<- data |> filter(missing_quarters!= "") |> pull(id_1st_stage)
 
 #now filtering the dataframe to have only these people who have not been fully identified
 df_2nd_phase<- dataframe_1st_stage |> mutate(id_2nd_stage= paste(V2003,V2007,V2008,V20081)) |> filter(id_1st_stage %in% appearances_2nd_phase_ids)
@@ -118,6 +118,7 @@ df_grouped <-rbindlist(matched_households)
 
 return(df_grouped)
 }
+
 # # group_similar <- function(df) {
 #   df_summarised<- df |> group_by(id_2nd_stage) |> summarise(Mes_nascimento= as.numeric(V20081), dia_nascimento=as.numeric(V2008),mini_id= paste(V2003,V2007))
 #   for (i in 1:nrow(df_summarised)) {
