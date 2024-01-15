@@ -37,7 +37,7 @@ build_pnadc_panel <- function(dat, panel) {
   ##########################
   
   # If the panel type is not 'none', perform basic identification steps
-  if (panel == "basic") {
+  if (panel != "none") {
     
     # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
@@ -51,6 +51,22 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
         .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
+      )
+    
+    # identifying matched observations
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        num_quarters = n(),
+        .by = id_ind
+      ) # counts number of times that each id appears
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        matched_basic = dplyr::case_when(
+          num_quarters == 5 ~ 1,
+          .default = 0
+        )
       )
   }
   
@@ -58,36 +74,12 @@ build_pnadc_panel <- function(dat, panel) {
   ## Advanced Identification ##
   #############################
   
-  # Placeholder for advanced identification steps (currently empty)
   if (panel == "advanced") {
-    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_dom = dplyr::cur_group_id(),
-        .by = c(UPA, V1008, V1014)
-      )
     
-    # Individual id combines the household id with UF, V1023, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
-      )
-    #Identifying the matched observations
-    summary_data <- dat %>%
-      group_by(id_ind) %>% #grouping by each individual
-      summarize(appearances = list(V1016), #in this way, we can "paste" in a single line the interviews the person has appeared at
-                disappearances = list(setdiff(1:5, unique(V1016)))) %>% #and then we can set the difference from the 1:5 vector, which will return the interviews not attended by the each one
-      rowwise() %>% #perform the next commands line by line (it was doing the "unlist()" command to ALL observations of the "disappearances" column)
-      mutate(missing_quarters = paste(as.character(unlist(disappearances)), collapse = " ")) #getting a column that tells us in which interviews was each person missing
-    #rejoining this dataframe with our original database via left_join
+    # advanced identification is only run on previously unmatched individuals
     
-    data_joined<- left_join(data_basic, summary_data, by= "id_ind")
-    
-    dat<- data_joined |> advanced_panel_1st_level()
-    
-    return(dat)
-        
+    dat_unmatched <- dat %>%
+      dplyr::filter(matched_basic == 0)
 
   }
   
