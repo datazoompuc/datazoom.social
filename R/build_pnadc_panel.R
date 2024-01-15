@@ -37,7 +37,7 @@ build_pnadc_panel <- function(dat, panel) {
   ##########################
   
   # If the panel type is not 'none', perform basic identification steps
-  if (panel == "basic") {
+  if (panel != "none") {
     
     # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
@@ -52,15 +52,35 @@ build_pnadc_panel <- function(dat, panel) {
         id_ind = dplyr::cur_group_id(),
         .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
       )
+    
+    # identifying matched observations
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        num_quarters = n(),
+        .by = id_ind
+      ) # counts number of times that each id appears
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        matched_basic = dplyr::case_when(
+          num_quarters == 5 ~ 1,
+          .default = 0
+        )
+      )
   }
   
   #############################
   ## Advanced Identification ##
   #############################
   
-  # Placeholder for advanced identification steps (currently empty)
   if (panel == "advanced") {
-    # Additional steps for advanced panel identification can be added here
+    
+    # advanced identification is only run on previously unmatched individuals
+    
+    dat_unmatched <- dat %>%
+      dplyr::filter(matched_basic == 0)
+
   }
   
   #################
