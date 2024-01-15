@@ -57,7 +57,7 @@ build_pnadc_panel <- function(dat, panel) {
     
     dat <- dat %>%
       dplyr::mutate(
-        num_quarters = n(),
+        num_quarters = dplyr::n(),
         .by = id_ind
       ) # counts number of times that each id appears
     
@@ -74,13 +74,53 @@ build_pnadc_panel <- function(dat, panel) {
   ## Advanced Identification ##
   #############################
   
-  if (panel == "advanced") {
+  ## Stage 1:
+  
+  if (!(panel %in% c("none", "basic"))) {
     
     # advanced identification is only run on previously unmatched individuals
     
-    dat_unmatched <- dat %>%
-      dplyr::filter(matched_basic == 0)
-
+    dat <- dat %>%
+      dplyr::mutate(
+        id_ind = dplyr::case_when(
+          matched_basic == 1 ~ id_ind,
+          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id(),
+          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()
+        ),
+        .by = c(V20081, V2008, V2003)
+      )
+    
+    # identifying new matched observations
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        num_quarters = dplyr::n(),
+        .by = id_ind
+      ) # counts number of times that each id appears
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        matched_adv_1 = dplyr::case_when(
+          num_quarters == 5 ~ 1,
+          .default = 0
+        )
+      )
+  }
+  
+  ## Stage 2:
+  
+  if (!(panel %in% c("none", "basic", "advanced_1"))) {
+    
+    # advanced identification is only run on previously unmatched individuals
+    
+    dat <- dat %>%
+      dplyr::mutate(
+        id_ind = dplyr::case_when(
+          matched_adv_1 == 1 ~ id_ind,
+          
+        )
+      )
+    
   }
   
   #################
