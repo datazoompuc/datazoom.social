@@ -1,0 +1,81 @@
+---
+title: "github_document"
+output: html_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# datazoom.social - R version
+
+The datazoom.social package facilitates access to official 
+Brazilian social data. The package provides functions that 
+download, pre-process and edit (in research-oriented ways) 
+selected datasets, easing comprehension and research aimed
+at better understanding brazillian microdata.
+
+This package is in development stage - more datasets will
+be released soon.
+
+# Installation
+
+You can install the released version of `datazoom.social` from
+[CRAN](https://CRAN.R-project.org/package=datazoom.social) with:
+
+``` {r, eval=FALSE}
+install.packages("datazoom.social")
+```
+
+And the development version from GitHub with:
+
+```{r}
+# install.packages("devtools")
+devtools::install_github("datazoompuc/datazoom.social")
+```
+
+```{r, echo=FALSE, message=FALSE}
+devtools::load_all()
+```
+
+# Functions
+
+## LOAD_PNADC
+
+```{r child = "vignettes/LOAD_PNADC.Rmd"}
+```
+
+## BUILD_PNADC
+
+```{r child = "vignettes/BUILD_PNADC_PANEL.Rmd"}
+```
+
+# Credits
+
+DataZoom is developed by a team at Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio), Department of Economics. Our official website is at: <https://www.econ.puc-rio.br/datazoom/>.
+
+To cite package `datazoom.social` in publications use:
+
+> Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.  
+> https://www.econ.puc-rio.br/datazoom/english/index.html
+
+A BibTeX entry for LaTeX users is:
+
+``` 
+@Unpublished{DataZoom2024,
+	author = {Data Zoom},
+	title = {Data Zoom: Simplifying Access To Brazilian Microdata},
+	url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
+	year = {2024},
+}
+
+```
+
+

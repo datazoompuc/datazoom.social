@@ -11,7 +11,7 @@
 #' @return A message indicating the successful save of panel files.
 #' @importFrom PNADcIBGE get_pnadc
 #' @importFrom purrr map2
-#' @examples 
+#' @examples
 #' \dontrun{
 #' load_pnadc(
 #'   save_to = "Directory/You/Would/like/to/save/the/files",
@@ -39,10 +39,10 @@ load_pnadc <- function(save_to = getwd(), year,
   if (!is.list(quarter)) {
     param$quarter <- rep(list(quarter), length(year))
   }
-  
+
   # Calculate the lengths of quarters for each year
   n_quarters <- lapply(param$quarter, length)
-  
+
   # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
   param$year <- purrr::map2(
     year, n_quarters,
@@ -59,36 +59,36 @@ load_pnadc <- function(save_to = getwd(), year,
   ##################
   ## Loading data ##
   ##################
-  
+
   # store info on all panels and column names
-  
+
   panel_list <- c()
   cnames <- NULL
-  
+
   # download to the saving directory
 
   source_files <- purrr::map2(
     param$year, param$quarter, #looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
     function(year, quarter) {
-      
+
       base::message(
-        paste0("Downloading PNADC ", year, " Q", quarter, "\n") #just generating a message so the user knows which fiule is being downloaded now
+        paste0("Downloading PNADC ", year, " Q", quarter, "\n") #just generating a message so the user knows which file is being downloaded now
       )
-      
+
       df <- PNADcIBGE::get_pnadc(
         year = year, quarter = quarter, labels = FALSE, design = FALSE #downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc
       )
-      
+
       panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
       #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
       cnames <<- names(df)
-      
+
       # download each quarter to a separate file
       file_path <- file.path(
         param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") #defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
       )
       readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
-      
+
       return(file_path)
     }
   )
@@ -104,24 +104,24 @@ load_pnadc <- function(save_to = getwd(), year,
   #################
 
   ## Split data into panels
-  
+
   panel_list <- unique(panel_list) #listing all the panels included in the quarters downloaded
 
   # set up .csv file paths for each panel such as "pnadc_panel_2.csv"
-  
+
   panel_files <- purrr::map(
     panel_list,
     function(panel) {
       file_path <- file.path(
         param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
       )
-      
+
       file_path
     }
   )
-  
+
   # write an empty dataframe into each
-  
+
   purrr::map(
     panel_files,
     function(path) {
@@ -131,16 +131,16 @@ load_pnadc <- function(save_to = getwd(), year,
 
   # read each of the source files, split into panels, and append
   # to their corresponding .csv files
-  
+
   # we use the .csv files because they have a appending propriety, meaning that they can receive new information without having the older one deleted
   # for the R users, you can simply think as literally doing a rbind() into those files, but in a much more efficient way
-  
+
   purrr::map(
-    source_files, # source_files= the .rds files with the data that were downloaded way before in this function before 
+    source_files, # source_files= the .rds files with the data that were downloaded way before in this function before
     function(file) {
       dat <- readr::read_rds(file) %>%
         split(.$V1014)
-      
+
       dat %>%
         purrr::imap(
           function(df, panel) {
@@ -158,21 +158,21 @@ load_pnadc <- function(save_to = getwd(), year,
   ##########################
 
   # read each file in panel_files and apply the identification algorithms defined in the build_pnadc_panel.R
-  
+
   purrr::map(
     panel_files,
     function(path) {
-      df <- readr::read_csv(path, col_names = cnames) %>% 
+      df <- readr::read_csv(path, col_names = cnames) %>%
         build_pnadc_panel(panel = param$panel)
-      
+
       readr::write_csv(df, path)
     }
   )
-  
+
   ######################
   ## Data Engineering ##
   ######################
-  
+
   ##############################
   ## Harmonize Variable Names ##
   ##############################
