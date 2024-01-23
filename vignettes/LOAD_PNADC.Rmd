@@ -22,7 +22,7 @@ We created this function in order to integrate the [*`get_pnadc`*](https://www.r
 
 The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` tells us that). The goal is to organize and store the data frames in a structured manner for further analysis. 
 
-The function performs the following steps:
+The function performs by the following steps:
 
   1. Create two parallel vector of years and quarters for futher loop.
   2. Loop over the two vectors with the get_pnadc to download the data for each quarter of the year and save in the directory.
