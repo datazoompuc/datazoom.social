@@ -15,17 +15,23 @@
 #' panel_data <- build_pnadc_panel(dat = data, panel = "basic")
 #' }
 #' 
-#' @importFrom dplyr mutate
-#' @importFrom dplyr cur_group_id
-#' @importFrom dplyr case_when
-#' @importFrom data.table rbindlist
-#' @importFrom magrittr %>%
 #' @references 
 #' Ribas, Rafael Perez, and Sergei Suarez Dillon Soares. Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE. No. 1348. Texto para discussão, 2008.
 #' Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
 #'
 #' @author Data Zoom
 build_pnadc_panel <- function(dat, panel) {
+  
+  ###########################
+  ## Bind Global Variables ##
+  ###########################
+  
+  UPA <- V1008 <- V1014 <- id_dom <- UF <- V1023 <- V20082 <- V20081 <- NULL
+  V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- NULL
+  
+  #############################
+  ## Define Basic Parameters ##
+  #############################
   
   # Check if the panel type is 'none'; if so, return the original data
   if (panel == "none") {
