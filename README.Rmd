@@ -1,6 +1,5 @@
 ---
-title: "github_document"
-output: html_document
+output: github_document
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -36,7 +35,7 @@ install.packages("datazoom.social")
 
 And the development version from GitHub with:
 
-```{r}
+```{r, eval=FALSE}
 # install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
