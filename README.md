@@ -5,9 +5,17 @@
 
 The datazoom.social package facilitates access to official Brazilian
 social data. The package provides functions that download, pre-process
-and edit (in research-oriented ways) selected datasets, easing
-comprehension and research aimed at better understanding brazillian
-microdata.
+and edit (in research-oriented ways) the Continuous PNAD (Continuous
+National Household Sample Survey), easing comprehension and research
+aimed at better understanding brazillian microdata. The Continuous PNAD
+is conducted through a sample of households with a rotation scheme.
+Thus, the same household is interviewed five times and, therefore, the
+same individuals are likely to be interviewed more than once. However,
+the identification of them is not provided. The survey is released from
+IBGE (Brazilian Institute of Geography and Statistics) and is produced
+periodically every quarter. It releases information such as the
+working-age population, average income, employed population, among other
+important indicators for socioeconomic research.
 
 This package is in development stage - more datasets will be released
 soon.
@@ -28,7 +36,9 @@ install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
-***[DATA](#DATA)***
+------------------------------------------------------------------------
+
+## Data
 
 <table>
 <tr>
@@ -38,6 +48,8 @@ devtools::install_github("datazoompuc/datazoom.social")
 |---------------------------------|--------------------------------------|
 | **[LOAD_PNADC](#load_pnadc)**   | *Download PNAD of a specific period* |
 | **[BUILD_PNADC](#build_pnadc)** | *Build a Panel of PNAD*              |
+
+------------------------------------------------------------------------
 
 # Functions
 
@@ -198,5 +210,4 @@ A BibTeX entry for LaTeX users is:
         author = {Data Zoom},
         title = {Data Zoom: Simplifying Access To Brazilian Microdata},
         url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
-        year = {2024},
-    }
+        year = {2024}}
