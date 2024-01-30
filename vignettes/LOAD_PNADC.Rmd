@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 
 We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets.
 
-The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` tells us that). The goal is to organize and store the data frames in a structured manner for further analysis. 
+The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` shows that). The goal is to organize and store the data frames in a structured manner for further analysis. 
 
 The function performs by the following steps:
 
@@ -43,9 +43,9 @@ The function performs by the following steps:
 
 
   4. **panel**: Which panel algorithm to apply to this data. There are three options:
-     * `none`:
-     * `basic`:
-     * `advanced`:
+     * `none`: No panel build. Returns the original data.
+     * `basic`: Performs basic identification steps for creating households and individual identifiers for panel construction
+     * `advanced`: Performs advanced identification steps for creating households and individual identifiers for panel construction.
   
   
   5. **raw_data**: A command to define if the user would like to download the raw or treated data. There are two options:

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# datazoom.social - R version
+# Datazoom.social - R version
 
 The datazoom.social package facilitates access to official 
 Brazilian social data. The package provides functions that 
@@ -44,7 +44,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 devtools::load_all()
 ```
 
-**[DATA](#Data)** 
+***[DATA](#DATA)*** 
 
 <table>
 
@@ -64,10 +64,14 @@ devtools::load_all()
 ```{r child = "vignettes/LOAD_PNADC.Rmd"}
 ```
 
+***
+
 ## BUILD_PNADC
 
 ```{r child = "vignettes/BUILD_PNADC_PANEL.Rmd"}
 ```
+
+***
 
 # Credits
 

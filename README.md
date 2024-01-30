@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# datazoom.social - R version
+# Datazoom.social - R version
 
 The datazoom.social package facilitates access to official Brazilian
 social data. The package provides functions that download, pre-process
@@ -28,7 +28,7 @@ install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
-**[DATA](#Data)**
+***[DATA](#DATA)***
 
 <table>
 <tr>
@@ -54,9 +54,9 @@ The function not only download the PNADc files for the given quarters of
 a given year. It processes and generates panel data from the PNAD
 (National Household Sample Survey) dataset for specified years and
 quarters. The function also reads the data and divides all the
-observations by which panel they belong (variable `V1014` tells us
-that). The goal is to organize and store the data frames in a structured
-manner for further analysis.
+observations by which panel they belong (variable `V1014` shows that).
+The goal is to organize and store the data frames in a structured manner
+for further analysis.
 
 The function performs by the following steps:
 
@@ -83,9 +83,11 @@ The function performs by the following steps:
 4.  **panel**: Which panel algorithm to apply to this data. There are
     three options:
 
-    - `none`:
-    - `basic`:
-    - `advanced`:
+    - `none`: No panel build. Returns the original data.
+    - `basic`: Performs basic identification steps for creating
+      households and individual identifiers for panel construction
+    - `advanced`: Performs advanced identification steps for creating
+      households and individual identifiers for panel construction.
 
 5.  **raw_data**: A command to define if the user would like to download
     the raw or treated data. There are two options:
@@ -106,7 +108,77 @@ data <- load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
                    raw_data = FALSE)
 ```
 
+------------------------------------------------------------------------
+
 ## BUILD_PNADC
+
+**Description**
+
+The main goal of the function build_pnadc_panel is to create a Panel of
+PNAD where it’s possible to identify each household or individual all
+over the interviews by a specific serial number (id) based on some
+variables of PNAD Continua.
+
+The method used for the identification is based on the paper of Ribas,
+Rafael Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
+Pesquisa Mensal de Emprego (PME) do IBGE”.
+
+## Basic Identification
+
+For the household identifier, it combines the variables
+`UPA`,`V1008`and`V1014` to create a unique number for every combination
+of those.
+
+For the Individual id identifier, it combines the household id with
+`UF`, `V1023`, `V2007`, and date of birth( `V20082`, `V20081`, `V2008`),
+creating an unique number for every combination of those variables.
+
+For identifying matched observations, the function counts the number of
+time that each id appears.
+
+## Advanced Identification
+
+It’s only run on previously unmatched individuals for identifying new
+matched observations.
+
+Advanced identification is divided in two stages:
+
+In `Stage 1` the function combines the variables `V2005`, `V2009` and
+date of birth( `V20082`, `V20081`, `V2008`).
+
+In `Stage 2` it checks if there’s any missing quarters and if there’s no
+intersection between their appearences. In that case the function
+returns the id.
+
+At last, it handles with unidentifiable observations due to missing
+values.
+
+------------------------------------------------------------------------
+
+**Options:**
+
+1.  **dat**: The current PNAD observations.
+
+2.  **panel**: The type of panelling transformation you wish to apply to
+    dat:
+
+    - `none`: No panel build. Returns the original data.
+    - `basic`: Performs basic identification steps for creating
+      households and individual identifiers for panel construction
+    - `advanced`: Performs advanced identification steps for creating
+      households and individual identifiers for panel construction.
+
+------------------------------------------------------------------------
+
+**Examples:**
+
+``` r
+# Build basic panel 
+data <- read.csv("path/to/PNADC_data.csv")
+ panel_data <- build_pnadc_panel(dat = data, panel = "basic")
+```
+
+------------------------------------------------------------------------
 
 # Credits
 
