@@ -9,8 +9,11 @@
 #' @param raw_data A command to define if the user would like to download the raw or treated data.
 #'
 #' @return A message indicating the successful save of panel files.
-#' @importFrom PNADcIBGE get_pnadc
-#' @importFrom purrr map2
+#' @import PNADcIBGE
+#' @import dplyr
+#' @import purrr
+#' @importFrom magrittr %>%
+#'
 #' @examples
 #' \dontrun{
 #' load_pnadc(
@@ -24,9 +27,17 @@
 
 load_pnadc <- function(save_to = getwd(), year,
                        quarter = 1:4, panel = "advanced", raw_data = FALSE) {
-  ###########
-  ## Setup ##
-  ###########
+
+  ###########################
+  ## Bind Global Variables ##
+  ###########################
+
+  file_path <- . <- NULL
+
+  #############################
+  ## Define Basic Parameters ##
+  #############################
+
 # The param list contains the various objects that will be used as parameters for this function
   param <- list()
   param$year <- year #the years the user would like to download
@@ -74,8 +85,7 @@ load_pnadc <- function(save_to = getwd(), year,
       base::message(
         paste0("Downloading PNADC ", year, " Q", quarter, "\n") #just generating a message so the user knows which file is being downloaded now
       )
-
-      df <- PNADcIBGE::get_pnadc(
+      df <- get_pnadc(
         year = year, quarter = quarter, labels = FALSE, design = FALSE #downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc
       )
 
@@ -84,9 +94,7 @@ load_pnadc <- function(save_to = getwd(), year,
       cnames <<- names(df)
 
       # download each quarter to a separate file
-      file_path <- file.path(
-        param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") #defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
-      )
+
       readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
 
       return(file_path)
