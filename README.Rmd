@@ -36,13 +36,26 @@ install.packages("datazoom.social")
 And the development version from GitHub with:
 
 ```{r, eval=FALSE}
-# install.packages("devtools")
+install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
 ```{r, echo=FALSE, message=FALSE}
 devtools::load_all()
 ```
+
+**[DATA](#Data)** 
+
+<table>
+
+<tr><td>
+
+|||
+|---|---|
+| **[LOAD_PNADC](#load_pnadc)** | _Download PNAD of a specific period_ |
+| **[BUILD_PNADC](#build_pnadc)** | _Build a Panel of PNAD_ |
+
+
 
 # Functions
 
