@@ -28,11 +28,16 @@
 load_pnadc <- function(save_to = getwd(), year,
                        quarter = 1:4, panel = "advanced", raw_data = FALSE) {
   
+  attachNamespace("PNADcIBGE") # without this, an error appears
+                # I believe this is a problem with the PNADcIBGE package
+            # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
+          # you get the same error
+  
   ###########################
   ## Bind Global Variables ##
   ###########################
   
-  file_path <- . <- NULL
+  . <- NULL
   
   #############################
   ## Define Basic Parameters ##
@@ -93,6 +98,10 @@ load_pnadc <- function(save_to = getwd(), year,
       panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
       #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
       cnames <<- names(df)
+      
+      file_path <- file.path(
+        param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") #defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
+      )
       
       # download each quarter to a separate file
       
