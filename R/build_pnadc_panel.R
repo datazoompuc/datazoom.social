@@ -43,7 +43,7 @@ build_pnadc_panel <- function(dat, panel) {
   ##########################
   
   # If the panel type is not 'none', perform basic identification steps
-  else if (panel != "none") {
+  if (panel != "none") {
     
     # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
@@ -84,41 +84,11 @@ build_pnadc_panel <- function(dat, panel) {
   
   if (!(panel %in% c("none", "basic"))) {
     
-    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_dom = dplyr::cur_group_id(),
-        .by = c(UPA, V1008, V1014)
-      )
-    
-    # Individual id combines the household id with UF, V1023, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
-      )
-    
-    # identifying matched observations
-    
-    dat <- dat %>%
-      dplyr::mutate(
-        num_quarters = dplyr::n(),
-        .by = id_ind
-      ) # counts number of times that each id appears
-    
-    dat <- dat %>%
-      dplyr::mutate(
-        matched_basic = dplyr::case_when(
-          num_quarters == 5 ~ 1,
-          .default = 0
-        )
-      )
-    
     # advanced identification is only run on previously unmatched individuals
     
     dat <- dat %>%
       dplyr::mutate(
-        id_1st_stage = dplyr::case_when(
+        id_ind = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
           V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id(),
           V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()
@@ -131,7 +101,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         num_quarters = dplyr::n(),
-        .by = id_1st_stage
+        .by = id_ind
       ) # counts number of times that each id appears
     
     dat <- dat %>%
@@ -147,43 +117,13 @@ build_pnadc_panel <- function(dat, panel) {
   
   if (!(panel %in% c("none", "basic", "advanced_1"))) {
     
-    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_dom = dplyr::cur_group_id(),
-        .by = c(UPA, V1008, V1014)
-      )
-    
-    # Individual id combines the household id with UF, V1023, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
-      )
-    
-    # identifying matched observations
-    
-    dat <- dat %>%
-      dplyr::mutate(
-        num_quarters = dplyr::n(),
-        .by = id_ind
-      ) # counts number of times that each id appears
-    
-    dat <- dat %>%
-      dplyr::mutate(
-        matched_basic = dplyr::case_when(
-          num_quarters == 5 ~ 1,
-          .default = 0
-        )
-      )
-    
     # identifying missing quarters
     
     dat <- dat %>%
       dplyr::mutate(
         appearances = unique(list(V1016)),
         missing_quarters = setdiff(as.list(1:5), appearances),
-        .by = "id_1st_stage"
+        .by = "id_ind"
       )
     
     # two people can only be matched if there is no intersection between their appearances
