@@ -83,6 +83,7 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 1:
   
   if (!(panel %in% c("none", "basic"))) {
+    m<- max(dat$id_ind)
     
     # advanced identification is only run on previously unmatched individuals
     
@@ -90,8 +91,8 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         id_rs_1st_stage = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
-          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id(),
-          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()
+          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id()+m,
+          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m()
         ),
         .by = c(V20081, V2008, V2003)
       )
@@ -116,6 +117,7 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 2:
   
   if (!(panel %in% c("none", "basic", "advanced_1"))) {
+    m2<- max(dat$id_rs_1st_stage)
     
     # identifying missing quarters
     
