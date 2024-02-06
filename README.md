@@ -3,19 +3,12 @@
 
 # Datazoom.social - R version
 
-The datazoom.social package facilitates access to official Brazilian
-social data. The package provides functions that download, pre-process
-and edit (in research-oriented ways) the Continuous PNAD (Continuous
-National Household Sample Survey), easing comprehension and research
-aimed at better understanding brazillian microdata. The Continuous PNAD
-is conducted through a sample of households with a rotation scheme.
-Thus, the same household is interviewed five times and, therefore, the
-same individuals are likely to be interviewed more than once. However,
-the identification of them is not provided. The survey is released from
-IBGE (Brazilian Institute of Geography and Statistics) and is produced
-periodically every quarter. It releases information such as the
-working-age population, average income, employed population, among other
-important indicators for socioeconomic research.
+> <a href="http://www.econ.puc-rio.br/datazoom/">**DataZoom:**</a>
+> Desenvolvido pelo Departamento de Economia da Pontifícia Universidade
+> Católica do Rio de Janeiro (PUC-Rio)
+
+<a href="https://github.com/datazoompuc/datazoom_social_Stata"><img
+src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/logo.jpg" align="" width="100" hspace="10" vspace="6"></a>
 
 This package is in development stage - more datasets will be released
 soon.
