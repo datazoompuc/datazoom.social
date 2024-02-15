@@ -350,13 +350,13 @@ Ribas, Rafael Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o
 painel da Pesquisa Mensal de Emprego (PME) do IBGE”.</p>
 <div id="basic-identification" class="section level2">
 <h2>Basic Identification</h2>
-<p>For the household identifier, it combines the variables
-<code>UPA</code>,<code>V1008</code>and<code>V1014</code> to create a
-unique number for every combination of those.</p>
+<p>For the household identifier, it combines the variables UPA (Primary
+Sampling Unit - PSU), V1008(household number) and V1014 (Panel number)
+to create a unique number for every combination of those.</p>
 <p>For the Individual id identifier, it combines the household id with
-<code>UF</code>, <code>V1023</code>, <code>V2007</code>, and date of
-birth( <code>V20082</code>, <code>V20081</code>, <code>V2008</code>),
-creating an unique number for every combination of those variables.</p>
+UF (federal unit), V1023 (type of area), V2007 (gender), and date of
+birth( V20082 (year), V20081 (month), V2008 (day)), creating an unique
+number for every combination of those variables.</p>
 <p>For identifying matched observations, the function counts the number
 of time that each id appears.</p>
 </div>
@@ -365,9 +365,9 @@ of time that each id appears.</p>
 <p>It’s only run on previously unmatched individuals for identifying new
 matched observations.</p>
 <p>Advanced identification is divided in two stages:</p>
-<p>In <code>Stage 1</code> the function combines the variables
-<code>V2005</code>, <code>V2009</code> and date of birth(
-<code>V20082</code>, <code>V20081</code>, <code>V2008</code>).</p>
+<p>In <code>Stage 1</code> the function combines the variables V2005
+(housing condition), V2009 (age of resident) and date of birth( V20082,
+V20081, V2008).</p>
 <p>In <code>Stage 2</code> it checks if there’s any missing quarters and
 if there’s no intersection between their appearences. In that case the
 function returns the id.</p>

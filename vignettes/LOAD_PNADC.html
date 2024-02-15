@@ -340,20 +340,18 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div id="load_pnadc" class="section level2">
-<h2>load_pnadc()</h2>
 <p><strong>Description</strong></p>
 <p>We created this function in order to integrate the <a href="https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc"><em><code>get_pnadc</code></em></a>
 function with the logic process of applying a panel structure to PNADc
-datasets.</p>
+datasets. This function is from the package <code>PNADcIBGE</code>.</p>
 <p>The function not only download the PNADc files for the given quarters
-of a given year. It processes and generates panel data from the PNAD
-(National Household Sample Survey) dataset for specified years and
-quarters. The function also reads the data and divides all the
+of a given year. It processes and generates panel data from the PNADC
+(Continuous National Household Sample Survey) dataset for specified
+years and quarters. The function also reads the data and divides all the
 observations by which panel they belong (variable <code>V1014</code>
-tells us that). The goal is to organize and store the data frames in a
+shows that). The goal is to organize and store the data frames in a
 structured manner for further analysis.</p>
-<p>The function performs the following steps:</p>
+<p>The function performs by the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Create two parallel vector of years and quarters for futher
 loop.</li>
@@ -365,6 +363,12 @@ observations are included using variable <code>V1014</code>.</li>
 <li>Read each file and apply the identification algorithms defined in
 the <code>build_pnadc_panel</code>.</li>
 </ol>
+<ul>
+<li>This algorithms used in the function <code>build_pnadc_panel</code>
+for the identification are the same ones used in the paper: Ribas,
+Rafael Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
+Pesquisa Mensal de Emprego (PME) do IBGE”.</li>
+</ul>
 <hr />
 <p><strong>Options:</strong></p>
 <ol style="list-style-type: decimal">
@@ -377,9 +381,12 @@ downloaded.</p></li>
 <li><p><strong>panel</strong>: Which panel algorithm to apply to this
 data. There are three options:</p>
 <ul>
-<li><code>none</code>:</li>
-<li><code>basic</code>:</li>
-<li><code>advanced</code>:</li>
+<li><code>none</code>: No panel build. Returns the original data.</li>
+<li><code>basic</code>: Performs basic identification steps for creating
+households and individual identifiers for panel construction</li>
+<li><code>advanced</code>: Performs advanced identification steps for
+creating households and individual identifiers for panel
+construction.</li>
 </ul></li>
 <li><p><strong>raw_data</strong>: A command to define if the user would
 like to download the raw or treated data. There are two options:</p>
@@ -397,7 +404,6 @@ data.</li>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>                   <span class="at">quarter =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>                   <span class="at">panel =</span> <span class="st">&quot;basic&quot;</span>,</span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>                   <span class="at">raw_data =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
-</div>
 
 
 

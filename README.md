@@ -13,6 +13,31 @@ src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/
 This package is in development stage - more datasets will be released
 soon.
 
+# Descripton
+
+The datazoom.social package facilitates access to official Brazilian
+social data.
+
+The package provides functions that download, pre-process and edit (in
+research-oriented ways) data released from IBGE (Brazilian Institute of
+Geography and Statistics) about the most important surveys of Brasil in
+terms of individual information.
+
+In this first version of the package (1.0), the focus is only on the
+Continuous PNAD (Continuous National Household Sample Survey), easing
+comprehension and research aimed at better understanding brazillian
+microdata. The Continuous PNAD is conducted through a sample of
+households with a rotation scheme. Thus, the same household is
+interviewed five times and, therefore, the same individuals are likely
+to be interviewed more than once. However, the identification of them is
+not provided. The survey is produced periodically every quarter. It
+releases information such as the working-age population, average income,
+employed population, among other important indicators for socioeconomic
+research.
+
+You can find more specific information about PNADC in:
+<https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html>?
+
 # Installation
 
 You can install the released version of `datazoom.social` from
@@ -53,12 +78,12 @@ devtools::install_github("datazoompuc/datazoom.social")
 We created this function in order to integrate the
 [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
 function with the logic process of applying a panel structure to PNADc
-datasets.
+datasets. This function is from the package `PNADcIBGE`.
 
 The function not only download the PNADc files for the given quarters of
-a given year. It processes and generates panel data from the PNAD
-(National Household Sample Survey) dataset for specified years and
-quarters. The function also reads the data and divides all the
+a given year. It processes and generates panel data from the PNADC
+(Continuous National Household Sample Survey) dataset for specified
+years and quarters. The function also reads the data and divides all the
 observations by which panel they belong (variable `V1014` shows that).
 The goal is to organize and store the data frames in a structured manner
 for further analysis.
@@ -73,6 +98,11 @@ The function performs by the following steps:
 4.  Spliting data into panels.
 5.  Read each file and apply the identification algorithms defined in
     the `build_pnadc_panel`.
+
+- This algorithms used in the function `build_pnadc_panel` for the
+  identification are the same ones used in the paper: Ribas, Rafael
+  Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
+  Pesquisa Mensal de Emprego (PME) do IBGE”.
 
 ------------------------------------------------------------------------
 
@@ -130,13 +160,14 @@ Pesquisa Mensal de Emprego (PME) do IBGE”.
 
 ## Basic Identification
 
-For the household identifier, it combines the variables
-`UPA`,`V1008`and`V1014` to create a unique number for every combination
-of those.
+For the household identifier, it combines the variables UPA (Primary
+Sampling Unit - PSU), V1008(household number) and V1014 (Panel number)
+to create a unique number for every combination of those.
 
-For the Individual id identifier, it combines the household id with
-`UF`, `V1023`, `V2007`, and date of birth( `V20082`, `V20081`, `V2008`),
-creating an unique number for every combination of those variables.
+For the Individual id identifier, it combines the household id with UF
+(federal unit), V1023 (type of area), V2007 (gender), and date of birth(
+V20082 (year), V20081 (month), V2008 (day)), creating an unique number
+for every combination of those variables.
 
 For identifying matched observations, the function counts the number of
 time that each id appears.
@@ -148,8 +179,9 @@ matched observations.
 
 Advanced identification is divided in two stages:
 
-In `Stage 1` the function combines the variables `V2005`, `V2009` and
-date of birth( `V20082`, `V20081`, `V2008`).
+In `Stage 1` the function combines the variables V2005 (housing
+condition), V2009 (age of resident) and date of birth( V20082, V20081,
+V2008).
 
 In `Stage 2` it checks if there’s any missing quarters and if there’s no
 intersection between their appearences. In that case the function

@@ -17,9 +17,9 @@ knitr::opts_chunk$set(
 
 **Description**
 
-We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets.
+We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets. This function is from the package `PNADcIBGE`.
 
-The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNAD (National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` shows that). The goal is to organize and store the data frames in a structured manner for further analysis. 
+The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNADC (Continuous National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` shows that). The goal is to organize and store the data frames in a structured manner for further analysis. 
 
 The function performs by the following steps:
 
@@ -28,6 +28,8 @@ The function performs by the following steps:
   3. Register, for every quarter, the panel's which the quarter's observations are included using variable `V1014`.
   4. Spliting data into panels.
   5. Read each file and apply the identification algorithms defined in the `build_pnadc_panel`.
+  
+* This algorithms used in the function `build_pnadc_panel` for the identification are the same ones used in the paper: Ribas, Rafael Perez, and Sergei Suarez Dillon Soares(2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
   
 
 ***

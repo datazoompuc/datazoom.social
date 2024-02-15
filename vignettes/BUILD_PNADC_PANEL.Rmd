@@ -22,9 +22,9 @@ The method used for the identification is based on the paper of Ribas, Rafael Pe
 
 ## Basic Identification
 
-For the household identifier, it combines the variables `UPA`,`V1008`and`V1014` to create a unique number for every combination of those.
+For the household identifier, it combines the variables UPA (Primary Sampling Unit - PSU), V1008(household number) and V1014 (Panel number) to create a unique number for every combination of those.
 
-For the Individual id identifier, it combines the household id with `UF`, `V1023`, `V2007`, and date of birth( `V20082`, `V20081`, `V2008`), creating an unique number for every combination of those variables.
+For the Individual id identifier, it combines the household id with UF (federal unit), V1023 (type of area), V2007 (gender), and date of birth( V20082 (year), V20081 (month), V2008 (day)), creating an unique number for every combination of those variables.
 
 For identifying matched observations, the function counts the number of time that each id appears.
 
@@ -34,7 +34,7 @@ It's only run on previously unmatched individuals for identifying new matched ob
 
 Advanced identification is divided in two stages:
 
-In `Stage 1` the function combines the variables `V2005`, `V2009` and date of birth( `V20082`, `V20081`, `V2008`).
+In `Stage 1` the function combines the variables V2005 (housing condition), V2009 (age of resident) and date of birth( V20082, V20081, V2008).
 
 In `Stage 2` it checks if there's any missing quarters and if there's no intersection between their appearences. In that case the function returns the id.
 
