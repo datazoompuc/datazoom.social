@@ -352,17 +352,19 @@ observations by which panel they belong (variable <code>V1014</code>
 shows that). The goal is to organize and store the data frames in a
 structured manner for further analysis.</p>
 <p>The function performs by the following steps:</p>
-<ol style="list-style-type: decimal">
-<li>Create two parallel vector of years and quarters for futher
-loop.</li>
-<li>Loop over the two vectors with the get_pnadc to download the data
-for each quarter of the year and save in the directory.</li>
-<li>Register, for every quarter, the panel’s which the quarter’s
-observations are included using variable <code>V1014</code>.</li>
-<li>Spliting data into panels.</li>
-<li>Read each file and apply the identification algorithms defined in
-the <code>build_pnadc_panel</code>.</li>
-</ol>
+<p><em>1.</em> Create two parallel vector of years and quarters for
+futher loop.</p>
+<p><em>2.</em> Loop over the two vectors with the get_pnadc to download
+the data for each quarter of the year and save in the directory.</p>
+<p><em>3.</em> Register, for every quarter, the panel’s which the
+quarter’s observations are included using variable
+<code>V1014</code>.</p>
+<p><em>4.</em> Download each quarter to a separate file type
+<code>.rds</code>.</p>
+<p><em>5.</em> Spliting data into panels and saving in files csv:
+<code>pnad_panel_x.csv</code>.</p>
+<p><em>6.</em> Read each file and apply the identification algorithms
+defined in the <code>build_pnadc_panel</code>.</p>
 <ul>
 <li>This algorithms used in the function <code>build_pnadc_panel</code>
 for the identification are the same ones used in the paper: Ribas,

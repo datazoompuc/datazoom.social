@@ -23,13 +23,20 @@ The function not only download the PNADc files for the given quarters of a given
 
 The function performs by the following steps:
 
-  1. Create two parallel vector of years and quarters for futher loop.
-  2. Loop over the two vectors with the get_pnadc to download the data for each quarter of the year and save in the directory.
-  3. Register, for every quarter, the panel's which the quarter's observations are included using variable `V1014`.
-  4. Spliting data into panels.
-  5. Read each file and apply the identification algorithms defined in the `build_pnadc_panel`.
+  *1.* Create two parallel vector of years and quarters for futher loop.
+  
+  *2.* Loop over the two vectors with the get_pnadc to download the data for each quarter of the year and save in the directory.
+  
+  *3.* Register, for every quarter, the panel's which the quarter's observations are included using variable `V1014`.
+  
+  *4.* Download each quarter to a separate file type `.rds`.
+  
+  *5.* Spliting data into panels and saving in files csv: `pnad_panel_x.csv`.
+  
+  *6.* Read each file and apply the identification algorithms defined in the `build_pnadc_panel`.
   
 * This algorithms used in the function `build_pnadc_panel` for the identification are the same ones used in the paper: Ribas, Rafael Perez, and Sergei Suarez Dillon Soares(2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
+  
   
 
 ***

@@ -36,7 +36,7 @@ employed population, among other important indicators for socioeconomic
 research.
 
 You can find more specific information about PNADC in:
-<https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html>?
+<https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html>
 
 # Installation
 
@@ -90,14 +90,21 @@ for further analysis.
 
 The function performs by the following steps:
 
-1.  Create two parallel vector of years and quarters for futher loop.
-2.  Loop over the two vectors with the get_pnadc to download the data
-    for each quarter of the year and save in the directory.
-3.  Register, for every quarter, the panel’s which the quarter’s
-    observations are included using variable `V1014`.
-4.  Spliting data into panels.
-5.  Read each file and apply the identification algorithms defined in
-    the `build_pnadc_panel`.
+*1.* Create two parallel vector of years and quarters for futher loop.
+
+*2.* Loop over the two vectors with the get_pnadc to download the data
+for each quarter of the year and save in the directory.
+
+*3.* Register, for every quarter, the panel’s which the quarter’s
+observations are included using variable `V1014`.
+
+*4.* Download each quarter to a separate file type `.rds`.
+
+*5.* Spliting data into panels and saving in files csv:
+`pnad_panel_x.csv`.
+
+*6.* Read each file and apply the identification algorithms defined in
+the `build_pnadc_panel`.
 
 - This algorithms used in the function `build_pnadc_panel` for the
   identification are the same ones used in the paper: Ribas, Rafael
@@ -158,19 +165,40 @@ The method used for the identification is based on the paper of Ribas,
 Rafael Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
 Pesquisa Mensal de Emprego (PME) do IBGE”.
 
+------------------------------------------------------------------------
+
 ## Basic Identification
 
-For the household identifier, it combines the variables UPA (Primary
-Sampling Unit - PSU), V1008(household number) and V1014 (Panel number)
-to create a unique number for every combination of those.
+For the household identifier, it combines the variables:
 
-For the Individual id identifier, it combines the household id with UF
-(federal unit), V1023 (type of area), V2007 (gender), and date of birth(
-V20082 (year), V20081 (month), V2008 (day)), creating an unique number
-for every combination of those variables.
+- `UPA` - Primary Sampling Unit - PSU;
+
+- `V1008` - Household ;
+
+- `V1014` - Panel Number;
+
+In order to create a unique number for every combination of those
+variables.
+
+------------------------------------------------------------------------
+
+For the Individual id identifier, it combines the `household id` with:
+
+- `UF` - Federal Unit;
+
+- `V1023` - Type of Area;
+
+- `V2007` - Gender;
+
+- Date of Birth - \[`V20082` (year), `V20081` (month), `V2008` (day)\];
+
+In order to create an unique number for every combination of those
+variables.
 
 For identifying matched observations, the function counts the number of
 time that each id appears.
+
+------------------------------------------------------------------------
 
 ## Advanced Identification
 
@@ -179,9 +207,13 @@ matched observations.
 
 Advanced identification is divided in two stages:
 
-In `Stage 1` the function combines the variables V2005 (housing
-condition), V2009 (age of resident) and date of birth( V20082, V20081,
-V2008).
+In `Stage 1` the function combines the variables:
+
+- `V2005` - Housing Condition;
+
+- `V2009` - Age of Resident;
+
+- Date of Birth - \[`V20082`, `V20081`, `V2008`\].
 
 In `Stage 2` it checks if there’s any missing quarters and if there’s no
 intersection between their appearences. In that case the function
@@ -200,8 +232,10 @@ values.
     dat:
 
     - `none`: No panel build. Returns the original data.
+
     - `basic`: Performs basic identification steps for creating
-      households and individual identifiers for panel construction
+      households and individual identifiers for panel construction.
+
     - `advanced`: Performs advanced identification steps for creating
       households and individual identifiers for panel construction.
 

@@ -25,7 +25,7 @@ download, pre-process and edit (in research-oriented ways) data released from IB
 In this first version of the package (1.0), the focus is only on the Continuous PNAD (Continuous National Household Sample Survey), easing comprehension and research aimed at better understanding brazillian microdata.
 The Continuous PNAD is conducted through a sample of households with a rotation scheme. Thus, the same household is interviewed five times and, therefore, the same individuals are likely to be interviewed more than once. However, the identification of them is not provided. The survey is produced periodically every quarter. It releases information such as the working-age population, average income, employed population, among other important indicators for socioeconomic research.
 
-You can find more specific information about PNADC in: https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html?
+You can find more specific information about PNADC in: https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html
 
 
 
