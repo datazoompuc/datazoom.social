@@ -2,43 +2,40 @@
 output: github_document
 ---
 
+<a href="https://github.com/datazoompuc/datazoom_social_Stata"><img src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/logo.jpg" align="left" width="100" hspace="10" vspace="6"></a>
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Datazoom.social - R version
+# datazoom.social
 
-> <a href="http://www.econ.puc-rio.br/datazoom/">__DataZoom:__</a> Desenvolvido pelo Departamento de Economia da Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio)
-
-<a href="https://github.com/datazoompuc/datazoom_social_Stata"><img
-src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/logo.jpg" align="" width="100" hspace="10" vspace="6"></a>
-
-This package is in development stage - more datasets will
-be released soon.
-
-# Descripton
+<!-- badges: start -->
+![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom_social_Stata?style=flat)
+![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom_social_Stata?style=flat)
+![Open Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom_social_Stata?style=flat)
+![Closed Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom_social_Stata?style=flat)
+![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom_social_Stata?style=flat)
+![Followers](https://img.shields.io/github/followers/datazoompuc?style=flat)
+<!-- badges: end -->
 
 The datazoom.social package facilitates access to official 
 Brazilian social data.
 
-The package provides functions that 
-download, pre-process and edit (in research-oriented ways) data released from IBGE (Brazilian Institute of Geography and Statistics) about the most important surveys of Brasil in terms of individual information.
+This package is in development stage - more datasets will
+be released soon.
 
-In this first version of the package (1.0), the focus is only on the Continuous PNAD (Continuous National Household Sample Survey), easing comprehension and research aimed at better understanding brazillian microdata.
-The Continuous PNAD is conducted through a sample of households with a rotation scheme. Thus, the same household is interviewed five times and, therefore, the same individuals are likely to be interviewed more than once. However, the identification of them is not provided. The survey is produced periodically every quarter. It releases information such as the working-age population, average income, employed population, among other important indicators for socioeconomic research.
-
-You can find more specific information about PNADC in: https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html
-
+In this first version of the package, the focus is only on the [Continuous PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html). We allow for many quarters to be easily downloaded and read, as well as identifying individuals across time, forming a panel.
 
 
 # Installation
 
-You can install the released version of `datazoom.social` from
-[CRAN](https://CRAN.R-project.org/package=datazoom.social) with:
+<!-- You can install the released version of `datazoom.social` from -->
+<!-- [CRAN](https://CRAN.R-project.org/package=datazoom.social) with: -->
 
-``` {r, eval=FALSE}
-install.packages("datazoom.social")
-```
+<!-- ``` {r, eval=FALSE} -->
+<!-- install.packages("datazoom.social") -->
+<!-- ``` -->
 
-And the development version from GitHub with:
+You can install the development version of `datazoom.social` from GitHub with:
 
 ```{r, eval=FALSE}
 install.packages("devtools")
@@ -49,7 +46,6 @@ devtools::install_github("datazoompuc/datazoom.social")
 devtools::load_all()
 ```
 
-***
 ## Data 
 
 <table>
@@ -58,21 +54,21 @@ devtools::load_all()
 
 |||
 |---|---|
-| **[LOAD_PNADC](#load_pnadc)** | _Download PNAD of a specific period_ |
-| **[BUILD_PNADC](#build_pnadc)** | _Build a Panel of PNAD_ |
+| **[Continuous PNAD](#continuous-pnad)** | _Download PNADC of a range of quarters_ |
+| **[Panel Identification](#pnad-panel-identification)** | _Build a Panel of PNADC individuals_ |
 
-***
+</td></tr>
 
-# Functions
+</table>
 
-## LOAD_PNADC
+## Continuous PNAD
 
 ```{r child = "vignettes/LOAD_PNADC.Rmd"}
 ```
 
 ***
 
-## BUILD_PNADC
+## PNAD Panel Identification
 
 ```{r child = "vignettes/BUILD_PNADC_PANEL.Rmd"}
 ```

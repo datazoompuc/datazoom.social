@@ -15,29 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 
-**Description**
-
-We created this function in order to integrate the [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) function with the logic process of applying a panel structure to PNADc datasets. This function is from the package `PNADcIBGE`.
-
-The function not only download the PNADc files for the given quarters of a given year. It processes and generates panel data from the PNADC (Continuous National Household Sample Survey) dataset for specified years and quarters. The function also reads the data and divides all the observations by which panel they belong (variable `V1014` shows that). The goal is to organize and store the data frames in a structured manner for further analysis. 
-
-The function performs by the following steps:
-
-  *1.* Create two parallel vector of years and quarters for futher loop.
-  
-  *2.* Loop over the two vectors with the get_pnadc to download the data for each quarter of the year and save in the directory.
-  
-  *3.* Register, for every quarter, the panel's which the quarter's observations are included using variable `V1014`.
-  
-  *4.* Download each quarter to a separate file type `.rds`.
-  
-  *5.* Spliting data into panels and saving in files csv: `pnad_panel_x.csv`.
-  
-  *6.* Read each file and apply the identification algorithms defined in the `build_pnadc_panel`.
-  
-* This algorithms used in the function `build_pnadc_panel` for the identification are the same ones used in the paper: Ribas, Rafael Perez, and Sergei Suarez Dillon Soares(2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
-  
-  
+This function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) from the package `PNADcIBGE`, with added identification algorithms to build a Panel.
 
 ***
 **Options:**
@@ -48,11 +26,11 @@ The function performs by the following steps:
   2. **year**: The years of the PNADc the user would like to download.
  
 
-  3. **quarter**: The quarters within those years to be downloaded.
+  3. **quarter**: The quarters within those years to be downloaded. Can be either a vector such as `1:4` for consistent quarters across years, or a list of vectors, if quarters are different for each year.
 
 
   4. **panel**: Which panel algorithm to apply to this data. There are three options:
-     * `none`: No panel build. Returns the original data.
+     * `none`: No panel build. Returns the original data. If `raw_data = TRUE`, data is still split into panel files.
      * `basic`: Performs basic identification steps for creating households and individual identifiers for panel construction
      * `advanced`: Performs advanced identification steps for creating households and individual identifiers for panel construction.
   
@@ -62,12 +40,25 @@ The function performs by the following steps:
      * `FALSE`: if you want the treated version of the data.
      
 ***
+**Details:**
+
+The function performs by the following steps:
+  
+  1. Loop over years and quarters using `PNADcIBGE::get_pnadc` the two vectors with the get_pnadc to download the data and save in the directory, in files named `pnadc_year_quarter.rds`.
+  
+  2. Split the data into panels, by reading each `.rds` file and filtering by the quarter variable `V1014`. Data from each panel `x` is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data from each quarter to be appended on top of the previous, making the process much faster.
+  
+  3. Read each panel file and apply the identification algorithms defined in the `build_pnadc_panel`.
+  
+* The identification algorithms in `build_pnadc_panel` are drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
+  
+***  
 
 **Examples:** 
  
 ```{r eval=FALSE}
 # Download treated basic panel from 2016 year
-data <- load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
+load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
                    year = 2016,
                    quarter = 1:4,
                    panel = "basic",

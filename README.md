@@ -1,60 +1,49 @@
 
+<a href="https://github.com/datazoompuc/datazoom_social_Stata"><img src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/logo.jpg" align="left" width="100" hspace="10" vspace="6"></a>
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Datazoom.social - R version
+# datazoom.social
 
-> <a href="http://www.econ.puc-rio.br/datazoom/">**DataZoom:**</a>
-> Desenvolvido pelo Departamento de Economia da Pontifícia Universidade
-> Católica do Rio de Janeiro (PUC-Rio)
+<!-- badges: start -->
 
-<a href="https://github.com/datazoompuc/datazoom_social_Stata"><img
-src="https://raw.githubusercontent.com/datazoompuc/datazoom_social_stata/master/logo.jpg" align="" width="100" hspace="10" vspace="6"></a>
-
-This package is in development stage - more datasets will be released
-soon.
-
-# Descripton
+![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom_social_Stata?style=flat)
+![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom_social_Stata?style=flat)
+![Open
+Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom_social_Stata?style=flat)
+![Closed
+Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom_social_Stata?style=flat)
+![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom_social_Stata?style=flat)
+![Followers](https://img.shields.io/github/followers/datazoompuc?style=flat)
+<!-- badges: end -->
 
 The datazoom.social package facilitates access to official Brazilian
 social data.
 
-The package provides functions that download, pre-process and edit (in
-research-oriented ways) data released from IBGE (Brazilian Institute of
-Geography and Statistics) about the most important surveys of Brasil in
-terms of individual information.
+This package is in development stage - more datasets will be released
+soon.
 
-In this first version of the package (1.0), the focus is only on the
-Continuous PNAD (Continuous National Household Sample Survey), easing
-comprehension and research aimed at better understanding brazillian
-microdata. The Continuous PNAD is conducted through a sample of
-households with a rotation scheme. Thus, the same household is
-interviewed five times and, therefore, the same individuals are likely
-to be interviewed more than once. However, the identification of them is
-not provided. The survey is produced periodically every quarter. It
-releases information such as the working-age population, average income,
-employed population, among other important indicators for socioeconomic
-research.
-
-You can find more specific information about PNADC in:
-<https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html>
+In this first version of the package, the focus is only on the
+[Continuous
+PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html).
+We allow for many quarters to be easily downloaded and read, as well as
+identifying individuals across time, forming a panel.
 
 # Installation
 
-You can install the released version of `datazoom.social` from
-[CRAN](https://CRAN.R-project.org/package=datazoom.social) with:
+<!-- You can install the released version of `datazoom.social` from -->
+<!-- [CRAN](https://CRAN.R-project.org/package=datazoom.social) with: -->
+<!-- ``` {r, eval=FALSE} -->
+<!-- install.packages("datazoom.social") -->
+<!-- ``` -->
 
-``` r
-install.packages("datazoom.social")
-```
-
-And the development version from GitHub with:
+You can install the development version of `datazoom.social` from GitHub
+with:
 
 ``` r
 install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
-
-------------------------------------------------------------------------
 
 ## Data
 
@@ -62,54 +51,21 @@ devtools::install_github("datazoompuc/datazoom.social")
 <tr>
 <td>
 
-|                                 |                                      |
-|---------------------------------|--------------------------------------|
-| **[LOAD_PNADC](#load_pnadc)**   | *Download PNAD of a specific period* |
-| **[BUILD_PNADC](#build_pnadc)** | *Build a Panel of PNAD*              |
+|                                                        |                                         |
+|--------------------------------------------------------|-----------------------------------------|
+| **[Continuous PNAD](#continuous-pnad)**                | *Download PNADC of a range of quarters* |
+| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals*    |
 
-------------------------------------------------------------------------
+</td>
+</tr>
+</table>
 
-# Functions
+## Continuous PNAD
 
-## LOAD_PNADC
-
-**Description**
-
-We created this function in order to integrate the
+This function is a wrapper for
 [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
-function with the logic process of applying a panel structure to PNADc
-datasets. This function is from the package `PNADcIBGE`.
-
-The function not only download the PNADc files for the given quarters of
-a given year. It processes and generates panel data from the PNADC
-(Continuous National Household Sample Survey) dataset for specified
-years and quarters. The function also reads the data and divides all the
-observations by which panel they belong (variable `V1014` shows that).
-The goal is to organize and store the data frames in a structured manner
-for further analysis.
-
-The function performs by the following steps:
-
-*1.* Create two parallel vector of years and quarters for futher loop.
-
-*2.* Loop over the two vectors with the get_pnadc to download the data
-for each quarter of the year and save in the directory.
-
-*3.* Register, for every quarter, the panel’s which the quarter’s
-observations are included using variable `V1014`.
-
-*4.* Download each quarter to a separate file type `.rds`.
-
-*5.* Spliting data into panels and saving in files csv:
-`pnad_panel_x.csv`.
-
-*6.* Read each file and apply the identification algorithms defined in
-the `build_pnadc_panel`.
-
-- This algorithms used in the function `build_pnadc_panel` for the
-  identification are the same ones used in the paper: Ribas, Rafael
-  Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
-  Pesquisa Mensal de Emprego (PME) do IBGE”.
+from the package `PNADcIBGE`, with added identification algorithms to
+build a Panel.
 
 ------------------------------------------------------------------------
 
@@ -120,12 +76,16 @@ the `build_pnadc_panel`.
 
 2.  **year**: The years of the PNADc the user would like to download.
 
-3.  **quarter**: The quarters within those years to be downloaded.
+3.  **quarter**: The quarters within those years to be downloaded. Can
+    be either a vector such as `1:4` for consistent quarters across
+    years, or a list of vectors, if quarters are different for each
+    year.
 
 4.  **panel**: Which panel algorithm to apply to this data. There are
     three options:
 
-    - `none`: No panel build. Returns the original data.
+    - `none`: No panel build. Returns the original data. If
+      `raw_data = TRUE`, data is still split into panel files.
     - `basic`: Performs basic identification steps for creating
       households and individual identifiers for panel construction
     - `advanced`: Performs advanced identification steps for creating
@@ -139,11 +99,34 @@ the `build_pnadc_panel`.
 
 ------------------------------------------------------------------------
 
+**Details:**
+
+The function performs by the following steps:
+
+1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` the two
+    vectors with the get_pnadc to download the data and save in the
+    directory, in files named `pnadc_year_quarter.rds`.
+
+2.  Split the data into panels, by reading each `.rds` file and
+    filtering by the quarter variable `V1014`. Data from each panel `x`
+    is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data
+    from each quarter to be appended on top of the previous, making the
+    process much faster.
+
+3.  Read each panel file and apply the identification algorithms defined
+    in the `build_pnadc_panel`.
+
+- The identification algorithms in `build_pnadc_panel` are drawn from
+  Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): “Sobre o
+  painel da Pesquisa Mensal de Emprego (PME) do IBGE”.
+
+------------------------------------------------------------------------
+
 **Examples:**
 
 ``` r
 # Download treated basic panel from 2016 year
-data <- load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
+load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
                    year = 2016,
                    quarter = 1:4,
                    panel = "basic",
@@ -152,7 +135,7 @@ data <- load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
 
 ------------------------------------------------------------------------
 
-## BUILD_PNADC
+## PNAD Panel Identification
 
 **Description**
 
