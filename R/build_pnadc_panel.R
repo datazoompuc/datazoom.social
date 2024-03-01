@@ -168,7 +168,7 @@ build_pnadc_panel <- function(dat, panel) {
   # Handle unidentifiable observations due to missing values
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
-      V2008 != "99" | V20081 != "99" | V20082 != "9999" ~ NA,
+      V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
   )
