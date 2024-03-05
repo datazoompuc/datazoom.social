@@ -1,0 +1,103 @@
+---
+title: 'BUILD_PNADC_PANEL'
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{MAPBIOMAS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+**Description**
+
+The main goal of the function build_pnadc_panel is to create a Panel of PNAD where it's possible to identify each household or individual all over the interviews by a specific serial number (id) based on some variables of PNAD Continua.
+
+The method used for the identification is based on the paper of Ribas, Rafael Perez, and Sergei Suarez Dillon Soares(2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE". 
+
+***
+
+## Basic Identification
+
+For the household identifier, it combines the variables:
+
+* `UPA` - Primary Sampling Unit - PSU;
+
+* `V1008` - Household ;
+
+* `V1014` - Panel Number;
+
+In order to create a unique number for every combination of those variables.
+
+***
+
+For the Individual id identifier, it combines the `household id` with:
+
+* `UF` - Federal Unit;
+
+* `V1023` - Type of Area;
+
+* `V2007` - Gender;
+
+* Date of Birth - [`V20082` (year), `V20081` (month), `V2008` (day)];
+
+In order to create an unique number for every combination of those variables.
+
+For identifying matched observations, the function counts the number of time that each id appears.
+
+***
+
+## Advanced Identification
+
+It's only run on previously unmatched individuals for identifying new matched observations.
+
+Advanced identification is divided in two stages:
+
+In `Stage 1` the function combines the variables:
+
+* `V2005` - Housing Condition;
+
+* `V2009` - Age of Resident; 
+
+* Date of Birth - [`V20082`, `V20081`, `V2008`].
+
+In `Stage 2` it checks if there's any missing quarters and if there's no intersection between their appearences. In that case the function returns the id.
+
+
+At last, it handles with unidentifiable observations due to missing values.
+
+
+***
+**Options:**
+
+  1. **dat**: The current PNAD observations.
+
+
+  2. **panel**: The type of panelling transformation you wish to apply to dat:
+  
+     * `none`: No panel build. Returns the original data.
+     
+     * `basic`: Performs basic identification steps for creating households and individual identifiers for panel construction.
+     
+     * `advanced`: Performs advanced identification steps for creating households and individual identifiers for panel construction.
+
+***
+
+**Examples:** 
+
+```{r eval=FALSE}
+# Build basic panel 
+data <- read.csv("path/to/PNADC_data.csv")
+ panel_data <- build_pnadc_panel(dat = data, panel = "basic")
+
+```
+
+
+
+
+
