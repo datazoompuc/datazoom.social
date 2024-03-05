@@ -89,7 +89,7 @@ build_pnadc_panel <- function(dat, panel) {
     
     dat <- dat %>%
       dplyr::mutate(
-        id_rs_1st_stage = dplyr::case_when(
+        id_rs = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
           V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id()+m,
           V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
@@ -103,7 +103,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         num_quarters = dplyr::n(),
-        .by = id_rs_1st_stage
+        .by = id_rs
       ) # counts number of times that each id appears
     
     dat <- dat %>%
@@ -118,7 +118,7 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 2:
   
 #  if (!(panel %in% c("none", "basic", "advanced_1"))) {
-#    m2<- max(dat$id_rs_1st_stage)
+#    m2<- max(dat$id_rs)
     
     # identifying missing quarters
     
@@ -126,7 +126,7 @@ build_pnadc_panel <- function(dat, panel) {
 #    dplyr::mutate(
 #      appearances = unique(list(V1016)),
 #      missing_quarters = purrr::map(appearances, ~ setdiff(1:5, .x)),
-#      .by = "id_rs_1st_stage"
+#      .by = "id_rs"
 #    )
     
     # two people can only be matched if there is no intersection between their appearances
