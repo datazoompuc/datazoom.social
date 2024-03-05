@@ -27,13 +27,18 @@
 
 load_pnadc <- function(save_to = getwd(), year,
                        quarter = 1:4, panel = "advanced", raw_data = FALSE) {
-
+  
+  attachNamespace("PNADcIBGE") # without this, an error appears
+                # I believe this is a problem with the PNADcIBGE package
+            # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
+          # you get the same error
+  
   ###########################
   ## Bind Global Variables ##
   ###########################
-
-  file_path <- . <- NULL
-
+  
+  . <- NULL
+  
   #############################
   ## Define Basic Parameters ##
   #############################
