@@ -24,21 +24,21 @@ cria_df_de_atrito <- function(data, panel) {
   # Identify whether basic or advanced panel friction will be calculated
   
   if (panel == "basic") {
-    rename(data, individual_identifier = id_ind)
+    data<- data %>% rename("individual_identifier" = "id_ind")
     print("Basic panel friction calculated.")
   } else if(panel == "advanced") {
-    rename(data, individual_identifier = id_rs)
+    data <- data %>% rename("individual_identifier" = "id_rs")
     print("Advanced panel friction calculated.")
   }
   
   # Identifying interviewees missing quarters in data
   
-  data <- data %>%
-    dplyr::mutate(
-      appearances = unique(list(V1016)),
-      missing_quarters = purrr::map(appearances, ~ setdiff(1:5, .x)),
-      .by = "id_rs_1st_stage"
-    )
+#  data <- data %>%
+#    dplyr::mutate(
+#      appearances = unique(list(V1016)),
+#      missing_quarters = purrr::map(appearances, ~ setdiff(1:5, .x)),
+#      .by = "id_rs"
+#    )
   
   # Create a vector with the IDs of individuals present in the 1st interview
   presentes_na_1a_entrevista <- data %>%
