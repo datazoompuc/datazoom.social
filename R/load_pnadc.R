@@ -28,10 +28,15 @@
 load_pnadc <- function(save_to = getwd(), year,
                        quarter = 1:4, panel = "advanced", raw_data = FALSE) {
   
-  attachNamespace("PNADcIBGE") # without this, an error appears
-                # I believe this is a problem with the PNADcIBGE package
-            # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
-          # you get the same error
+  
+  # Check if PNADcIBGE namespace is already attached
+  if (!"PNADcIBGE" %in% loadedNamespaces()) {
+    # If not attached, attach it
+    attachNamespace("PNADcIBGE") # without this, an error appears
+                  # I believe this is a problem with the PNADcIBGE package
+              # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
+            # you get the same error
+  }
   
   ###########################
   ## Bind Global Variables ##
@@ -196,3 +201,4 @@ load_pnadc <- function(save_to = getwd(), year,
 
   return(paste("Panel files saved to", param$save_to))
 }
+

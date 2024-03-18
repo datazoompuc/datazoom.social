@@ -83,15 +83,17 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 1:
   
   if (!(panel %in% c("none", "basic"))) {
+    m<- max(dat$id_ind)
     
     # advanced identification is only run on previously unmatched individuals
     
     dat <- dat %>%
       dplyr::mutate(
-        id_ind = dplyr::case_when(
+        id_rs = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
-          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id(),
-          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()
+          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id()+m,
+          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
+          TRUE~  id_ind
         ),
         .by = c(V20081, V2008, V2003)
       )
@@ -101,7 +103,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         num_quarters = dplyr::n(),
-        .by = id_ind
+        .by = id_rs
       ) # counts number of times that each id appears
     
     dat <- dat %>%
@@ -115,48 +117,49 @@ build_pnadc_panel <- function(dat, panel) {
   
   ## Stage 2:
   
-  if (!(panel %in% c("none", "basic", "advanced_1"))) {
+#  if (!(panel %in% c("none", "basic", "advanced_1"))) {
+#    m2<- max(dat$id_rs)
     
     # identifying missing quarters
     
-    dat <- dat %>%
-      dplyr::mutate(
-        appearances = unique(list(V1016)),
-        missing_quarters = setdiff(as.list(1:5), appearances),
-        .by = "id_ind"
-      )
+#    dat <- dat %>%
+#    dplyr::mutate(
+#      appearances = unique(list(V1016)),
+#      missing_quarters = purrr::map(appearances, ~ setdiff(1:5, .x)),
+#      .by = "id_rs"
+#    )
     
     # two people can only be matched if there is no intersection between their appearances
     
-    identify_matches <- function(appear) {
-      dat %>%
-        mutate(id = row_number()) %>%
-        dplyr::filter(
-          length(intersect(appearances, appear)) == 0
-        ) %>%
-        purrr::pluck("id")
-    }
+#    identify_matches <- function(appear) {
+#      dat %>%
+#        mutate(id = row_number()) %>%
+#        dplyr::filter(
+#          length(intersect(appearances, appear)) == 0
+#        ) %>%
+#        purrr::pluck("id")
+#    }
     
     # there are 2^5 possible appear lists, listed below
     
-    all_appear <- list(
-      list(), list(1), list(2), list(3), list(4), list(5),
-      list(1, 2), list(1, 3), list(1, 4), list(1, 5),
-      list(2, 3), list(2, 4), list(2, 5), list(3, 4),
-      list(3, 5), list(4, 5), list(1, 2, 3), list(1, 2, 4),
-      list(1, 2, 5), list(1, 3, 4), list(1, 3, 5),
-      list(1, 4, 5), list(2, 3, 4), list(2, 3, 5),
-      list(2, 4, 5), list(3, 4, 5), list(1, 2, 3, 4),
-      list(1, 2, 3, 5), list(1, 2, 4, 5), list(1, 3, 4, 5),
-      list(2, 3, 4, 5), list(1, 2, 3, 4, 5)
-    )
+#    all_appear <- list(
+#      list(), list(1), list(2), list(3), list(4), list(5),
+#      list(1, 2), list(1, 3), list(1, 4), list(1, 5),
+#      list(2, 3), list(2, 4), list(2, 5), list(3, 4),
+#      list(3, 5), list(4, 5), list(1, 2, 3), list(1, 2, 4),
+#      list(1, 2, 5), list(1, 3, 4), list(1, 3, 5),
+#      list(1, 4, 5), list(2, 3, 4), list(2, 3, 5),
+#      list(2, 4, 5), list(3, 4, 5), list(1, 2, 3, 4),
+#      list(1, 2, 3, 5), list(1, 2, 4, 5), list(1, 3, 4, 5),
+#      list(2, 3, 4, 5), list(1, 2, 3, 4, 5)
+#    )
     
     # now I write a big list with each person and their matches
     
-    dat <- all_appear %>%
-      purrr::map(identify_matches)
+#    dat <- all_appear %>%
+#      purrr::map(identify_matches)
     
-  }
+#  }
   
   #################
   ## Return Data ##
@@ -165,7 +168,7 @@ build_pnadc_panel <- function(dat, panel) {
   # Handle unidentifiable observations due to missing values
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
-      V2008 != "99" | V20081 != "99" | V20082 != "9999" ~ NA,
+      V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
   )

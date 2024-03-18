@@ -8,6 +8,7 @@
 #' @param data The input dataset, preferably a PNADc panel file with all 5
 #'   interviews of the individuals of that panel, with a certain panel method
 #'   already applied.
+#' @param panel The identification strategy whose friction will be identified. Can either be "basic" or "advanced"
 #'
 #' @return A data frame summarizing missing interviews and the percentage of
 #'   interviews attended for the individuals forming that panel.
@@ -15,24 +16,43 @@
 #' @examples
 #' \dontrun{
 #' data <- read.csv("path/to/your/database/pnadc_panel_6.csv")
-#' friction_panel_6_PNADc <- cria_df_de_atrito(data)
+#' friction_panel_6_PNADc <- cria_df_de_atrito(data, panel = "advanced)
 #' }
-cria_df_de_atrito <- function(data) {
+cria_df_de_atrito <- function(data, panel) {
   data$V1016 <- as.integer(data$V1016)
+  
+  # Identify whether basic or advanced panel friction will be calculated
+  
+  if (panel == "basic") {
+    data<- data %>% rename("individual_identifier" = "id_ind")
+    print("Basic panel friction calculated.")
+  } else if(panel == "advanced") {
+    data <- data %>% rename("individual_identifier" = "id_rs")
+    print("Advanced panel friction calculated.")
+  }
+  
+  # Identifying interviewees missing quarters in data
+  
+#  data <- data %>%
+#    dplyr::mutate(
+#      appearances = unique(list(V1016)),
+#      missing_quarters = purrr::map(appearances, ~ setdiff(1:5, .x)),
+#      .by = "id_rs"
+#    )
   
   # Create a vector with the IDs of individuals present in the 1st interview
   presentes_na_1a_entrevista <- data %>%
     filter(V1016 == 1) %>%
-    pull(id_ind) %>%
+    pull(individual_identifier) %>%
     as.vector()
   
   # Filter the data to include only individuals who participated in the 1st interview
   data <- data %>%
-    filter(id_ind %in% presentes_na_1a_entrevista)
+    filter(individual_identifier %in% presentes_na_1a_entrevista)
   
   # Generate a summary data frame
   summary_data <- data %>%
-    group_by(id_ind) %>%
+    group_by(individual_identifier) %>%
     summarize(
       appearances = list(V1016),
       disappearances = list(setdiff(1:5, unique(V1016)))
@@ -47,7 +67,7 @@ cria_df_de_atrito <- function(data) {
       fifth_interview = ifelse("5" %in% unlist(disappearances), 1, 0)
     )
   
-  # Create a data frame for definite attrition
+  # Create a data frame for definite friction
   atrito_definite <- data.frame(Entrevista = seq(1, 5), "Contagem de faltantes" = c(0, 0, 0, 0, 0))
   
   # Calculate the count of missing interviews for each column
