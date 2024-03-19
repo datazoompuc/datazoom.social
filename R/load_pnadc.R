@@ -103,6 +103,10 @@ load_pnadc <- function(save_to = getwd(), year,
       #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
       cnames <<- names(df)
 
+      file_path <- file.path(
+        param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") #defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
+      )
+      
       # download each quarter to a separate file
 
       readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
