@@ -95,7 +95,7 @@ build_pnadc_panel <- function(dat, panel) {
           V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
           TRUE~  id_ind
         ),
-        .by = c(V20081, V2008, V2003)
+        .by = c(id_dom, V20081, V2008, V2003)
       )
     
     # identifying new matched observations
