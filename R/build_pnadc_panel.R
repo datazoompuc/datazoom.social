@@ -49,7 +49,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         id_dom = dplyr::cur_group_id(),
-        .by = c(UPA, V1008, V1014)
+        .by = c(UF, UPA, V1008, V1014)
       )
     
     # Individual id combines the household id with UF, V1023, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
@@ -95,7 +95,7 @@ build_pnadc_panel <- function(dat, panel) {
           V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
           TRUE~  id_ind
         ),
-        .by = c(V20081, V2008, V2003)
+        .by = c(id_dom, V20081, V2008, V2003)
       )
     
     # identifying new matched observations
