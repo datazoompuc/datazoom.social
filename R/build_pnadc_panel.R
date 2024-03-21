@@ -165,13 +165,23 @@ build_pnadc_panel <- function(dat, panel) {
   ## Return Data ##
   #################
   
-  # Handle unidentifiable observations due to missing values
+  # Handle unidentifiable observations due to missing values 
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
   )
+  
+  # Check whether the panel param is advanced so the function does not iterate over a non-existing variable
+  if(panel == "advanced") {
+    dat <- dat %>% dplyr::mutate(
+      id_rs = dplyr::case_when(
+        V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
+        .default = id_rs
+      )
+    )
+  }
   
   # Return the modified dataset
   return(dat)
