@@ -371,7 +371,9 @@ treat_pnadc <- function(df) {
     dplyr::mutate(
       nem_nem = dplyr::case_when(
         desocupado == 1 & forca_trab == 1 & V3002 == 2 & 
-          V4074 != 6 & V4074A != 8 ~ 1,
+          (V4074 != 6 | is.na(V4074)) & (V4074A != 8 | is.na(V4074A)) ~ 1,
+        fora_forca_trab == 1 & V3002 == 2 &
+          (V4074 != 6 | is.na(V4074)) & (V4074A != 8 | is.na(V4074A)) ~ 1,
         .default = 0
       )
     )
