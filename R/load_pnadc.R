@@ -314,7 +314,10 @@ treat_pnadc <- function(df) {
   # habitual income from all occupations
   
   df <- df %>%
-    dplyr::mutate(rendimento_trabalho = VD4019)
+    dplyr::mutate(
+      rendimento_habitual = VD4019,
+      rendimento_habitual_real = VD4019 * Habitual
+      )
   
   # occupied status
   
@@ -338,6 +341,14 @@ treat_pnadc <- function(df) {
         ocupado == 1 & VD4009 == 9 & VD4012 == 2 ~ 1,
         .default = 0
       )
+    )
+  
+  # public or private sector
+  
+  df <- df %>%
+    dplyr::mutate(
+      publico = ifelse(V4012 %in% c(2,4), 1, 0),
+      privado = ifelse(V4012 %in% c(1, 3, 5, 6, 7), 1, 0)
     )
   
   # labor force
@@ -378,5 +389,175 @@ treat_pnadc <- function(df) {
       )
     )
   
+  # positions in occupation
+  
+  df <- df %>%
+    dplyr::mutate(
+      empregado_sc = ifelse(VD4009 %in% c(2, 4, 6, 10), 1, 0),
+      empregado_cc = ifelse(VD4009 %in% c(1, 3, 5), 1, 0),
+      conta_propria = ifelse(VD4009 == 9, 1, 0),
+      conta_propria_contrib = ifelse(VD4009 == 9 & VD4012 == 1, 1, 0),
+      conta_propria_nao_contrib = ifelse(VD4009 == 9 & VD4012 == 2, 1, 0),
+      empregador = ifelse(VD4009 == 8, 1, 0),
+      militar_estatutario = ifelse(VD4009 == 7, 1, 0),
+      home_office = ifelse(V4022 %in% c(4, 5), 1, 0)
+    )
+  
+  # translating sector codes
+  
+  df <- df %>%
+    dplyr::mutate(
+      cnae_2dig = substr(V4013, 1, 2),
+      cnae_2dig = dplyr::case_match(
+        cnae_2dig,
+        '00' ~ "Outros",
+        '01' ~ "Agricultura",
+        '02' ~ "Extração florestal",
+        '03' ~ "Pesca, caça e aquicultura",
+        '05' ~ "Extração mineral e de carvão, petróleo e gás",
+        '06' ~ "Extração mineral e de carvão, petróleo e gás",
+        '07' ~ "Extração mineral e de carvão, petróleo e gás",
+        '08' ~ "Extração mineral e de carvão, petróleo e gás",
+        '09' ~ "Extração mineral e de carvão, petróleo e gás",
+        '10' ~ "Alimentos, bebidas e fumo",
+        '11' ~ "Alimentos, bebidas e fumo",
+        '12' ~ "Pecuária e criação de animais",
+        '13' ~ "Têxtil, vestuário, couro e calçados",
+        '14' ~ "Pecuária e criação de animais",
+        '15' ~ "Pesca, caça e aquicultura",
+        '16' ~ "Madeira, celulose e papel",
+        '17' ~ "Madeira, celulose e papel",
+        '18' ~ "Madeira, celulose e papel",
+        '19' ~ "Químicos, farmacêuticos, borracha e plástico",
+        '20' ~ "Químicos, farmacêuticos, borracha e plástico",
+        '21' ~ "Químicos, farmacêuticos, borracha e plástico",
+        '22' ~ "Químicos, farmacêuticos, borracha e plástico",
+        '23' ~ "Produtos de metal, minerais não-metálicos e metalurgia",
+        '24' ~ "Produtos de metal, minerais não-metálicos e metalurgia",
+        '25' ~ "Produtos de metal, minerais não-metálicos e metalurgia",
+        '26' ~ "Serviços jurídicos",
+        '27' ~ "Eletrônicos, máquinas e equipamentos",
+        '28' ~ "Eletrônicos, máquinas e equipamentos",
+        '29' ~ "Automóveis e equipamentos de transporte",
+        '30' ~ "Automóveis e equipamentos de transporte",
+        '31' ~ "Móveis",
+        '32' ~ "Outros",
+        '34' ~ "Serviços jurídicos",
+        '33' ~ "Eletrônicos, máquinas e equipamentos",
+        '35' ~ "Eletrônicos, máquinas e equipamentos",
+        '36' ~ "Eletrônicos, máquinas e equipamentos",
+        '37' ~ "Eletrônicos, máquinas e equipamentos",
+        '38' ~ "Eletrônicos, máquinas e equipamentos",
+        '39' ~ "Eletrônicos, máquinas e equipamentos",
+        '41' ~ "Construção",
+        '42' ~ "Construção",
+        '43' ~ "Construção",
+        '45' ~ "Comércio",
+        '48' ~ "Comércio",
+        '49' ~ "Transporte e correio",
+        '50' ~ "Transporte e correio",
+        '51' ~ "Transporte e correio",
+        '52' ~ "Transporte e correio",
+        '53' ~ "Transporte e correio",
+        '55' ~ "Estadia e turismo",
+        '56' ~ "Serviços de alimentação",
+        '58' ~ "Serviços de informação e comunicação",
+        '59' ~ "Serviços de informação e comunicação",
+        '60' ~ "Serviços de informação e comunicação",
+        '61' ~ "Serviços de informação e comunicação",
+        '62' ~ "Serviços de informação e comunicação",
+        '63' ~ "Serviços de informação e comunicação",
+        '64' ~ "Serviços financeiros e de seguros",
+        '65' ~ "Serviços financeiros e de seguros",
+        '66' ~ "Serviços financeiros e de seguros",
+        '68' ~ "Atividades profissionais, científicas e técnicas",
+        '69' ~ "Atividades profissionais, científicas e técnicas",
+        '70' ~ "Atividades profissionais, científicas e técnicas",
+        '71' ~ "Atividades profissionais, científicas e técnicas",
+        '72' ~ "Atividades profissionais, científicas e técnicas",
+        '73' ~ "Atividades profissionais, científicas e técnicas",
+        '74' ~ "Atividades profissionais, científicas e técnicas",
+        '75' ~ "Atividades profissionais, científicas e técnicas",
+        '78' ~ "Terceirização de mão-de-obra",
+        '79' ~ "Estadia e turismo",
+        '80' ~ "Segurança e edifícios",
+        '81' ~ "Segurança e edifícios",
+        '82' ~ "Segurança e edifícios",
+        '84' ~ "Administração pública, defesa e seguridade social",
+        '85' ~ "Educação",
+        '86' ~ "Saúde e assistência social",
+        '87' ~ "Saúde e assistência social",
+        '88' ~ "Saúde e assistência social",
+        '90' ~ "Artes, cultura, esportes e recreação",
+        '91' ~ "Artes, cultura, esportes e recreação",
+        '92' ~ "Artes, cultura, esportes e recreação",
+        '93' ~ "Artes, cultura, esportes e recreação",
+        '94' ~ "Organizações religiosas, sindicais e patronais",
+        '95' ~ "Serviços de informação e comunicação",
+        '96' ~ "Serviços pessoais (cabelereiros, lavanderias, etc.)",
+        '97' ~ "Serviços domésticos",
+        '99' ~ "Outros"
+      ),
+      cnae_2dig = dplyr::case_match(
+        cnae_2dig,
+        c(paste0(0, 1201:1209), paste0(0, 1402:1409), "01999") ~ "Pecuária e criação de animais"
+      )
+    )
+  
+  # translating occupation codes
+  
+  df <- df %>%
+    dplyr::mutate(
+      cod_2dig = substr(V4010, 1, 2),
+      cod_2dig = dplyr::case_match(
+        cod_2dig,
+        '01' ~ "Policiais, bombeiros e forças armadas",
+        '02' ~ "Policiais, bombeiros e forças armadas",
+        '04' ~ "Policiais, bombeiros e forças armadas",
+        '05' ~ "Policiais, bombeiros e forças armadas",
+        '11' ~ "Trabalhadores no governo",
+        '12' ~ "Dirigentes e gerentes",
+        '13' ~ "Dirigentes e gerentes",
+        '14' ~ "Dirigentes e gerentes",
+        '21' ~ "Cientistas e engenheiros",
+        '22' ~ "Profissionais da saúde",
+        '23' ~ "Profissionais do ensino",
+        '24' ~ "Administradores e especialista em gestão",
+        '25' ~ "Serviços de TI e comunicação",
+        '26' ~ "Serviços jurídicos",
+        '31' ~ "Cientistas e engenheiros",
+        '32' ~ "Profissionais da saúde",
+        '33' ~ "Serviços financeiros e administrativos",
+        '34' ~ "Serviços jurídicos",
+        '35' ~ "Serviços de TI e comunicação",
+        '41' ~ "Escriturários",
+        '42' ~ "Atendimento direto ao público",
+        '43' ~ "Apoio administrativo",
+        '44' ~ "Apoio administrativo",
+        '51' ~ "Serviços e cuidados pessoais",
+        '52' ~ "Vendedores",
+        '53' ~ "Serviços e cuidados pessoais",
+        '54' ~ "Profissionais de segurança",
+        '61' ~ "Pecuaristas e criadores de animais",
+        '62' ~ "Pecuaristas e criadores de animais",
+        '71' ~ "Operários da construção, metalurgia e indústria",
+        '72' ~ "Operários da construção, metalurgia e indústria",
+        '73' ~ "Artesões e artes gráficas",
+        '74' ~ "Técnicos de eletricidade e eletrônica",
+        '75' ~ "Operários de processamento e instalações",
+        '81' ~ "Operários de processamento e instalações",
+        '82' ~ "Montadores e condutores de veículos",
+        '83' ~ "Montadores e condutores de veículos",
+        '91' ~ "Domésticos",
+        '92' ~ "Pecuaristas e criadores de animais",
+        '93' ~ "Operários da construção, metalurgia e indústria",
+        '94' ~ "Profissionais em alimentação",
+        '95' ~ "Ambulantes",
+        '96' ~ "Coletores de lixo"
+      ),
+      cod_2dig = ifelse(V4010 == 9215, "Extrativistas florestais", cod_2dig)
+    )
+    
+
   return(df)
 }
