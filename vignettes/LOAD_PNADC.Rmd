@@ -2,7 +2,7 @@
 title: "LOAD_PNADC"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{MAPBIOMAS}
+  %\VignetteIndexEntry{LOAD_PNADC}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

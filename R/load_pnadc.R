@@ -1,12 +1,12 @@
 #' Load PNADc Data
 #'
-#' This function downloads PNADc data for specified years and quarters, applies panel identification algorithms, and saves the data to .rds (the individual quarter files) and .csv (the individual panel files) files for each panel.
+#' This function downloads PNADC data and applies panel identification algorithms
 #'
-#' @param save_to The directory in which the user desires to save the downloaded files.
-#' @param year The years of the PNADc the user would like to download.
-#' @param quarter The quarters within those years to be downloaded.
-#' @param panel Which panel algorithm to apply to this data (none, basic, or advanced). Check the README for a detailed explanation.
-#' @param raw_data A command to define if the user would like to download the raw or treated data.
+#' @param save_to A \code{character} with the directory in which to save the downloaded files.
+#' @param years A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.
+#' @param quarter The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
+#' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced").
+#' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) data.
 #'
 #' @return A message indicating the successful save of panel files.
 #' @import PNADcIBGE
@@ -50,7 +50,7 @@ load_pnadc <- function(save_to = getwd(), year,
 
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
-  param$year <- year # the years the user would like to download
+  param$year <- years # the years the user would like to download
   param$quarter <- quarter # the quarters within those years to be downloaded
   param$panel <- panel # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data <- raw_data # A command to define if the user would like to download the raw data from the IBGE website directly

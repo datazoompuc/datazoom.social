@@ -7,15 +7,15 @@
 build_pnadc_panel(dat, panel)
 }
 \arguments{
-\item{dat}{The current PNAD observations.}
+\item{dat}{Data frame with PNADC data, sorted into a single panel.}
 
-\item{panel}{The type of panelling transformation you wish to apply to \code{dat}. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.}
+\item{panel}{A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.}
 }
 \value{
-A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
+A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 }
 \description{
-This function is designed to build a panel dataset from PNADC data based on the chosen panel algorithm. It performs basic and, if specified, advanced identification steps to create household and individual identifiers for panel construction.
+This function builds a panel dataset from PNADC data, indentifying households and individuals
 }
 \examples{
 \dontrun{

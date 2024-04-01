@@ -2,7 +2,7 @@
 title: 'BUILD_PNADC_PANEL'
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{MAPBIOMAS}
+  %\VignetteIndexEntry{BUILD_PNADC_PANEL}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
