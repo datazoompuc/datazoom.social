@@ -1,11 +1,11 @@
 #' Build PNADc Panel
 #'
-#' This function is designed to build a panel dataset from PNADC data based on the chosen panel algorithm. It performs basic and, if specified, advanced identification steps to create household and individual identifiers for panel construction.
+#' This function builds a panel dataset from PNADC data, indentifying households and individuals
 #'
-#' @param dat The current PNAD observations.
-#' @param panel The type of panelling transformation you wish to apply to \code{dat}. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
+#' @param dat Data frame with PNADC data, sorted into a single panel.
+#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
 #' 
-#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 #' 
 #' @examples
 #' \dontrun{
@@ -82,7 +82,8 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 1:
   
   if (!(panel %in% c("none", "basic"))) {
-    m<- max(dat$id_ind)
+    m <- max(dat$id_ind) # to avoid overlap between id numbers
+      # id_rs are always higher numbers than id_ind
     
     # advanced identification is only run on previously unmatched individuals
     
@@ -90,8 +91,8 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         id_rs = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
-          V2005 %in% c(1, 2, 3) ~ dplyr::cur_group_id()+m,
-          V2005 %in% c(4, 5) & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
+          V2005 %in% c(1, 2, 3) ~ dplyr::cur_group_id() + m,
+          V2005 %in% c(4, 5) & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id() + m,
           .default = id_ind
         ),
         .by = c(id_dom, V20081, V2008, V2003)
