@@ -19,6 +19,10 @@
 #' }
 #' 
 cria_df_de_atrito <- function(data, panel) {
+  
+  # binding globals
+  V1016 <- individual_identifier <- disappearances <- NULL
+  
   data$V1016 <- as.integer(data$V1016)
   
   # Identify whether basic or advanced panel attrition will be calculated
