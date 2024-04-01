@@ -5,7 +5,7 @@
 #' @param dat The current PNAD observations.
 #' @param panel The type of panelling transformation you wish to apply to \code{dat}. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
 #' 
-#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 #' 
 #' 
 #' @examples
@@ -28,6 +28,7 @@ build_pnadc_panel <- function(dat, panel) {
   
   UPA <- V1008 <- V1014 <- id_dom <- UF <- V1023 <- V20082 <- V20081 <- NULL
   V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- NULL
+  id_rs <- NULL
   
   #############################
   ## Define Basic Parameters ##
@@ -56,7 +57,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, UF, V1023, V20082, V20081, V2008, V2007)
+        .by = c(id_dom, V1023, V20082, V20081, V2008, V2007)
       )
     
     # identifying matched observations
@@ -91,12 +92,13 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         id_rs = dplyr::case_when(
           matched_basic == 1 ~ id_ind,
-          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id()+m,
-          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
-          TRUE~  id_ind
+          as.numeric(V2005) %in% c(1, 2, 3) ~ dplyr::cur_group_id()+m,
+          as.numeric(V2005) %in% c(4, 5) & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
+          .default = id_ind
         ),
         .by = c(id_dom, V20081, V2008, V2003)
       )
+    
     
     # identifying new matched observations
     
@@ -170,6 +172,13 @@ build_pnadc_panel <- function(dat, panel) {
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
+    )
+  )
+  
+  dat <- dat %>% dplyr::mutate(
+    id_rs = dplyr::case_when(
+      V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
+      .default = id_rs
     )
   )
   
