@@ -89,13 +89,20 @@ build_pnadc_panel <- function(dat, panel) {
     
     dat <- dat %>%
       dplyr::mutate(
-        id_rs = dplyr::case_when(
-          matched_basic == 1 ~ id_ind,
-          V2005 %in% c("1", "2", "3") ~ dplyr::cur_group_id()+m,
-          V2005 %in% c("4", "5") & as.numeric(V2009) >= 25 ~ dplyr::cur_group_id()+m,
-          TRUE~  id_ind
-        ),
-        .by = c(id_dom, V20081, V2008, V2003)
+        rs_valid = dplyr::case_when(
+          matched_basic != 1 & as.numeric(V2005) %in% c(1, 2, 3) ~ 1,
+          matched_basic != 1 & as.numeric(V2005) %in% c(4, 5) & as.numeric(V2009) >= 25 ~ 2,
+          TRUE ~ NA
+        )
+      )
+    dat <- dat %>%
+      dplyr::mutate(
+        id_rs = dplyr::cur_group_id()+m,
+        .by = c(id_dom, V20081, V2008, V2003, rs_valid)
+      )
+    dat <- dat %>%
+      dplyr::mutate(
+        id_rs = ifelse(is.na(rs_valid), id_ind, id_rs)
       )
     
     # identifying new matched observations
