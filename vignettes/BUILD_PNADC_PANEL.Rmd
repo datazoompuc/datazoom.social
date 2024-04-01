@@ -57,3 +57,7 @@ On individuals who were not matched on all interviews, we relax some assumptions
 2. Child of the head of the household, 25 or older
 
 For these observations, we run the basic identification again, but allowing the year of birth to be wrong. We also include the order number.
+
+## Attrition
+
+The tables below show the levels of attrition obtained using the basic and advanced identification algorithms, and compares them to the attrition levels obtained in the Stata `datazoom_social` package.
