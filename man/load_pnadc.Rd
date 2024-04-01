@@ -18,9 +18,9 @@ load_pnadc(
 
 \item{quarter}{The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.}
 
-\item{panel}{A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced").}
+\item{panel}{A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}}
 
-\item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) data.}
+\item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.}
 
 \item{years}{A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.}
 }

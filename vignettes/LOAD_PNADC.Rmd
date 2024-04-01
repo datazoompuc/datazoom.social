@@ -23,30 +23,30 @@ This function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/pa
   1. **save_to**: The directory in which the user desires to save the downloaded files.
 
 
-  2. **year**: The years of the PNADc the user would like to download.
+  2. **years**: picks the years for which the data will be downloaded
  
 
   3. **quarter**: The quarters within those years to be downloaded. Can be either a vector such as `1:4` for consistent quarters across years, or a list of vectors, if quarters are different for each year.
 
 
   4. **panel**: Which panel algorithm to apply to this data. There are three options:
-     * `none`: No panel build. Returns the original data. If `raw_data = TRUE`, data is still split into panel files.
+     * `none`: No panel is built. If `raw_data = TRUE`, returns the original data. Otherwise, creates some extra treated variables.
      * `basic`: Performs basic identification steps for creating households and individual identifiers for panel construction
      * `advanced`: Performs advanced identification steps for creating households and individual identifiers for panel construction.
   
   
   5. **raw_data**: A command to define if the user would like to download the raw or treated data. There are two options:
-     * `TRUE`: if you want the data as it is originally.
-     * `FALSE`: if you want the treated version of the data.
+     * `TRUE`: if you want the PNADC variables as they come.
+     * `FALSE`: if you want the treated version of the PNADC variables.
      
 ***
 **Details:**
 
-The function performs by the following steps:
+The function performs the following steps:
   
-  1. Loop over years and quarters using `PNADcIBGE::get_pnadc` the two vectors with the get_pnadc to download the data and save in the directory, in files named `pnadc_year_quarter.rds`.
+  1. Loop over years and quarters using `PNADcIBGE::get_pnadc` to download the data and save in the `save_to` directory, in files named `pnadc_year_quarter.rds`. If the `raw_data` option is `FALSE`, some PNADC variables are treated at this stage.
   
-  2. Split the data into panels, by reading each `.rds` file and filtering by the quarter variable `V1014`. Data from each panel `x` is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data from each quarter to be appended on top of the previous, making the process much faster.
+  2. Split the data into panels, by reading each `.rds` file and filtering by the quarter variable `V1014`. Data from each panel `x` is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data from each quarter to be appended on top of the previous ones, making the process faster.
   
   3. Read each panel file and apply the identification algorithms defined in the `build_pnadc_panel`.
   

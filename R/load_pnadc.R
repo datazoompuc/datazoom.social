@@ -5,8 +5,8 @@
 #' @param save_to A \code{character} with the directory in which to save the downloaded files.
 #' @param years A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.
 #' @param quarter The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
-#' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced").
-#' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) data.
+#' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
+#' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
 #'
 #' @return A message indicating the successful save of panel files.
 #' @import PNADcIBGE
