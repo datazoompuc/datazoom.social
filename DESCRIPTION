@@ -2,13 +2,14 @@ Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = c("aut", "cre")),
+    person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = c("aut", "cre")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
     person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
     person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
     person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut"),
-    person("Igor", "Rigolon", , "igor.rilave@hotmail.com", role = "aut")
+    person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = "aut"),
+    person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut")
   )
 Description: Functions to download and treat brazilian social data from a
     variety of official sources.
@@ -22,4 +23,4 @@ Imports:
     magrittr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1

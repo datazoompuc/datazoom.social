@@ -9,7 +9,8 @@ load_pnadc(
   year,
   quarter = 1:4,
   panel = "advanced",
-  raw_data = FALSE
+  raw_data = FALSE,
+  language = "pt"
 )
 }
 \arguments{
@@ -37,5 +38,6 @@ load_pnadc(
   quarter = 1:4,
   panel = "basic",
   raw_data = FALSE
-)}
+)
+}
 }
