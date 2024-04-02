@@ -7,13 +7,13 @@
 
 <!-- badges: start -->
 
-![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom_social_Stata?style=flat)
-![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom_social_Stata?style=flat)
+![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom.social?style=flat)
+![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom.social?style=flat)
 ![Open
-Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom_social_Stata?style=flat)
+Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom.social?style=flat)
 ![Closed
-Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom_social_Stata?style=flat)
-![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom_social_Stata?style=flat)
+Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom.social?style=flat)
+![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom.social?style=flat)
 ![Followers](https://img.shields.io/github/followers/datazoompuc?style=flat)
 <!-- badges: end -->
 
@@ -74,7 +74,7 @@ build a Panel.
 1.  **save_to**: The directory in which the user desires to save the
     downloaded files.
 
-2.  **year**: The years of the PNADc the user would like to download.
+2.  **years**: picks the years for which the data will be downloaded
 
 3.  **quarter**: The quarters within those years to be downloaded. Can
     be either a vector such as `1:4` for consistent quarters across
@@ -84,8 +84,8 @@ build a Panel.
 4.  **panel**: Which panel algorithm to apply to this data. There are
     three options:
 
-    - `none`: No panel build. Returns the original data. If
-      `raw_data = TRUE`, data is still split into panel files.
+    - `none`: No panel is built. If `raw_data = TRUE`, returns the
+      original data. Otherwise, creates some extra treated variables.
     - `basic`: Performs basic identification steps for creating
       households and individual identifiers for panel construction
     - `advanced`: Performs advanced identification steps for creating
@@ -94,24 +94,25 @@ build a Panel.
 5.  **raw_data**: A command to define if the user would like to download
     the raw or treated data. There are two options:
 
-    - `TRUE`: if you want the data as it is originally.
-    - `FALSE`: if you want the treated version of the data.
+    - `TRUE`: if you want the PNADC variables as they come.
+    - `FALSE`: if you want the treated version of the PNADC variables.
 
 ------------------------------------------------------------------------
 
 **Details:**
 
-The function performs by the following steps:
+The function performs the following steps:
 
-1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` the two
-    vectors with the get_pnadc to download the data and save in the
-    directory, in files named `pnadc_year_quarter.rds`.
+1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
+    download the data and save in the `save_to` directory, in files
+    named `pnadc_year_quarter.rds`. If the `raw_data` option is `FALSE`,
+    some PNADC variables are treated at this stage.
 
 2.  Split the data into panels, by reading each `.rds` file and
     filtering by the quarter variable `V1014`. Data from each panel `x`
     is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data
-    from each quarter to be appended on top of the previous, making the
-    process much faster.
+    from each quarter to be appended on top of the previous ones, making
+    the process faster.
 
 3.  Read each panel file and apply the identification algorithms defined
     in the `build_pnadc_panel`.
@@ -139,98 +140,76 @@ load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
 
 **Description**
 
-The main goal of the function build_pnadc_panel is to create a Panel of
-PNAD where it’s possible to identify each household or individual all
-over the interviews by a specific serial number (id) based on some
-variables of PNAD Continua.
-
-The method used for the identification is based on the paper of Ribas,
-Rafael Perez, and Sergei Suarez Dillon Soares(2008): “Sobre o painel da
-Pesquisa Mensal de Emprego (PME) do IBGE”.
+Our `load_pnadc` function uses the internal function `build_pnadc_panel`
+to identify households and individuals across quarters. The method used
+for the identification is based on the paper of Ribas, Rafael Perez, and
+Sergei Suarez Dillon Soares (2008): “Sobre o painel da Pesquisa Mensal
+de Emprego (PME) do IBGE”.
 
 ------------------------------------------------------------------------
 
 ## Basic Identification
 
-For the household identifier, it combines the variables:
+The household identifier combines the variables:
 
-- `UPA` - Primary Sampling Unit - PSU;
+- `UF` – State;
 
-- `V1008` - Household ;
+- `UPA` – Primary Sampling Unit - PSU;
 
-- `V1014` - Panel Number;
+- `V1008` – Household;
+
+- `V1014` – Panel Number;
 
 In order to create a unique number for every combination of those
 variables.
 
 ------------------------------------------------------------------------
 
-For the Individual id identifier, it combines the `household id` with:
+The basic individual identifier combines the household id with:
 
-- `UF` - Federal Unit;
+- `V1023` – Type of Area: Capital, in the Metropolitan Region, or not;
 
-- `V1023` - Type of Area;
+- `V2007` – Sex;
 
-- `V2007` - Gender;
-
-- Date of Birth - \[`V20082` (year), `V20081` (month), `V2008` (day)\];
+- Date of Birth – \[`V20082` (year), `V20081` (month), `V2008` (day)\];
 
 In order to create an unique number for every combination of those
 variables.
-
-For identifying matched observations, the function counts the number of
-time that each id appears.
 
 ------------------------------------------------------------------------
 
 ## Advanced Identification
 
-It’s only run on previously unmatched individuals for identifying new
-matched observations.
+On individuals who were not matched on all interviews, we relax some
+assumptions to increase matching power. Under the assumption that the
+date of birth is often misreported, we take individuals who are either:
 
-Advanced identification is divided in two stages:
+1.  Head of the household or their partner
 
-In `Stage 1` the function combines the variables:
+2.  Child of the head of the household, 25 or older
 
-- `V2005` - Housing Condition;
+For these observations, we run the basic identification again, but
+allowing the year of birth to be wrong. We also include the order
+number.
 
-- `V2009` - Age of Resident;
+## Attrition
 
-- Date of Birth - \[`V20082`, `V20081`, `V2008`\].
+The tables below show the levels of attrition obtained using the basic
+and advanced identification algorithms, and compares them to the
+attrition levels obtained in the Stata `datazoom_social` package.
 
-In `Stage 2` it checks if there’s any missing quarters and if there’s no
-intersection between their appearences. In that case the function
-returns the id.
+| Interview | Percentage found (R) | Percentage found (Stata) |
+|----------:|---------------------:|-------------------------:|
+|         1 |                100.0 |                    100.0 |
+|         2 |                 86.2 |                     85.7 |
+|         3 |                 78.5 |                     77.5 |
+|         4 |                 73.2 |                     71.6 |
+|         5 |                 69.1 |                     66.8 |
 
-At last, it handles with unidentifiable observations due to missing
-values.
+Attrition for Panel 2
 
-------------------------------------------------------------------------
-
-**Options:**
-
-1.  **dat**: The current PNAD observations.
-
-2.  **panel**: The type of panelling transformation you wish to apply to
-    dat:
-
-    - `none`: No panel build. Returns the original data.
-
-    - `basic`: Performs basic identification steps for creating
-      households and individual identifiers for panel construction.
-
-    - `advanced`: Performs advanced identification steps for creating
-      households and individual identifiers for panel construction.
-
-------------------------------------------------------------------------
-
-**Examples:**
-
-``` r
-# Build basic panel 
-data <- read.csv("path/to/PNADC_data.csv")
- panel_data <- build_pnadc_panel(dat = data, panel = "basic")
-```
+Each cell is the percentage of PNADC observations that are identified by
+the advanced algorithm in each interview.
 
 ------------------------------------------------------------------------
 

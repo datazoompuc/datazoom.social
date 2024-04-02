@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+devtools::load_all()
 ```
 
 **Description**
@@ -61,3 +63,17 @@ For these observations, we run the basic identification again, but allowing the 
 ## Attrition
 
 The tables below show the levels of attrition obtained using the basic and advanced identification algorithms, and compares them to the attrition levels obtained in the Stata `datazoom_social` package.
+
+```{r, echo = FALSE}
+knitr::kable(
+  datazoom.social:::atrito, 
+  col.names = c(
+    "Interview",
+    "Percentage found (R)",
+    "Percentage found (Stata)"
+    ),
+  caption = "Attrition for Panel 2"
+)
+```
+
+Each cell is the percentage of PNADC observations that are identified by the advanced algorithm in each interview.

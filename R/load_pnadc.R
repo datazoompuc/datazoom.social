@@ -1,4 +1,4 @@
-#' Load PNADc Data
+#' Load Continuous PNAD Data
 #'
 #' This function downloads PNADC data and applies panel identification algorithms
 #'
@@ -30,19 +30,26 @@ load_pnadc <- function(save_to = getwd(), years,
                        quarter = 1:4, panel = "advanced",
                        raw_data = FALSE) {
   # Check if PNADcIBGE namespace is already attached
-  if (!"PNADcIBGE" %in% loadedNamespaces()) {
+  if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it
     attachNamespace("PNADcIBGE") # without this, an error appears
     # I believe this is a problem with the PNADcIBGE package
     # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
     # you get the same error
   }
+  
+  # if (!requireNamespace("PNADcIBGE", quietly = TRUE)) {
+  #   stop(
+  #     "Please run library(PNADcIBGE) before using this function.",
+  #     call. = FALSE
+  #   )
+  # }
 
   ###########################
   ## Bind Global Variables ##
   ###########################
 
-  years <- year <- . <- NULL
+  year <- . <- NULL
 
   #############################
   ## Define Basic Parameters ##
@@ -50,7 +57,7 @@ load_pnadc <- function(save_to = getwd(), years,
 
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
-  param$year <- years # the years the user would like to download
+  param$years <- years # the years the user would like to download
   param$quarter <- quarter # the quarters within those years to be downloaded
   param$panel <- panel # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data <- raw_data # A command to define if the user would like to download the raw data from the IBGE website directly
@@ -58,7 +65,7 @@ load_pnadc <- function(save_to = getwd(), years,
   
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarter)) {
-    param$quarter <- rep(list(quarter), length(year))
+    param$quarter <- rep(list(quarter), length(years))
   }
 
   # Calculate the lengths of quarters for each year
@@ -66,7 +73,7 @@ load_pnadc <- function(save_to = getwd(), years,
 
   # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
   param$year <- purrr::map2(
-    year, n_quarters,
+    years, n_quarters,
     function(year, n) {
       rep(year, n)
     }
@@ -74,7 +81,7 @@ load_pnadc <- function(save_to = getwd(), years,
 
   # generaring these two paralell vectors of years and quarter to loop over
 
-  param$year <- unlist(param$year)
+  param$years <- unlist(param$years)
   param$quarter <- unlist(param$quarter)
 
   ##################
@@ -89,7 +96,7 @@ load_pnadc <- function(save_to = getwd(), years,
   # download to the saving directory
 
   source_files <- purrr::map2(
-    param$year, param$quarter, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
+    param$years, param$quarter, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
     function(year, quarter) {
       base::message(
         paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
@@ -178,6 +185,9 @@ load_pnadc <- function(save_to = getwd(), years,
               file_path <- file.path(
                 param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
               )
+              
+              message(paste("Saved panel", panel, "to", file_path))
+              
               readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
             }
           )
@@ -193,6 +203,8 @@ load_pnadc <- function(save_to = getwd(), years,
     purrr::map(
       panel_files,
       function(path) {
+        message(paste("Running", param$panel, "identification on", path))
+        
         df <- readr::read_csv(path, col_names = cnames) %>%
           build_pnadc_panel(panel = param$panel)
 
