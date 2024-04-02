@@ -2,7 +2,7 @@
 % Please edit documentation in R/load_pnadc.R
 \name{load_pnadc}
 \alias{load_pnadc}
-\title{Load PNADc Data}
+\title{Load Continuous PNAD Data}
 \usage{
 load_pnadc(
   save_to = getwd(),

@@ -186,7 +186,7 @@ load_pnadc <- function(save_to = getwd(), years,
                 param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
               )
               
-              message(paste("Saved panel", panel, "to", file_path))
+              message(paste("Compiling panel", panel, "to", file_path))
               
               readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
             }
