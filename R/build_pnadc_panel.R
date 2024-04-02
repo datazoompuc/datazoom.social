@@ -1,12 +1,11 @@
 #' Build PNADc Panel
 #'
-#' This function is designed to build a panel dataset from PNADC data based on the chosen panel algorithm. It performs basic and, if specified, advanced identification steps to create household and individual identifiers for panel construction.
+#' This function builds a panel dataset from PNADC data, indentifying households and individuals
 #'
-#' @param dat The current PNAD observations.
-#' @param panel The type of panelling transformation you wish to apply to \code{dat}. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
+#' @param dat Data frame with PNADC data, sorted into a single panel.
+#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
 #' 
-#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}) based on the chosen panel algorithm.
-#' 
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 #' 
 #' @examples
 #' \dontrun{
@@ -83,7 +82,8 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 1:
   
   if (!(panel %in% c("none", "basic"))) {
-    m<- max(dat$id_ind)
+    m <- max(dat$id_ind) # to avoid overlap between id numbers
+      # id_rs are always higher numbers than id_ind
     
     # advanced identification is only run on previously unmatched individuals
     
@@ -122,6 +122,24 @@ build_pnadc_panel <- function(dat, panel) {
       )
   }
   
+  ##########################
+  ## Pasting panel number ##
+  ##########################
+  
+  # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
+  
+  dat <- dat %>%
+    mutate(
+      id_ind = as.integer(paste0(V1014, id_ind))
+    )
+  
+  if (panel == "advanced") {
+    dat <- dat %>%
+      mutate(
+        id_rs = as.integer(paste0(V1014, id_rs))
+      )
+  }
+  
   #################
   ## Return Data ##
   #################
@@ -131,11 +149,7 @@ build_pnadc_panel <- function(dat, panel) {
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
-    ),
-    id_rs = dplyr::case_when(
-      V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
-      .default = id_rs
-    ),
+    )
   )
   
   # Check whether the panel param is advanced so the function does not iterate over a non-existing variable

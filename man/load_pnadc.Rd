@@ -2,40 +2,41 @@
 % Please edit documentation in R/load_pnadc.R
 \name{load_pnadc}
 \alias{load_pnadc}
-\title{Load PNADc Data}
+\title{Load Continuous PNAD Data}
 \usage{
 load_pnadc(
   save_to = getwd(),
-  year,
+  years,
   quarter = 1:4,
   panel = "advanced",
   raw_data = FALSE
 )
 }
 \arguments{
-\item{save_to}{The directory in which the user desires to save the downloaded files.}
+\item{save_to}{A \code{character} with the directory in which to save the downloaded files.}
 
-\item{year}{The years of the PNADc the user would like to download.}
+\item{years}{A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.}
 
-\item{quarter}{The quarters within those years to be downloaded.}
+\item{quarter}{The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.}
 
-\item{panel}{Which panel algorithm to apply to this data (none, basic, or advanced). Check the README for a detailed explanation.}
+\item{panel}{A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}}
 
-\item{raw_data}{A command to define if the user would like to download the raw or treated data.}
+\item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.}
 }
 \value{
 A message indicating the successful save of panel files.
 }
 \description{
-This function downloads PNADc data for specified years and quarters, applies panel identification algorithms, and saves the data to .rds (the individual quarter files) and .csv (the individual panel files) files for each panel.
+This function downloads PNADC data and applies panel identification algorithms
 }
 \examples{
 \dontrun{
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
-  year = 2016,
+  years = 2016,
   quarter = 1:4,
   panel = "basic",
   raw_data = FALSE
-)}
+)
+}
 }
