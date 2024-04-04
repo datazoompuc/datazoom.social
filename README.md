@@ -62,7 +62,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 
 ## Continuous PNAD
 
-This function is a wrapper for
+The `load_pnadc` function is a wrapper for
 [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
 from the package `PNADcIBGE`, with added identification algorithms to
 build a Panel.
