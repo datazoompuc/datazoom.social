@@ -7,7 +7,7 @@
 load_pnadc(
   save_to = getwd(),
   years,
-  quarter = 1:4,
+  quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE
 )
@@ -17,7 +17,7 @@ load_pnadc(
 
 \item{years}{A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.}
 
-\item{quarter}{The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.}
+\item{quarters}{The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.}
 
 \item{panel}{A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}}
 
@@ -34,7 +34,7 @@ This function downloads PNADC data and applies panel identification algorithms
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2016,
-  quarter = 1:4,
+  quarters = 1:4,
   panel = "basic",
   raw_data = FALSE
 )

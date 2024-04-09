@@ -69,6 +69,31 @@ build a Panel.
 
 ------------------------------------------------------------------------
 
+**Usage:**
+
+To download PNADC data for all quarters of 2022 and 2023, with advanced
+identification, simply run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022:2023
+)
+```
+
+To download PNADC data for all of 2022, but only the first quarter of
+2023, run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022:2023,
+  quarters = list(1:4, 1)
+)
+```
+
+------------------------------------------------------------------------
+
 **Options:**
 
 1.  **save_to**: The directory in which the user desires to save the
@@ -76,7 +101,7 @@ build a Panel.
 
 2.  **years**: picks the years for which the data will be downloaded
 
-3.  **quarter**: The quarters within those years to be downloaded. Can
+3.  **quarters**: The quarters within those years to be downloaded. Can
     be either a vector such as `1:4` for consistent quarters across
     years, or a list of vectors, if quarters are different for each
     year.
@@ -122,17 +147,6 @@ The function performs the following steps:
   painel da Pesquisa Mensal de Emprego (PME) do IBGE”.
 
 ------------------------------------------------------------------------
-
-**Examples:**
-
-``` r
-# Download treated basic panel from 2016 year
-load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
-                   year = 2016,
-                   quarter = 1:4,
-                   panel = "basic",
-                   raw_data = FALSE)
-```
 
 ------------------------------------------------------------------------
 

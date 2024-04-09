@@ -15,7 +15,29 @@ knitr::opts_chunk$set(
 ```
 
 
-This function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) from the package `PNADcIBGE`, with added identification algorithms to build a Panel.
+The `load_pnadc` function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) from the package `PNADcIBGE`, with added identification algorithms to build a Panel.
+
+***
+**Usage:**
+
+To download PNADC data for all quarters of 2022 and 2023, with advanced identification, simply run
+
+```{r eval=FALSE}
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022:2023
+)
+```
+
+To download PNADC data for all of 2022, but only the first quarter of 2023, run
+
+```{r eval=FALSE}
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022:2023,
+  quarters = list(1:4, 1)
+)
+```
 
 ***
 **Options:**
@@ -26,7 +48,7 @@ This function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/pa
   2. **years**: picks the years for which the data will be downloaded
  
 
-  3. **quarter**: The quarters within those years to be downloaded. Can be either a vector such as `1:4` for consistent quarters across years, or a list of vectors, if quarters are different for each year.
+  3. **quarters**: The quarters within those years to be downloaded. Can be either a vector such as `1:4` for consistent quarters across years, or a list of vectors, if quarters are different for each year.
 
 
   4. **panel**: Which panel algorithm to apply to this data. There are three options:
@@ -52,18 +74,7 @@ The function performs the following steps:
   
 * The identification algorithms in `build_pnadc_panel` are drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
   
-***  
-
-**Examples:** 
- 
-```{r eval=FALSE}
-# Download treated basic panel from 2016 year
-load_pnadc(save_to = "Directory/You/Would/like/to/save/the/files",
-                   year = 2016,
-                   quarter = 1:4,
-                   panel = "basic",
-                   raw_data = FALSE)
-```
+***
  
  
  

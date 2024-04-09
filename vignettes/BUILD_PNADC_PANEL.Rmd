@@ -66,12 +66,12 @@ The tables below show the levels of attrition obtained using the basic and advan
 
 ```{r, echo = FALSE}
 knitr::kable(
-  datazoom.social:::atrito, 
+  datazoom.social:::atrito,
   col.names = c(
     "Interview",
     "Percentage found (R)",
     "Percentage found (Stata)"
-    ),
+  ),
   caption = "Attrition for Panel 2"
 )
 ```
