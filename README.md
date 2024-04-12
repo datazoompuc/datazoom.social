@@ -1,5 +1,5 @@
 
-<a href="https://github.com/datazoompuc/datazoom.social"><img src="https://raw.githubusercontent.com/datazoompuc/datazoom.social/master/logohex.png" align="left" width="100" hspace="10" vspace="6"></a>
+<a href="https://github.com/datazoompuc/datazoom.social"><img src="https://raw.githubusercontent.com/datazoompuc/datazoom.social/master/logo_hex.png" align="left" width="100" hspace="10" vspace="6"></a>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
