@@ -111,7 +111,6 @@ load_pnadc <- function(save_to = getwd(), years,
 
       panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
       #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-      cnames <<- names(df)
 
       file_path <- file.path(
         param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
@@ -121,6 +120,8 @@ load_pnadc <- function(save_to = getwd(), years,
       if (!param$raw_data) {
         df <- treat_pnadc(df)
       }
+      
+      cnames <<- names(df)
 
       # download each quarter to a separate file
 
@@ -198,14 +199,36 @@ load_pnadc <- function(save_to = getwd(), years,
     ## Panel Identification ##
     ##########################
 
+    # defining column types
+    
+    if (param$raw_data) {
+      ctypes <- readr::cols(.default = readr::col_number())
+    }
+    
+    else {
+      ctypes <- readr::cols(
+        .default = readr::col_number(),
+        regiao = col_character(),
+        sigla_uf = col_character(),
+        sexo = col_character(),
+        faixa_idade = col_character(),
+        faixa_educ = col_character(),
+        cod_2dig = col_character()
+        )
+    }
+    
     # read each file in panel_files and apply the identification algorithms defined in the build_pnadc_panel.R
-
+    
     purrr::map(
       panel_files,
       function(path) {
         message(paste("Running", param$panel, "identification on", path))
 
-        df <- readr::read_csv(path, col_names = cnames) %>%
+        df <- readr::read_csv(
+          path,
+          col_names = cnames,
+          col_types = ctypes
+        ) %>%
           build_pnadc_panel(panel = param$panel)
 
         readr::write_csv(df, path)
@@ -572,7 +595,6 @@ treat_pnadc <- function(df) {
       ),
       cod_2dig = ifelse(V4010 == 9215, "Extrativistas florestais", cod_2dig)
     )
-
-
+  
   return(df)
 }
