@@ -164,7 +164,7 @@ de Emprego (PME) do IBGE”.
 
 ## Basic Identification
 
-The household identifier combines the variables:
+The household identifier – stored as `id_dom` – combines the variables:
 
 - `UF` – State;
 
@@ -179,7 +179,8 @@ variables.
 
 ------------------------------------------------------------------------
 
-The basic individual identifier combines the household id with:
+The basic individual identifier – stored as `id_ind` – combines the
+household id with:
 
 - `V1023` – Type of Area: Capital, in the Metropolitan Region, or not;
 
@@ -194,9 +195,10 @@ variables.
 
 ## Advanced Identification
 
-On individuals who were not matched on all interviews, we relax some
-assumptions to increase matching power. Under the assumption that the
-date of birth is often misreported, we take individuals who are either:
+The advanced identifier is saved as `id_rs`. On individuals who were not
+matched on all interviews, we relax some assumptions to increase
+matching power. Under the assumption that the date of birth is often
+misreported, we take individuals who are either:
 
 1.  Head of the household or their partner
 
