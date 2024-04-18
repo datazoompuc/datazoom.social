@@ -9,11 +9,11 @@ output: github_document
 # datazoom.social
 
 <!-- badges: start -->
-![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom_social_Stata?style=flat)
-![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom_social_Stata?style=flat)
-![Open Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom_social_Stata?style=flat)
-![Closed Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom_social_Stata?style=flat)
-![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom_social_Stata?style=flat)
+![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom.social?style=flat)
+![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom.social?style=flat)
+![Open Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom.social?style=flat)
+![Closed Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom.social?style=flat)
+![Files](https://img.shields.io/github/directory-file-count/datazoompuc/datazoom.social?style=flat)
 ![Followers](https://img.shields.io/github/followers/datazoompuc?style=flat)
 <!-- badges: end -->
 
