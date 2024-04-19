@@ -125,6 +125,10 @@ load_pnadc <- function(save_to = getwd(), years,
 
       # download each quarter to a separate file
 
+      base::message(
+        paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
+      )
+      
       readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
 
       return(file_path)
@@ -133,8 +137,8 @@ load_pnadc <- function(save_to = getwd(), years,
 
   ## Return Raw Data
 
-  if (param$raw_data) {
-    return(paste("Raw Data saved to", param$save_to))
+  if (param$panel == "none") {
+    return(paste("Quarters saved to", param$save_to))
   }
 
   #################
@@ -187,7 +191,7 @@ load_pnadc <- function(save_to = getwd(), years,
                 param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
               )
 
-              message(paste("Compiling panel", panel, "to", file_path))
+              message(paste("Compiling panel", panel, "to", file_path, "\n"))
 
               readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
             }
@@ -208,12 +212,13 @@ load_pnadc <- function(save_to = getwd(), years,
     else {
       ctypes <- readr::cols(
         .default = readr::col_number(),
-        regiao = col_character(),
-        sigla_uf = col_character(),
-        sexo = col_character(),
-        faixa_idade = col_character(),
-        faixa_educ = col_character(),
-        cod_2dig = col_character()
+        regiao = readr::col_character(),
+        sigla_uf = readr::col_character(),
+        sexo = readr::col_character(),
+        faixa_idade = readr::col_character(),
+        faixa_educ = readr::col_character(),
+        cnae_2dig = readr::col_character(),
+        cod_2dig = readr::col_character()
         )
     }
     
@@ -222,7 +227,7 @@ load_pnadc <- function(save_to = getwd(), years,
     purrr::map(
       panel_files,
       function(path) {
-        message(paste("Running", param$panel, "identification on", path))
+        message(paste("Running", param$panel, "identification on", path, "\n"))
 
         df <- readr::read_csv(
           path,
@@ -538,7 +543,7 @@ treat_pnadc <- function(df) {
       ),
       cnae_2dig = dplyr::case_match(
         V4013,
-        c(paste0(0, 1201:1209), paste0(0, 1402:1409), "01999") ~ "Pecu\u00e1ria e cria\u00e7\u00e3o de animais",
+        as.numeric(c(paste0(0, 1201:1209), paste0(0, 1402:1409), "01999")) ~ "Pecu\u00e1ria e cria\u00e7\u00e3o de animais",
         .default = cnae_2dig
       )
     )
