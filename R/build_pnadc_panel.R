@@ -120,6 +120,25 @@ build_pnadc_panel <- function(dat, panel) {
       )
   }
 
+  ##################
+  ## Twin Removal ##
+  ##################
+  
+  dat <- dat %>%
+    dplyr::mutate(
+      num_appearances = dplyr::n(),
+      .by = c("id_ind", "Ano", "Trimestre")
+    ) %>% # counts number of times that each id appears
+    dplyr::mutate(
+      id_ind = dplyr::case_when(
+        num_appearances == 1 ~ id_ind,
+        .default = NA
+      )) %>%
+  dplyr::mutate(id_rs = dplyr::case_when(
+        num_appearances != 1 ~ id_ind,
+        .default = NA
+      )) # sets id to NA when it appears more than once per trimester/year
+  
   ##########################
   ## Pasting panel number ##
   ##########################
