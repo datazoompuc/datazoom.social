@@ -217,6 +217,7 @@ load_pnadc <- function(save_to = getwd(), years,
         sexo = readr::col_character(),
         faixa_idade = readr::col_character(),
         faixa_educ = readr::col_character(),
+        cnae_2dig = readr::col_character(),
         cod_2dig = readr::col_character()
         )
     }
