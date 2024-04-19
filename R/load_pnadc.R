@@ -137,8 +137,8 @@ load_pnadc <- function(save_to = getwd(), years,
 
   ## Return Raw Data
 
-  if (param$raw_data) {
-    return(paste("Raw Data saved to", param$save_to))
+  if (param$panel == "none") {
+    return(paste("Quarters saved to", param$save_to))
   }
 
   #################
