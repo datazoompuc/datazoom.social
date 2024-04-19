@@ -208,12 +208,12 @@ load_pnadc <- function(save_to = getwd(), years,
     else {
       ctypes <- readr::cols(
         .default = readr::col_number(),
-        regiao = col_character(),
-        sigla_uf = col_character(),
-        sexo = col_character(),
-        faixa_idade = col_character(),
-        faixa_educ = col_character(),
-        cod_2dig = col_character()
+        regiao = readr::col_character(),
+        sigla_uf = readr::col_character(),
+        sexo = readr::col_character(),
+        faixa_idade = readr::col_character(),
+        faixa_educ = readr::col_character(),
+        cod_2dig = readr::col_character()
         )
     }
     
