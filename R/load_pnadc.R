@@ -126,7 +126,7 @@ load_pnadc <- function(save_to = getwd(), years,
       # download each quarter to a separate file
 
       base::message(
-        paste0("Saving ", year, " Q", quarter, " to\n", file.path, "\n")
+        paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
       )
       
       readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
