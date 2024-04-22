@@ -537,7 +537,7 @@ treat_pnadc <- function(df) {
         "99" ~ "Outros"
       ),
       cnae_2dig = dplyr::case_match(
-        as.numeric(V4013),
+        V4013,
         c(paste0(0, 1201:1209), paste0(0, 1402:1409), "01999") ~ "Pecu\u00e1ria e cria\u00e7\u00e3o de animais",
         .default = cnae_2dig
       )
