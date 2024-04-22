@@ -128,14 +128,18 @@ build_pnadc_panel <- function(dat, panel) {
     dplyr::mutate(
       num_appearances = dplyr::n(),
       .by = c("id_ind", "Ano", "Trimestre")
-    ) %>% # counts number of times that each id appears
+    ) %>% # counts number of times that each id_ind appears
+    dplyr::mutate(
+      num_appearances_adv = dplyr::n(),
+      .by = c("id_rs", "Ano", "Trimestre")
+    ) %>% # counts number of times that each id_ind appears
     dplyr::mutate(
       id_ind = dplyr::case_when(
         num_appearances != 1 ~ NA,
         .default = id_ind
       )) %>%
   dplyr::mutate(id_rs = dplyr::case_when(
-        num_appearances != 1 ~ NA,
+        num_appearances_adv != 1 ~ NA,
         .default = id_rs
       )) # sets id to NA when it appears more than once per trimester/year
   
