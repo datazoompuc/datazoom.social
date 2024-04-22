@@ -132,7 +132,7 @@ build_pnadc_panel <- function(dat, panel) {
     dplyr::mutate(
       num_appearances_adv = dplyr::n(),
       .by = c("id_rs", "Ano", "Trimestre")
-    ) %>% # counts number of times that each id_ind appears
+    ) %>% # counts number of times that each id_rs appears
     dplyr::mutate(
       id_ind = dplyr::case_when(
         num_appearances != 1 ~ NA,
