@@ -72,7 +72,7 @@ load_pnadc <- function(save_to = getwd(), years,
   n_quarters <- lapply(param$quarters, length)
 
   # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
-  param$year <- purrr::map2(
+  param$years <- purrr::map2(
     years, n_quarters,
     function(year, n) {
       rep(year, n)
