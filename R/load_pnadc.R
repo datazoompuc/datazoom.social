@@ -101,9 +101,34 @@ load_pnadc <- function(save_to = getwd(), years,
       base::message(
         paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
       )
-      df <- get_pnadc(
-        year = year, quarter = quarter, labels = FALSE, design = FALSE # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc
-      )
+
+      df <- tryCatch({
+        get_pnadc(
+          year = year, quarter = quarter, labels = FALSE, design = FALSE # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc
+        )
+      }, 
+      error = function(e) {
+        # error due to connection issue
+        if (grepl("UNABLE_TO_DOWNLOAD", e$message, ignore.case = TRUE)) {
+          message(paste0("Error connecting to the server while downloading PNADC ", year, " Q", quarter))
+        } 
+        # error due to disk problem
+        else if (grepl("disk", e$message, ignore.case = TRUE)) {
+          message("There is a problem with your computer's disk while downloading PNADC data.")
+        }
+        # error due to non-existing file
+        else if (grepl("NULL", e$message, ignore.case = TRUE)) {
+          message(paste0("File not found while downloading PNADC ", year, " Q", quarter))
+        }
+        # unidentified errors
+        else {
+          message(paste0("Unknown error occurred while downloading PNADC ", year, " Q", quarter, ": ", e$message))
+        }
+        NULL  # return NULL in case of error
+      })
+      
+      df  # return the dataframe or NULL
+    }
 
       # turns everything into numeric
       df <- df %>%
