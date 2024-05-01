@@ -118,7 +118,7 @@ load_pnadc <- function(save_to = getwd(), years,
         }
         # error due to non-existing file
         else if (grepl("NULL", e$message, ignore.case = TRUE)) {
-          message(paste0("File not found while downloading PNADC ", year, " Q", quarter))
+          message(paste0("Data unavailable for PNADC ", year, " Q", quarter))
         }
         # unidentified errors
         else {
