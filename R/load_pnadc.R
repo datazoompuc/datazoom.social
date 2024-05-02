@@ -156,7 +156,7 @@ load_pnadc <- function(save_to = getwd(), years,
     }
   )
   
-  
+  ## Filter for NULL file.path s
 
   ## Return Raw Data
 
