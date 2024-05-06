@@ -95,45 +95,72 @@ load_pnadc <- function(save_to = getwd(), years,
   
   # download to the saving directory
   
-  source_files <- purrr::map2(
+  source_files <- tryCatch({purrr::map2(
     param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
+    
     function(year, quarter) {
       base::message(
         paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
       )
+      
       df <- get_pnadc(
-        year = year, quarter = quarter, labels = FALSE, design = FALSE # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc
-      )
-      
-      # turns everything into numeric
-      df <- df %>%
-        mutate(across(everything(), as.numeric))
-      
-      panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
-      #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-      
-      file_path <- file.path(
-        param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
-      )
-      
-      # runs data cleaning if desired
-      if (!param$raw_data) {
-        df <- treat_pnadc(df)
+        year = year, quarter = quarter, labels = FALSE, design = FALSE) # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc)
+      if (!is.null(df)) {  
+        
+        # turns everything into numeric
+        df <- df %>%
+          mutate(across(everything(), as.numeric))
+        
+        panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
+        #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
+        
+        file_path <- file.path(
+          param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
+        )
+        
+        # runs data cleaning if desired
+        if (!param$raw_data) {
+          df <- treat_pnadc(df)
+        }
+        
+        cnames <<- names(df)
+        
+        # download each quarter to a separate file
+        
+        base::message(
+          paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
+        )
+        
+        readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
+        
+        return(file_path)
+      } else {
+        return(NULL)
       }
-      
-      cnames <<- names(df)
-      
-      # download each quarter to a separate file
-      
-      base::message(
-        paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
-      )
-      
-      readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
-      
-      return(file_path)
     }
-  )
+  )}, 
+  error = function(e) {
+    # error due to connection issue
+    if (grepl("UNABLE_TO_DOWNLOAD", e$message, ignore.case = TRUE)) {
+      message(paste0("Error connecting to the server while downloading PNADC ", year, " Q", quarter))
+    } 
+    # error due to disk problem
+    else if (grepl("disk", e$message, ignore.case = TRUE)) {
+      message("There is a problem with your computer's disk while downloading PNADC data.")
+    }
+    # error due to non-existing file
+    else if (grepl("NULL", e$message, ignore.case = TRUE)) {
+      message(paste0("Data unavailable for PNADC ", year, " Q", quarter))
+      return(NULL)
+    }
+    # unidentified errors
+    else {
+      message(paste0("Unknown error occurred while downloading PNADC ", year, " Q", quarter, ": ", e$message))
+    }
+  })
+  
+  # eliminate NULL observations from source_files
+  source_files <- purrr::compact(source_files)
   
   ## Return Raw Data
   
