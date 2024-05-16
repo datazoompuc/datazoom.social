@@ -1,6 +1,6 @@
 Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
-Version: 0.0.0.9000
+Version: 0.0.1.9000
 Authors@R: c(
     person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = c("aut", "cre")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
