@@ -149,9 +149,11 @@ build_pnadc_panel <- function(dat, panel) {
 
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
 
+  if (panel != "none") {
   ifelse(dat$id_ind == NA, NA, as.integer(paste0(V1014, id_ind)))
+  }
 
-  if (panel == "advanced") {
+  if (!(panel %in% c("none", "basic"))) {
     ifelse(dat$id_rs == NA, NA, as.integer(paste0(V1014, id_rs)))
   }
 
@@ -160,15 +162,16 @@ build_pnadc_panel <- function(dat, panel) {
   #################
 
   # Handle unidentifiable observations due to missing values
+  if (panel != "none") {
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
-  )
+  )}
 
   # Check whether the panel param is advanced so the function does not iterate over a non-existing variable
-  if (panel == "advanced") {
+  if (!(panel %in% c("none", "basic"))) {
     dat <- dat %>% dplyr::mutate(
       id_rs = dplyr::case_when(
         V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
