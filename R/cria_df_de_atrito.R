@@ -57,7 +57,7 @@ cria_df_de_atrito <- function(data, panel) {
       first_interview = ifelse("1" %in% unlist(disappearances), 1, 0),
       second_interview = ifelse("2" %in% unlist(disappearances), 1, 0),
       third_interview = ifelse("3" %in% unlist(disappearances), 1, 0),
-      fourt_interview = ifelse("4" %in% unlist(disappearances), 1, 0),
+      fourth_interview = ifelse("4" %in% unlist(disappearances), 1, 0),
       fifth_interview = ifelse("5" %in% unlist(disappearances), 1, 0)
     )
 
