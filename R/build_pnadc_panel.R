@@ -53,7 +53,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, V1023, V20082, V20081, V2008, V2007)
+        .by = c(id_dom, V2003, V20082, V20081, V2008, V2007)
       )
 
     # identifying matched observations
