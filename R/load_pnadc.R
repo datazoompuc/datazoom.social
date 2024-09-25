@@ -13,6 +13,7 @@
 #' @import dplyr
 #' @import purrr
 #' @importFrom magrittr %>%
+#' @import data.table
 #'
 #' @examples
 #' \dontrun{
@@ -240,10 +241,10 @@ load_pnadc <- function(save_to = getwd(), years,
       function(path) {
         message(paste("Running", param$panel, "identification on", path, "\n"))
         
-        df <- readr::read_csv(
+        df <- data.table::fread(
           path,
-          col_names = cnames,
-          col_types = ctypes
+          col.names = cnames,
+          colClasses = ctypes
         ) %>%
           build_pnadc_panel(panel = param$panel)
         

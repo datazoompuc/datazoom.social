@@ -10,7 +10,7 @@
 #' @examples
 #' \dontrun{
 #' # Example usage:
-#' data <- read.csv("path/to/PNADC_data.csv")
+#' data <- fread("path/to/PNADC_data.csv")
 #' panel_data <- build_pnadc_panel(dat = data, panel = "basic")
 #' }
 #'
@@ -53,7 +53,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, V1023, V20082, V20081, V2008, V2007)
+        .by = c(id_dom, V2003, V20082, V20081, V2008, V2007)
       )
 
     # identifying matched observations
@@ -124,6 +124,22 @@ build_pnadc_panel <- function(dat, panel) {
   ## Twin Removal ##
   ##################
   
+  # basic panel
+  if (panel != "none") {
+    dat <- dat %>%
+      dplyr::mutate(
+        num_appearances = dplyr::n(),
+        .by = c("id_ind", "Ano", "Trimestre")
+      ) %>% # counts number of times that each id_ind appears
+      dplyr::mutate(
+        id_ind = dplyr::case_when(
+          num_appearances != 1 ~ NA,
+          .default = id_ind
+        ))
+  }
+  
+  # advanced panel
+  if (!(panel %in% c("none", "basic"))) {
   dat <- dat %>%
     dplyr::mutate(
       num_appearances = dplyr::n(),
@@ -142,6 +158,7 @@ build_pnadc_panel <- function(dat, panel) {
         num_appearances_adv != 1 ~ NA,
         .default = id_rs
       )) # sets id to NA when it appears more than once per trimester/year
+  }
   
   ##########################
   ## Pasting panel number ##
@@ -149,16 +166,18 @@ build_pnadc_panel <- function(dat, panel) {
 
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
 
-  dat <- dat %>%
-    mutate(
-      id_ind = as.integer(paste0(V1014, id_ind))
-    )
+  # basic panel
+  if (panel != "none") {
+    
+    dat$id_ind <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
 
-  if (panel == "advanced") {
-    dat <- dat %>%
-      mutate(
-        id_rs = as.integer(paste0(V1014, id_rs))
-      )
+  }
+  
+  # advanced panel
+  if (!(panel %in% c("none", "basic"))) {
+    
+    dat$id_rs <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs))
+    
   }
 
   #################
@@ -166,15 +185,16 @@ build_pnadc_panel <- function(dat, panel) {
   #################
 
   # Handle unidentifiable observations due to missing values
+  if (panel != "none") {
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
-  )
+  )}
 
   # Check whether the panel param is advanced so the function does not iterate over a non-existing variable
-  if (panel == "advanced") {
+  if (!(panel %in% c("none", "basic"))) {
     dat <- dat %>% dplyr::mutate(
       id_rs = dplyr::case_when(
         V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
