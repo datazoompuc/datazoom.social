@@ -124,6 +124,22 @@ build_pnadc_panel <- function(dat, panel) {
   ## Twin Removal ##
   ##################
   
+  # basic panel
+  if (panel != "none") {
+    dat <- dat %>%
+      dplyr::mutate(
+        num_appearances = dplyr::n(),
+        .by = c("id_ind", "Ano", "Trimestre")
+      ) %>% # counts number of times that each id_ind appears
+      dplyr::mutate(
+        id_ind = dplyr::case_when(
+          num_appearances != 1 ~ NA,
+          .default = id_ind
+        ))
+  }
+  
+  # advanced panel
+  if (!(panel %in% c("none", "basic"))) {
   dat <- dat %>%
     dplyr::mutate(
       num_appearances = dplyr::n(),
@@ -142,6 +158,7 @@ build_pnadc_panel <- function(dat, panel) {
         num_appearances_adv != 1 ~ NA,
         .default = id_rs
       )) # sets id to NA when it appears more than once per trimester/year
+  }
   
   ##########################
   ## Pasting panel number ##
@@ -149,12 +166,18 @@ build_pnadc_panel <- function(dat, panel) {
 
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
 
+  # basic panel
   if (panel != "none") {
-  ifelse(is.na(dat$id_ind), NA, as.integer(paste0(V1014, id_ind)))
-  }
+    
+    dat$id_ind <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
 
+  }
+  
+  # advanced panel
   if (!(panel %in% c("none", "basic"))) {
-    ifelse(is.na(dat$id_rs), NA, as.integer(paste0(V1014, id_rs)))
+    
+    dat$id_rs <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs))
+    
   }
 
   #################
