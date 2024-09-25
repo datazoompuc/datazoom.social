@@ -182,7 +182,7 @@ variables.
 The basic individual identifier – stored as `id_ind` – combines the
 household id with:
 
-- `V1023` – Type of Area: Capital, in the Metropolitan Region, or not;
+- `V2003` – Order number: individual's unique number within their household;
 
 - `V2007` – Sex;
 
