@@ -13,7 +13,7 @@
 #' @import dplyr
 #' @import purrr
 #' @importFrom magrittr %>%
-#' @import data.table
+#' @importFrom data.table fread
 #'
 #' @examples
 #' \dontrun{
@@ -38,24 +38,24 @@ load_pnadc <- function(save_to = getwd(), years,
     # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
     # you get the same error
   }
-  
+
   # if (!requireNamespace("PNADcIBGE", quietly = TRUE)) {
   #   stop(
   #     "Please run library(PNADcIBGE) before using this function.",
   #     call. = FALSE
   #   )
   # }
-  
+
   ###########################
   ## Bind Global Variables ##
   ###########################
-  
-  year <- . <- NULL
-  
+
+  year <- . <- new_panels <- NULL
+
   #############################
   ## Define Basic Parameters ##
   #############################
-  
+
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
   param$years <- years # the years the user would like to download
@@ -63,15 +63,15 @@ load_pnadc <- function(save_to = getwd(), years,
   param$panel <- panel # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data <- raw_data # A command to define if the user would like to download the raw data from the IBGE website directly
   param$save_to <- save_to # the directory in which the user desires to save the files downloaded
-  
+
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
     param$quarters <- rep(list(quarters), length(years))
   }
-  
+
   # Calculate the lengths of quarters for each year
   n_quarters <- lapply(param$quarters, length)
-  
+
   # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
   param$years <- purrr::map2(
     years, n_quarters,
@@ -79,184 +79,182 @@ load_pnadc <- function(save_to = getwd(), years,
       rep(year, n)
     }
   )
-  
+
   # generaring these two paralell vectors of years and quarter to loop over
-  
+
   param$years <- unlist(param$years)
   param$quarters <- unlist(param$quarters)
-  
+
   ##################
   ## Loading data ##
   ##################
-  
-  # store info on all panels and column names
-  
-  panel_list <- c()
-  cnames <- NULL
-  
-  # download to the saving directory
-  
-  source_files <- purrr::map2(
-    param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
-    
-    
-    function(year, quarter) {
-      base::message(
-        paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
+
+  # define the function that reads and processes each quarter
+  # defined inside load_pnadc so it's a closure
+  # and captures the environment of load_pnadc
+
+  process_pnadc <- function(year, quarter) {
+    base::message(
+      paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
+    )
+
+    df <- get_pnadc(
+      year = year, quarter = quarter, labels = FALSE, design = FALSE
+    ) # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc)
+
+    # get_pnadc returns a message and the NULL object when download fails due to non-existing file
+    if (is.null(df)) {
+      return(NULL)
+    } else {
+      # turns everything into numeric
+      df <- df %>%
+        mutate(across(everything(), as.numeric))
+
+      panel_list <<- unique(c(panel_list, unique(df$V1014))) # running count of all panels
+      #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
+
+      # now see all the unique panels
+      new_panels <<- setdiff(panel_list, past_panels)
+
+      # update past panels
+      past_panels <<- panel_list
+
+      file_path <- file.path(
+        param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
       )
-      
-      df <- get_pnadc(
-        year = year, quarter = quarter, labels = FALSE, design = FALSE) # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc)
-      
-      # get_pnadc returns a message and the NULL object when download fails due to non-existing file
-      if (is.null(df)) {
-        return(NULL)
-        
-      } else {
-        # turns everything into numeric
-        df <- df %>%
-          mutate(across(everything(), as.numeric))
-        
-        panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
-        #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-        
-        file_path <- file.path(
-          param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
-        )
-        
-        # runs data cleaning if desired
-        if (!param$raw_data) {
-          df <- treat_pnadc(df)
-        }
-        
-        cnames <<- names(df)
-        
+
+      # runs data cleaning if desired
+      if (!param$raw_data) {
+        df <- treat_pnadc(df)
+      }
+
+      # if there's no panel identification,
+      # just save each quarter to the user's computer
+
+      if (param$panel == "none") {
         # download each quarter to a separate file
-        
+
         base::message(
           paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
         )
-        
+
         readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
-        
+
         return(file_path)
       }
+
+      # store column names
+      cnames <<- names(df)
+
+      # otherwise, begin separating panels
+      # for each panel, write a clean empty csv
+
+      panel_files <<- purrr::map(
+        new_panels, # temporary #
+        function(panel) {
+          file_path <- file.path(
+            param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
+          )
+
+          file_path
+        }
+      )
+
+      # in the first iteration, write an empty dataset for each
+      # for those that don't already exist
+
+      purrr::map(
+        panel_files,
+        function(path) {
+          message(paste("Writing panel", path))
+
+          readr::write_csv(data.frame(), path, col_names = cnames)
+        }
+      )
+
+      # then take the current quarter and split it into the appropriate panels
+
+      df <- df %>%
+        split(.$V1014)
+
+      # we use the .csv files because they have a appending propriety, meaning that they can receive new information without having the older one deleted
+      # for the R users, you can simply think as literally doing a rbind() into those files, but in a much more efficient way
+
+      df %>%
+        purrr::imap(
+          function(d, panel) {
+            file_path <- file.path(
+              param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
+            )
+
+            message(paste("Compiling panel", panel, "to", file_path, "\n"))
+
+            readr::write_csv(d, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
+          }
+        )
     }
+  }
+
+  # store info on all panels and column names
+  cnames <- NULL
+
+  # keep a running count of all new panels
+  panel_list <- double()
+
+  # and all panels we have gone through
+  past_panels <- double()
+
+  # download to the saving directory
+
+  source_files <- purrr::map2(
+    param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
+    process_pnadc
   )
-  
+
   # erase NULL observations from source_files list
   source_files <- purrr::compact(source_files)
-  
+
   ## Return Raw Data
-  
+
   if (param$panel == "none") {
     return(paste("Quarters saved to", param$save_to))
   }
-  
-  #################
-  ## Panel Files ##
-  #################
-  
-  if (param$panel != "none") {
-    ## Split data into panels
-    
-    panel_list <- unique(panel_list) # listing all the panels included in the quarters downloaded
-    
-    # set up .csv file paths for each panel such as "pnadc_panel_2.csv"
-    
-    panel_files <- purrr::map(
-      panel_list,
-      function(panel) {
-        file_path <- file.path(
-          param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
-        )
-        
-        file_path
-      }
-    )
-    
-    # write an empty dataframe into each
-    
-    purrr::map(
-      panel_files,
-      function(path) {
-        readr::write_csv(data.frame(), path, col_names = cnames)
-      }
-    )
-    
-    # read each of the source files, split into panels, and append
-    # to their corresponding .csv files
-    
-    # we use the .csv files because they have a appending propriety, meaning that they can receive new information without having the older one deleted
-    # for the R users, you can simply think as literally doing a rbind() into those files, but in a much more efficient way
-    
-    purrr::map(
-      source_files, # source_files= the .rds files with the data that were downloaded way before in this function before
-      function(file) {
-        dat <- readr::read_rds(file) %>%
-          split(.$V1014)
-        
-        dat %>%
-          purrr::imap(
-            function(df, panel) {
-              file_path <- file.path(
-                param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
-              )
-              
-              message(paste("Compiling panel", panel, "to", file_path, "\n"))
-              
-              readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
-            }
-          )
-      }
-    )
-    
-    ##########################
-    ## Panel Identification ##
-    ##########################
-    
-    # defining column types
-    
-    if (param$raw_data) {
-      ctypes <- readr::cols(.default = readr::col_number())
-    }
-    
-    else {
-      ctypes <- readr::cols(
-        .default = readr::col_number(),
-        regiao = readr::col_character(),
-        sigla_uf = readr::col_character(),
-        sexo = readr::col_character(),
-        faixa_idade = readr::col_character(),
-        faixa_educ = readr::col_character(),
-        cnae_2dig = readr::col_character(),
-        cod_2dig = readr::col_character()
+
+  ##########################
+  ## Panel Identification ##
+  ##########################
+
+  # remember panels
+
+  panel_files <- purrr::map(
+    panel_list, # temporary #
+    function(panel) {
+      file_path <- file.path(
+        param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
       )
+
+      file_path
     }
-    
-    # read each file in panel_files and apply the identification algorithms defined in the build_pnadc_panel.R
-    
-    purrr::map(
-      panel_files,
-      function(path) {
-        message(paste("Running", param$panel, "identification on", path, "\n"))
-        
-        df <- data.table::fread(
-          path,
-          col.names = cnames,
-          colClasses = ctypes
-        ) %>%
-          build_pnadc_panel(panel = param$panel)
-        
-        readr::write_csv(df, path)
-      }
-    )
-  }
-  
+  )
+
+  # read each file in panel_files and apply the identification algorithms defined in the build_pnadc_panel.R
+
+  purrr::map(
+    panel_files,
+    function(path) {
+      message(paste("Running", param$panel, "identification on", path, "\n"))
+
+      df <- data.table::fread(path, col.names = cnames) %>%
+        build_pnadc_panel(panel = param$panel)
+
+      readr::write_csv(df, path)
+    }
+  )
+
   ####################
   ## Returning Data ##
   ####################
-  
+
   return(paste("Panel files saved to", param$save_to))
 }
 
@@ -271,9 +269,9 @@ treat_pnadc <- function(df) {
   UF <- regiao <- V2007 <- VD3004 <- VD4019 <- Habitual <- VD4002 <- V4012 <- NULL
   VD4001 <- V2009 <- ocupado <- desocupado <- forca_trab <- VD4005 <- VD4009 <- NULL
   VD4012 <- V4022 <- V4013 <- cnae_2dig <- V4010 <- cod_2dig <- NULL
-  
+
   # regions
-  
+
   df <- df %>%
     dplyr::mutate(
       regiao = substr(UF, 1, 1),
@@ -286,9 +284,9 @@ treat_pnadc <- function(df) {
         "5" ~ "Centro-Oeste"
       )
     )
-  
+
   # states
-  
+
   df <- df %>%
     dplyr::mutate(
       sigla_uf = dplyr::case_match(
@@ -322,9 +320,9 @@ treat_pnadc <- function(df) {
         53 ~ "DF"
       )
     )
-  
+
   # sex
-  
+
   df <- df %>%
     dplyr::mutate(
       sexo = dplyr::case_match(
@@ -333,9 +331,9 @@ treat_pnadc <- function(df) {
         2 ~ "Mulher"
       )
     )
-  
+
   # age groups
-  
+
   df <- df %>%
     dplyr::mutate(
       faixa_idade = dplyr::case_when(
@@ -348,9 +346,9 @@ treat_pnadc <- function(df) {
         V2009 >= 60 ~ "60 anos ou mais"
       )
     )
-  
+
   # education levels
-  
+
   df <- df %>%
     dplyr::mutate(
       faixa_educ = dplyr::case_match(
@@ -362,28 +360,28 @@ treat_pnadc <- function(df) {
         7 ~ "15 ou mais anos de estudo"
       )
     )
-  
+
   # Labor Market definitions taken from:
   # https://github.com/datazoompuc/datazoom_labour_amazon/blob/main/Labour_Market/code/_definicoes_pnadcontinua_trimestral.do
-  
+
   # habitual income from all occupations
-  
+
   df <- df %>%
     dplyr::mutate(
       rendimento_habitual = VD4019,
       rendimento_habitual_real = VD4019 * Habitual
     )
-  
+
   # occupied status
-  
+
   df <- df %>%
     dplyr::mutate(
       ocupado = ifelse(VD4002 == 1, 1, 0),
       desocupado = ifelse(VD4002 == 2, 1, 0)
     )
-  
+
   # formal vs. informal
-  
+
   df <- df %>%
     dplyr::mutate(
       formal = dplyr::case_when(
@@ -397,42 +395,42 @@ treat_pnadc <- function(df) {
         .default = 0
       )
     )
-  
+
   # public or private sector
-  
+
   df <- df %>%
     dplyr::mutate(
       publico = ifelse(V4012 %in% c(2, 4), 1, 0),
       privado = ifelse(V4012 %in% c(1, 3, 5, 6, 7), 1, 0)
     )
-  
+
   # labor force
-  
+
   df <- df %>%
     dplyr::mutate(
       fora_forca_trab = ifelse(VD4001 == 2, 1, 0),
       forca_trab = ifelse(VD4001 == 1, 1, 0)
     )
-  
+
   # active population
-  
+
   df <- df %>%
     dplyr::mutate(
       pia = ifelse(V2009 >= 14, 1, 0),
       idade_de_trabalhar = ifelse(V2009 >= 15 & V2009 <= 64, 1, 0),
       pea = ocupado + desocupado
     )
-  
+
   # unemployed
-  
+
   df <- df %>%
     dplyr::mutate(
       desempregado = forca_trab * desocupado,
       desalentado = ifelse(VD4005 == 1, 1, 0)
     )
-  
+
   # neet
-  
+
   df <- df %>%
     dplyr::mutate(
       nem_nem = dplyr::case_when(
@@ -443,9 +441,9 @@ treat_pnadc <- function(df) {
         .default = 0
       )
     )
-  
+
   # positions in occupation
-  
+
   df <- df %>%
     dplyr::mutate(
       empregado_sc = ifelse(VD4009 %in% c(2, 4, 6, 10), 1, 0),
@@ -457,9 +455,9 @@ treat_pnadc <- function(df) {
       militar_estatutario = ifelse(VD4009 == 7, 1, 0),
       home_office = ifelse(V4022 %in% c(4, 5), 1, 0)
     )
-  
+
   # translating sector codes
-  
+
   df <- df %>%
     dplyr::mutate(
       cnae_2dig = substr(V4013, 1, 2),
@@ -559,9 +557,9 @@ treat_pnadc <- function(df) {
         .default = cnae_2dig
       )
     )
-  
+
   # translating occupation codes
-  
+
   df <- df %>%
     dplyr::mutate(
       cod_2dig = substr(V4010, 1, 2),
@@ -613,6 +611,6 @@ treat_pnadc <- function(df) {
       ),
       cod_2dig = ifelse(V4010 == 9215, "Extrativistas florestais", cod_2dig)
     )
-  
+
   return(df)
 }

@@ -27,51 +27,39 @@ build_pnadc_panel <- function(dat, panel) {
   UPA <- V1008 <- V1014 <- id_dom <- UF <- V1023 <- V20082 <- V20081 <- rs_valid <- NULL
   V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- id_rs <- NULL
 
-  #############################
-  ## Define Basic Parameters ##
-  #############################
-
-  # Check if the panel type is 'none'; if so, return the original data
-  if (panel == "none") {
-    return(dat)
-  }
-
   ##########################
   ## Basic Identification ##
   ##########################
 
-  # If the panel type is not 'none', perform basic identification steps
-  if (panel != "none") {
-    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_dom = dplyr::cur_group_id(),
-        .by = c(UF, UPA, V1008, V1014)
+  # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
+  dat <- dat %>%
+    dplyr::mutate(
+      id_dom = dplyr::cur_group_id(),
+      .by = c(UF, UPA, V1008, V1014)
+    )
+
+  # Individual id combines the household id with UF, V2003, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
+  dat <- dat %>%
+    dplyr::mutate(
+      id_ind = dplyr::cur_group_id(),
+      .by = c(id_dom, V2003, V20082, V20081, V2008, V2007)
+    )
+
+  # identifying matched observations
+
+  dat <- dat %>%
+    dplyr::mutate(
+      num_quarters = dplyr::n(),
+      .by = id_ind
+    ) # counts number of times that each id appears
+
+  dat <- dat %>%
+    dplyr::mutate(
+      matched_basic = dplyr::case_when(
+        num_quarters == 5 ~ 1,
+        .default = 0
       )
-
-    # Individual id combines the household id with UF, V2003, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
-    dat <- dat %>%
-      dplyr::mutate(
-        id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, V2003, V20082, V20081, V2008, V2007)
-      )
-
-    # identifying matched observations
-
-    dat <- dat %>%
-      dplyr::mutate(
-        num_quarters = dplyr::n(),
-        .by = id_ind
-      ) # counts number of times that each id appears
-
-    dat <- dat %>%
-      dplyr::mutate(
-        matched_basic = dplyr::case_when(
-          num_quarters == 5 ~ 1,
-          .default = 0
-        )
-      )
-  }
+    )
 
   #############################
   ## Advanced Identification ##
@@ -79,7 +67,7 @@ build_pnadc_panel <- function(dat, panel) {
 
   ## Stage 1:
 
-  if (!(panel %in% c("none", "basic"))) {
+  if (panel != "basic") {
     m <- max(dat$id_ind) # to avoid overlap between id numbers
     # id_rs are always higher numbers than id_ind
 
@@ -88,11 +76,12 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         rs_valid = dplyr::case_when(
-          matched_basic != 1 & as.numeric(V2005) %in% c(1, 2, 3) ~ 1,
-          matched_basic != 1 & as.numeric(V2005) %in% c(4, 5) & as.numeric(V2009) >= 25 ~ 2,
+          matched_basic != 1 & V2005 %in% c(1, 2, 3) ~ 1,
+          matched_basic != 1 & V2005 %in% c(4, 5) & V2009 >= 25 ~ 2,
           TRUE ~ NA
         )
       )
+
     dat <- dat %>%
       dplyr::mutate(
         id_rs = dplyr::cur_group_id() + m,
@@ -102,7 +91,7 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         id_rs = ifelse(is.na(rs_valid), id_ind, id_rs)
       )
-    
+
     # identifying new matched observations
 
     dat <- dat %>%
@@ -123,43 +112,33 @@ build_pnadc_panel <- function(dat, panel) {
   ##################
   ## Twin Removal ##
   ##################
-  
+
   # basic panel
-  if (panel != "none") {
-    dat <- dat %>%
-      dplyr::mutate(
-        num_appearances = dplyr::n(),
-        .by = c("id_ind", "Ano", "Trimestre")
-      ) %>% # counts number of times that each id_ind appears
-      dplyr::mutate(
-        id_ind = dplyr::case_when(
-          num_appearances != 1 ~ NA,
-          .default = id_ind
-        ))
-  }
-  
-  # advanced panel
-  if (!(panel %in% c("none", "basic"))) {
   dat <- dat %>%
     dplyr::mutate(
       num_appearances = dplyr::n(),
       .by = c("id_ind", "Ano", "Trimestre")
     ) %>% # counts number of times that each id_ind appears
     dplyr::mutate(
-      num_appearances_adv = dplyr::n(),
-      .by = c("id_rs", "Ano", "Trimestre")
-    ) %>% # counts number of times that each id_rs appears
-    dplyr::mutate(
       id_ind = dplyr::case_when(
         num_appearances != 1 ~ NA,
         .default = id_ind
-      )) %>%
-  dplyr::mutate(id_rs = dplyr::case_when(
+      )
+    )
+
+  # advanced panel
+  if (panel != "basic") {
+    dat <- dat %>%
+      dplyr::mutate(
+        num_appearances_adv = dplyr::n(),
+        .by = c("id_rs", "Ano", "Trimestre")
+      ) %>% # counts number of times that each id_rs appears
+      dplyr::mutate(id_rs = dplyr::case_when(
         num_appearances_adv != 1 ~ NA,
         .default = id_rs
       )) # sets id to NA when it appears more than once per trimester/year
   }
-  
+
   ##########################
   ## Pasting panel number ##
   ##########################
@@ -167,17 +146,11 @@ build_pnadc_panel <- function(dat, panel) {
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
 
   # basic panel
-  if (panel != "none") {
-    
-    dat$id_ind <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
+  dat$id_ind <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
 
-  }
-  
   # advanced panel
-  if (!(panel %in% c("none", "basic"))) {
-    
+  if (panel != "basic") {
     dat$id_rs <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs))
-    
   }
 
   #################
@@ -185,16 +158,15 @@ build_pnadc_panel <- function(dat, panel) {
   #################
 
   # Handle unidentifiable observations due to missing values
-  if (panel != "none") {
   dat <- dat %>% dplyr::mutate(
     id_ind = dplyr::case_when(
       V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
       .default = id_ind
     )
-  )}
+  )
 
   # Check whether the panel param is advanced so the function does not iterate over a non-existing variable
-  if (!(panel %in% c("none", "basic"))) {
+  if (panel != "basic") {
     dat <- dat %>% dplyr::mutate(
       id_rs = dplyr::case_when(
         V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
