@@ -24,7 +24,7 @@ build_pnadc_panel <- function(dat, panel) {
   ## Bind Global Variables ##
   ###########################
 
-  UPA <- V1008 <- V1014 <- id_dom <- UF <- V1023 <- V20082 <- V20081 <- rs_valid <- NULL
+  UPA <- V1008 <- V1014 <- id_dom <- UF <- V20082 <- V20081 <- rs_valid <- NULL
   V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- id_rs <- NULL
 
   #############################
@@ -89,7 +89,7 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::mutate(
         rs_valid = dplyr::case_when(
           matched_basic != 1 & as.numeric(V2005) %in% c(1, 2, 3) ~ 1,
-          matched_basic != 1 & as.numeric(V2005) %in% c(4, 5) & as.numeric(V2009) >= 25 ~ 2,
+          matched_basic != 1 & as.numeric(V2005) %in% c(4, 5) & as.numeric(V2009) >= 25 ~ 1,
           TRUE ~ NA
         )
       )
