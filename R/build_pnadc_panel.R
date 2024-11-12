@@ -139,7 +139,7 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         id_rs = ifelse(
-          unmatched_basic & !unmatched_advanced,
+          unmatched_basic & !unmatched_adv,
           id_rs,
           id_ind
         )
