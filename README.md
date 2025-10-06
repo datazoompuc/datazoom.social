@@ -76,7 +76,7 @@ Default
 ``` r
 load_pnadc(
   save_to = getwd(),
-  years = NA,
+  years,
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE
