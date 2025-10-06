@@ -76,7 +76,7 @@ Default
 ``` r
 load_pnadc(
   save_to = getwd(),
-  years,
+  years = NA,
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE
@@ -110,7 +110,7 @@ To download PNADC data without any variables treatment or identification (e.g., 
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2021,
-  panel: "none"
+  panel = "none"
   raw_data = TRUE
 )
 ```
