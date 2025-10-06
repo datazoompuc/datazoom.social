@@ -51,10 +51,10 @@ devtools::install_github("datazoompuc/datazoom.social")
 <tr>
 <td>
 
-|                                                        |                                         |
-|--------------------------------------------------------|-----------------------------------------|
-| **[Continuous PNAD](#continuous-pnad)**                | *Download PNADC of a range of quarters* |
-| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals*    |
+|  |  |
+|----|----|
+| **[Continuous PNAD](#continuous-pnad)** | *Download PNADC of a range of quarters* |
+| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals* |
 
 </td>
 </tr>
@@ -104,7 +104,8 @@ load_pnadc(
 )
 ```
 
-To download PNADC data without any variables treatment or identification (e.g., for all quarters of 2021), run
+To download PNADC data without any variables treatment or identification
+(e.g., for all quarters of 2021), run
 
 ``` r
 load_pnadc(
@@ -205,7 +206,8 @@ variables.
 The basic individual identifier – stored as `id_ind` – combines the
 household id with:
 
-- `V2003` – Order number: individual's unique number within their household;
+- `V2003` – Order number: individual’s unique number within their
+  household;
 
 - `V2007` – Sex;
 
