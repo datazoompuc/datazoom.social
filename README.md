@@ -110,7 +110,7 @@ To download PNADC data without any variables treatment or identification (e.g., 
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2021,
-  panel = "none"
+  panel = "none",
   raw_data = TRUE
 )
 ```
