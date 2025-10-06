@@ -71,6 +71,18 @@ build a Panel.
 
 **Usage:**
 
+Default
+
+``` r
+load_pnadc(
+  save_to = getwd(),
+  years,
+  quarters = 1:4,
+  panel = "advanced",
+  raw_data = FALSE
+)
+```
+
 To download PNADC data for all quarters of 2022 and 2023, with advanced
 identification, simply run
 
@@ -89,6 +101,17 @@ load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2022:2023,
   quarters = list(1:4, 1)
+)
+```
+
+To download PNADC data without any variables treatment or identification (e.g., for all quarters of 2021), run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2021,
+  panel: "none"
+  raw_data = TRUE
 )
 ```
 
