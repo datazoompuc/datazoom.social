@@ -15,8 +15,9 @@ Authors@R: c(
 Description: Functions to download and treat brazilian social data from a
     variety of official sources.
 License: MIT + file LICENSE
-URL: https://datazoom.com.br/en/
+URL: https://datazoom.com.br/en/, https://github.com/datazoompuc/datazoom.social
 Imports: 
+    data.table,
     dplyr,
     PNADcIBGE,
     purrr,
@@ -31,3 +32,4 @@ Suggests:
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
+BugReports: https://github.com/datazoompuc/datazoom.social/issues
