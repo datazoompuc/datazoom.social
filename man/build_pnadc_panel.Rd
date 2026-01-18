@@ -20,7 +20,7 @@ This function builds a panel dataset from PNADC data, indentifying households an
 \examples{
 \dontrun{
 # Example usage:
-data <- read.csv("path/to/PNADC_data.csv")
+data <- fread("path/to/PNADC_data.csv")
 panel_data <- build_pnadc_panel(dat = data, panel = "basic")
 }
 

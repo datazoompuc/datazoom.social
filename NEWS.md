@@ -1,4 +1,8 @@
-# datazoom.social (development version)
+# datazoom.social (minor version)
+
+## datazoom.social 0.1.0.0
+
+* documentation updated to fit CRAN's standards
 
 ## datazoom.social 0.0.1.9000
 

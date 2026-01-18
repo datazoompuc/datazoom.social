@@ -19,16 +19,17 @@
 #' Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
 #'
 #' @author Data Zoom
+#' @export
 build_pnadc_panel <- function(dat, panel) {
   ###########################
   ## Bind Global Variables ##
   ###########################
 
-  UPA <- V1008 <- V1014 <- id_dom <- UF <- V20082 <- V20081 <- rs_valid <- NULL
-  V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- id_rs <- NULL
+  UPA <- V1008 <- V1014 <- id_dom <- UF <- V20082 <- V20081 <- rs_valid <-  unmatched_basic <- NULL
+  V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- id_rs <- unmatched_adv <- NULL
 
   #############################
-  ## Define Basic Parameters ##
+  ## Define Basic Parameters ## 
   #############################
 
   # Check if the panel type is 'none'; if so, return the original data

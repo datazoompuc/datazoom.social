@@ -1,6 +1,6 @@
 Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
-Version: 0.0.1.9000
+Version: 0.1.0.0
 Authors@R: c(
     person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = c("aut", "cre")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
@@ -16,6 +16,7 @@ Description: Functions to download and treat brazilian social data from a
 License: MIT + file LICENSE
 URL: https://www.econ.puc-rio.br/datazoom/
 Imports: 
+    data.table,
     dplyr,
     PNADcIBGE,
     purrr,
@@ -23,10 +24,11 @@ Imports:
     magrittr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
 Depends: 
     R (>= 2.10)
+BugReports: https://github.com/datazoompuc/datazoom.social/issues
