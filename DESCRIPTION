@@ -2,20 +2,19 @@ Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
 Version: 0.1.0.0
 Authors@R: c(
-    person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre")),
-    person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = c("fnd", "cph")),
-    person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = "aut"),
+    person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = c("aut", "cre")),
+    person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
+    person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = "aut"),
     person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
     person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
     person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut"),
     person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = "aut"),
-    person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut"),
-    person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "aut")
+    person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut")
   )
 Description: Functions to download and treat brazilian social data from a
     variety of official sources.
 License: MIT + file LICENSE
-URL: https://datazoom.com.br/en/, https://github.com/datazoompuc/datazoom.social
+URL: https://www.econ.puc-rio.br/datazoom/
 Imports: 
     data.table,
     dplyr,
