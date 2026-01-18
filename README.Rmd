@@ -25,6 +25,7 @@ be released soon.
 
 In this first version of the package, the focus is only on the [Continuous PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html). We allow for many quarters to be easily downloaded and read, as well as identifying individuals across time, forming a panel.
 
+
 # Installation
 
 <!-- You can install the released version of `datazoom.social` from -->
@@ -33,7 +34,6 @@ In this first version of the package, the focus is only on the [Continuous PNAD]
 <!-- ``` {r, eval=FALSE} -->
 <!-- install.packages("datazoom.social") -->
 <!-- ``` -->
-
 
 You can install the development version of `datazoom.social` from GitHub with:
 
@@ -77,21 +77,21 @@ devtools::load_all()
 
 # Credits
 
-DataZoom is developed by a team at Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio), Department of Economics. Our official website is at: <https://datazoom.com.br/en/>.
+DataZoom is developed by a team at Pontifícia Universidade Católica do Rio de Janeiro (PUC-Rio), Department of Economics. Our official website is at: <https://www.econ.puc-rio.br/datazoom/>.
 
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.  
-> https://datazoom.com.br/en/
+> https://www.econ.puc-rio.br/datazoom/english/index.html
 
 A BibTeX entry for LaTeX users is:
 
 ``` 
-@Unpublished{DataZoom2023,
+@Unpublished{DataZoom2024,
 	author = {Data Zoom},
 	title = {Data Zoom: Simplifying Access To Brazilian Microdata},
-	url = {https://datazoom.com.br/en/},
-	year = {2023}}
+	url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
+	year = {2024}}
 
 ```
 
