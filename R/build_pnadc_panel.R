@@ -19,6 +19,7 @@
 #' Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
 #'
 #' @author Data Zoom
+#' @export
 build_pnadc_panel <- function(dat, panel) {
   ###########################
   ## Bind Global Variables ##

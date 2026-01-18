@@ -45,16 +45,28 @@ install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
+    ## Warning: replacing previous import 'data.table::first' by 'dplyr::first' when
+    ## loading 'datazoom.social'
+
+    ## Warning: replacing previous import 'data.table::last' by 'dplyr::last' when
+    ## loading 'datazoom.social'
+
+    ## Warning: replacing previous import 'data.table::between' by 'dplyr::between'
+    ## when loading 'datazoom.social'
+
+    ## Warning: replacing previous import 'data.table::transpose' by
+    ## 'purrr::transpose' when loading 'datazoom.social'
+
 ## Data
 
 <table>
 <tr>
 <td>
 
-|  |  |
-|----|----|
-| **[Continuous PNAD](#continuous-pnad)** | *Download PNADC of a range of quarters* |
-| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals* |
+|                                                        |                                         |
+|--------------------------------------------------------|-----------------------------------------|
+| **[Continuous PNAD](#continuous-pnad)**                | *Download PNADC of a range of quarters* |
+| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals*    |
 
 </td>
 </tr>
@@ -258,18 +270,18 @@ the advanced algorithm in each interview.
 
 DataZoom is developed by a team at Pontifícia Universidade Católica do
 Rio de Janeiro (PUC-Rio), Department of Economics. Our official website
-is at: <https://www.econ.puc-rio.br/datazoom/>.
+is at: <https://datazoom.com.br/en/>.
 
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian
 > Microdata.  
-> <https://www.econ.puc-rio.br/datazoom/english/index.html>
+> <https://datazoom.com.br/en/>
 
 A BibTeX entry for LaTeX users is:
 
-    @Unpublished{DataZoom2024,
+    @Unpublished{DataZoom2023,
         author = {Data Zoom},
         title = {Data Zoom: Simplifying Access To Brazilian Microdata},
-        url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
-        year = {2024}}
+        url = {https://datazoom.com.br/en/},
+        year = {2023}}
