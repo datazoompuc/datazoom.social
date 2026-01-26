@@ -9,11 +9,6 @@
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
 #'
 #' @return A message indicating the successful save of panel files.
-#' @import PNADcIBGE
-#' @import dplyr
-#' @import purrr
-#' @importFrom magrittr %>%
-#' @import data.table
 #'
 #' @examples
 #' \dontrun{
@@ -115,7 +110,7 @@ load_pnadc <- function(save_to = getwd(), years,
       } else {
         # turns everything into numeric
         df <- df %>%
-          mutate(across(everything(), as.numeric))
+          dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
         
         panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
         #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
@@ -391,7 +386,7 @@ treat_pnadc <- function(df) {
         ocupado == 1 & VD4009 == 9 & VD4012 == 1 ~ 1,
         .default = 0
       ),
-      informal = case_when(
+      informal = dplyr::case_when(
         ocupado == 1 & VD4009 %in% c(2, 4, 6, 10) ~ 1,
         ocupado == 1 & VD4009 == 9 & VD4012 == 2 ~ 1,
         .default = 0

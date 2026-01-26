@@ -27,32 +27,32 @@ cria_df_de_atrito <- function(data, panel) {
   # Identify whether basic or advanced panel attrition will be calculated
 
   if (panel == "basic") {
-    data <- data %>% rename("individual_identifier" = "id_ind")
+    data <- data %>% dplyr::rename("individual_identifier" = "id_ind")
     print("Basic panel attrition calculated.")
   } else if (panel == "advanced") {
-    data <- data %>% rename("individual_identifier" = "id_rs")
+    data <- data %>% dplyr::rename("individual_identifier" = "id_rs")
     print("Advanced panel attrition calculated.")
   }
 
   # Create a vector with the IDs of individuals present in the 1st interview
   presentes_na_1a_entrevista <- data %>%
-    filter(V1016 == 1) %>%
-    pull(individual_identifier) %>%
+    dplyr::filter(V1016 == 1) %>%
+    dplyr::pull(individual_identifier) %>%
     as.vector()
 
   # Filter the data to include only individuals who participated in the 1st interview
   data <- data %>%
-    filter(individual_identifier %in% presentes_na_1a_entrevista)
+    dplyr::filter(individual_identifier %in% presentes_na_1a_entrevista)
 
   # Generate a summary data frame
   summary_data <- data %>%
-    group_by(individual_identifier) %>%
-    summarize(
+    dplyr::group_by(individual_identifier) %>%
+    dplyr::summarize(
       appearances = list(V1016),
       disappearances = list(setdiff(1:5, unique(V1016)))
     ) %>%
-    rowwise() %>%
-    mutate(
+    dplyr::rowwise() %>%
+    dplyr::mutate(
       missing_quarters = paste(as.character(unlist(disappearances)), collapse = " "),
       first_interview = ifelse("1" %in% unlist(disappearances), 1, 0),
       second_interview = ifelse("2" %in% unlist(disappearances), 1, 0),
