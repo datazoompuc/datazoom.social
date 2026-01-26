@@ -2,8 +2,3 @@
 
 export(build_pnadc_panel)
 export(load_pnadc)
-import(PNADcIBGE)
-import(data.table)
-import(dplyr)
-import(purrr)
-importFrom(magrittr,"%>%")
