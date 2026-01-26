@@ -9,7 +9,9 @@
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
 #'
 #' @return A message indicating the successful save of panel files.
-#'
+#'  
+#' @import data.table
+#' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
 #'
 #' @examples
