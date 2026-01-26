@@ -12,7 +12,7 @@ Authors@R: c(
     person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut"),
     person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "aut")
   )
-Description: Functions to download and treat brazilian social data from a
+Description: Functions to download and treat Brazilian social data from a
     variety of official sources.
 License: MIT + file LICENSE
 URL: https://datazoom.com.br/en/
