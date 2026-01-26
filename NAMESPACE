@@ -2,3 +2,4 @@
 
 export(build_pnadc_panel)
 export(load_pnadc)
+importFrom(magrittr,`%>%`)

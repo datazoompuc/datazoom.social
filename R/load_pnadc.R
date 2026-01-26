@@ -10,6 +10,8 @@
 #'
 #' @return A message indicating the successful save of panel files.
 #'
+#' @importFrom magrittr `%>%`
+#'
 #' @examples
 #' \dontrun{
 #' load_pnadc(
