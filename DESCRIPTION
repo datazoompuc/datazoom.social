@@ -16,7 +16,6 @@ Description: Functions to download and treat brazilian social data from a
 License: MIT + file LICENSE
 URL: https://www.econ.puc-rio.br/datazoom/
 Imports: 
-    data.table,
     dplyr,
     PNADcIBGE,
     purrr,
