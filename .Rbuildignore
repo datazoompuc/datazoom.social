@@ -5,3 +5,5 @@
 ^Meta$
 ^README\.Rmd$
 ^logo_hex\.png$
+^CRAN-SUBMISSION$
+^cran-comments\.md$
