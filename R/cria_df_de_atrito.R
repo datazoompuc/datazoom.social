@@ -18,6 +18,7 @@
 #' attrition_panel_6_PNADc <- cria_df_de_atrito(data, panel = "advanced")
 #' }
 #'
+#' @noRd
 cria_df_de_atrito <- function(data, panel) {
   # binding globals
   V1016 <- individual_identifier <- disappearances <- NULL
