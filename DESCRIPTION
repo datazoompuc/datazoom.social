@@ -17,13 +17,13 @@ Description: A streamlined approach to accessing and processing Brazilian
     Pesquisa Nacional por Amostra de Domicílios Contínua (PNAD Contínua). 
     Enables efficient downloading of multiple survey quarters and implements 
     rigorous panel construction methodologies (Ribas and Soares (2008) 
-    <doi:10.1590/S0034-71402008000400004>) to identify and match households 
+    <doi:10.1590/S0101-41612010000100008>) to identify and match households 
     and individuals across time. The package extends 'PNADcIBGE' functionality 
     with both basic and advanced identification algorithms, facilitating 
     longitudinal analysis of Brazil's primary labor market and socioeconomic 
     survey data collected by IBGE (Instituto Brasileiro de Geografia e 
     Estatística). Additional documentation is available at 
-    <https://datazoom.com.br/en/>.
+    the Datazoom website.
 License: MIT + file LICENSE
 URL: https://datazoom.com.br/en/
 Imports: 
