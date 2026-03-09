@@ -212,7 +212,7 @@ load_pnadc <- function(save_to = getwd(),
                      
                      message(paste("Compiling panel", panel, "to", file_path, "\n"))
                      
-                     if (panel_format == "csv") {
+                     if (panel_format == ".csv") {
                        readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
                      } else {
                        arrow::write_parquet(df, sink = file_path)
@@ -250,7 +250,7 @@ load_pnadc <- function(save_to = getwd(),
       function(path) {
         message(paste("Running", param$panel, "identification on", path, "\n"))
         
-        if (panel_format == "csv") {
+        if (panel_format == ".csv") {
           df <- data.table::fread(
             path,
             col.names = cnames,
