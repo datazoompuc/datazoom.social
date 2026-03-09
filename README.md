@@ -45,18 +45,6 @@ install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
-    ## Warning: replacing previous import 'data.table::first' by 'dplyr::first' when
-    ## loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::last' by 'dplyr::last' when
-    ## loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::between' by 'dplyr::between'
-    ## when loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::transpose' by
-    ## 'purrr::transpose' when loading 'datazoom.social'
-
 ## Data
 
 <table>
@@ -86,12 +74,15 @@ build a Panel.
 Default
 
 ``` r
+
 load_pnadc(
   save_to = getwd(),
   years,
   quarters = 1:4,
   panel = "advanced",
-  raw_data = FALSE
+  raw_data = FALSE,
+  save_trimestres = FALSE,
+  panel_format = ".csv"
 )
 ```
 
@@ -128,6 +119,28 @@ load_pnadc(
 )
 ```
 
+To download PNADC data and keep the quarterly `.fst` files after the
+panel is built, run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022,
+  save_trimestres = TRUE
+)
+```
+
+To download PNADC data and save the panel in Parquet format instead of
+CSV, run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022,
+  panel_format = ".parquet"
+)
+```
+
 ------------------------------------------------------------------------
 
 **Options:**
@@ -147,6 +160,7 @@ load_pnadc(
 
     - `none`: No panel is built. If `raw_data = TRUE`, returns the
       original data. Otherwise, creates some extra treated variables.
+      Quarterly `.fst` files are always kept when `panel = "none"`.
     - `basic`: Performs basic identification steps for creating
       households and individual identifiers for panel construction
     - `advanced`: Performs advanced identification steps for creating
@@ -158,6 +172,24 @@ load_pnadc(
     - `TRUE`: if you want the PNADC variables as they come.
     - `FALSE`: if you want the treated version of the PNADC variables.
 
+6.  **save_trimestres**: A command to define whether the quarterly
+    `.fst` files should be kept after the panel is built. There are two
+    options:
+
+    - `TRUE`: the `.fst` files for each quarter are kept in `save_to`
+      after the panel is built.
+    - `FALSE` (default): the `.fst` files are deleted after the panel is
+      built. Ignored when `panel = "none"` (files are always kept in
+      that case).
+
+7.  **panel_format**: The file format for the output panel files. There
+    are two options:
+
+    - `".csv"` (default): panel files are saved as `.csv`.
+    - `".parquet"`: panel files are saved as `.parquet`, using the
+      `arrow` package. Parquet files are faster to read and more
+      space-efficient than CSV.
+
 ------------------------------------------------------------------------
 
 **Details:**
@@ -166,17 +198,21 @@ The function performs the following steps:
 
 1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
     download the data and save in the `save_to` directory, in files
-    named `pnadc_year_quarter.rds`. If the `raw_data` option is `FALSE`,
+    named `pnadc_year_quarter.fst`. If the `raw_data` option is `FALSE`,
     some PNADC variables are treated at this stage.
 
-2.  Split the data into panels, by reading each `.rds` file and
+2.  Split the data into panels, by reading each `.fst` file and
     filtering by the quarter variable `V1014`. Data from each panel `x`
-    is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data
-    from each quarter to be appended on top of the previous ones, making
-    the process faster.
+    is saved to `pnadc_panel_x.csv` or `pnadc_panel_x.parquet`,
+    depending on `panel_format`. The use of `.csv` allows for data from
+    each quarter to be appended on top of the previous ones, making the
+    process faster.
 
 3.  Read each panel file and apply the identification algorithms defined
     in the `build_pnadc_panel`.
+
+4.  If `save_trimestres = FALSE` (default), the intermediate `.fst`
+    quarter files are deleted after the panel is built.
 
 - The identification algorithms in `build_pnadc_panel` are drawn from
   Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): “Sobre o
@@ -270,18 +306,18 @@ the advanced algorithm in each interview.
 
 DataZoom is developed by a team at Pontifícia Universidade Católica do
 Rio de Janeiro (PUC-Rio), Department of Economics. Our official website
-is at: <https://datazoom.com.br/en/>.
+is at: <https://www.econ.puc-rio.br/datazoom/>.
 
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian
 > Microdata.  
-> <https://datazoom.com.br/en/>
+> <https://www.econ.puc-rio.br/datazoom/english/index.html>
 
 A BibTeX entry for LaTeX users is:
 
-    @Unpublished{DataZoom2023,
+    @Unpublished{DataZoom2024,
         author = {Data Zoom},
         title = {Data Zoom: Simplifying Access To Brazilian Microdata},
-        url = {https://datazoom.com.br/en/},
-        year = {2023}}
+        url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
+        year = {2024}}
