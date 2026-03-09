@@ -295,7 +295,7 @@ treat_pnadc <- function(df) {
         11 ~ "RO",
         12 ~ "AC",
         13 ~ "AM",
-        14 ~ "RO",
+        14 ~ "RR",
         15 ~ "PA",
         16 ~ "AP",
         17 ~ "TO",
