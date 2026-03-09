@@ -7,9 +7,13 @@
 #' @param quarters The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
 #' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
+###CHANGE
+#' @param save_quarters A \code{logical}. If \code{TRUE}, keeps each quarter saved as a .fst file after the panel is built. If \code{FALSE} (default), the .fst files are deleted after use. Ignored when \code{panel = "none"} (quarters are always kept in that case).
+#' @param panel_format A \code{character} choosing the output format for panel files: ".csv" (default) or ".parquet".
+###CHANGE
 #'
 #' @return A message indicating the successful save of panel files.
-#'  
+#'
 #' @import data.table
 #' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
@@ -20,11 +24,14 @@
 #'   save_to = "Directory/You/Would/like/to/save/the/files",
 #'   years = 2016,
 #'   quarters = 1:4,
-#'   panel = "basic",
-#'   raw_data = FALSE
+#'   panel = "advanced",
+#'   raw_data = FALSE,
+#'   save_quarters = TRUE,
+#'   pane_format = ".parquet"
 #' )
 #' }
 #' @export
+
 
 load_pnadc <- function(save_to = getwd(), 
                        years,
