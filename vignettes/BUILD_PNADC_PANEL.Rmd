@@ -26,8 +26,6 @@ Our `load_pnadc` function uses the internal function `build_pnadc_panel` to iden
 
 The household identifier -- stored as `id_dom` -- combines the variables:
 
-* `UF` -- State;
-
 * `UPA` -- Primary Sampling Unit - PSU;
 
 * `V1008` -- Household;
