@@ -25,9 +25,10 @@ build_pnadc_panel <- function(dat, panel) {
   ## Bind Global Variables ##
   ###########################
 
-  UPA <- V1008 <- V1014 <- id_dom <- UF <- V20082 <- V20081 <- rs_valid <-  unmatched_basic <- NULL
-  V2008 <- V2007 <- id_ind <- V2003 <- V1016 <- appearances <- V1016 <- id_rs <- unmatched_adv <- NULL
-
+  UPA <- V1008 <- V1014 <- id_dom <- V20082 <- V20081 <- V2008 <- V2007 <- NULL
+  Ano <- Trimestre <- id_ind <- num_appearances <- V2003 <- id_rs <- NULL
+  num_appearances_rs <- q_count_ind <- q_count_rs <- NULL
+  
   #############################
   ## Define Basic Parameters ## 
   #############################
