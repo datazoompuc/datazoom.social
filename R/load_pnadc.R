@@ -24,17 +24,16 @@
 #' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' load_pnadc(
-#'   save_to = "Directory/You/Would/like/to/save/the/files",
+#'   save_to = getwd(),
 #'   years = 2016,
 #'   quarters = 1:4,
 #'   panel = "advanced",
 #'   raw_data = FALSE,
 #'   save_options = c(TRUE, FALSE)
 #' )
-#' }
+#' 
 #' @export
 
 
@@ -73,7 +72,7 @@ load_pnadc <- function(save_to = getwd(),
   ## Bind Global Variables ##
   ###########################
   
-  year <- . <- NULL
+  year <- . <- V1014 <- NULL
   
   #############################
   ## Define Basic Parameters ##

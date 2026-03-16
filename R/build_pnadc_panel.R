@@ -7,18 +7,11 @@
 #'
 #' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Example usage:
-#' data <- fread("path/to/PNADC_data.csv")
-#' panel_data <- build_pnadc_panel(dat = data, panel = "basic")
-#' }
+#' 
+#' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
 #'
-#' @references
-#' Ribas, Rafael Perez, and Sergei Suarez Dillon Soares. Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE. No. 1348. Texto para discussão, 2008.
-#' Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
-#'
-#' @author Data Zoom
 #' @export
 build_pnadc_panel <- function(dat, panel) {
   ###########################

@@ -18,17 +18,9 @@ A modified dataset with added identifiers for household (\code{id_dom}) and indi
 This function builds a panel dataset from PNADC data, indentifying households and individuals
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 # Example usage:
-data <- fread("path/to/PNADC_data.csv")
-panel_data <- build_pnadc_panel(dat = data, panel = "basic")
-}
 
-}
-\references{
-Ribas, Rafael Perez, and Sergei Suarez Dillon Soares. Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE. No. 1348. Texto para discussão, 2008.
-Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian Microdata.
-}
-\author{
-Data Zoom
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+\dontshow{\}) # examplesIf}
 }
