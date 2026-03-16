@@ -63,7 +63,7 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::add_count(id_ind, Ano, Trimestre, name = "num_appearances") %>% # counts number of times that each id_ind appears
       dplyr::mutate(
         id_ind = dplyr::case_when(
-          num_appearances != 1 ~ NA,
+          num_appearances != 1 ~ NA_real_,
           .default = id_ind
         ))
     
@@ -71,7 +71,7 @@ build_pnadc_panel <- function(dat, panel) {
     
     dat <- dat %>% dplyr::mutate(
       id_ind = dplyr::case_when(
-        V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA,
+        V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA_real_,
         .default = id_ind
       )
     )
@@ -105,7 +105,7 @@ build_pnadc_panel <- function(dat, panel) {
       dplyr::add_count(id_rs, Ano, Trimestre, name = "num_appearances_rs") %>% # counts number of times that each id_ind appears
       dplyr::mutate(
         id_rs = dplyr::case_when(
-          num_appearances_rs != 1 ~ NA,
+          num_appearances_rs != 1 ~ NA_real_,
           .default = id_rs
         ))
     
@@ -113,7 +113,7 @@ build_pnadc_panel <- function(dat, panel) {
     
     dat <- dat %>% dplyr::mutate(
       id_rs = dplyr::case_when(
-        V2008 == "99" | V20081 == "99" ~ NA,
+        V2008 == "99" | V20081 == "99" ~ NA_real_,
         .default = id_rs
       )
     )
@@ -130,7 +130,7 @@ build_pnadc_panel <- function(dat, panel) {
         .by = id_rs
       ) %>%
       dplyr::mutate(
-        id_final = dplyr::case_when(
+        id_rs = dplyr::case_when(
           # perfect tracking with basic identification
           q_count_ind == 5 ~ id_ind,
           
@@ -152,17 +152,25 @@ build_pnadc_panel <- function(dat, panel) {
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
 
   # basic panel
-  if (panel != "none") {
+  if ("id_ind" %in% names(dat)) {
+    # Create a logical mask for rows that are NOT NA
+    id_valid <- !is.na(dat$id_ind)
     
-    dat$id_ind <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
-
+    # Only update the valid rows
+    dat$id_ind[id_valid] <- paste0(
+      as.hexmode(dat$V1014[id_valid]), 
+      as.hexmode(dat$id_ind[id_valid])
+    )
   }
   
-  # advanced panel
-  if (!(panel %in% c("none", "basic"))) {
+  # 2. Advanced Panel ID Fix
+  if ("id_rs" %in% names(dat)) {
+    rs_valid <- !is.na(dat$id_rs)
     
-    dat$id_rs <- paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs))
-    
+    dat$id_rs[rs_valid] <- paste0(
+      as.hexmode(dat$V1014[rs_valid]), 
+      as.hexmode(dat$id_rs[rs_valid])
+    )
   }
 
   #################
