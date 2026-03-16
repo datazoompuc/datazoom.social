@@ -69,6 +69,30 @@ build a Panel.
 
 ------------------------------------------------------------------------
 
+**Panel Structure:**
+
+The table below shows the first and last quarter (`ANOtrimestre`, e.g.
+`20121` = 2012 Q1) covered by each PNADC rotating panel:
+
+| Panel | Start |   End |
+|------:|------:|------:|
+|     1 | 20121 | 20124 |
+|     2 | 20121 | 20141 |
+|     3 | 20132 | 20152 |
+|     4 | 20143 | 20163 |
+|     5 | 20154 | 20174 |
+|     6 | 20171 | 20191 |
+|     7 | 20182 | 20202 |
+|     8 | 20193 | 20213 |
+|     9 | 20204 | 20224 |
+|    10 | 20221 | 20241 |
+|    11 | 20232 | 20252 |
+|    12 | 20243 | 20263 |
+|    13 | 20254 | 20274 |
+|    14 | 20271 | 20291 |
+
+------------------------------------------------------------------------
+
 **Usage:**
 
 Default
@@ -81,8 +105,7 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
-  save_trimestres = FALSE,
-  panel_format = ".csv"
+  save_options = c(TRUE, TRUE)
 )
 ```
 
@@ -119,25 +142,25 @@ load_pnadc(
 )
 ```
 
-To download PNADC data and keep the quarterly `.fst` files after the
-panel is built, run
+To download PNADC data, keep the quarters parquet on disk, and save
+panels as Parquet, run
 
 ``` r
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2022,
-  save_trimestres = TRUE
+  save_options = c(TRUE, FALSE)
 )
 ```
 
-To download PNADC data and save the panel in Parquet format instead of
-CSV, run
+To download PNADC data and save panels as CSV but discard the
+intermediate quarters parquet, run
 
 ``` r
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2022,
-  panel_format = ".parquet"
+  save_options = c(FALSE, TRUE)
 )
 ```
 
@@ -160,7 +183,8 @@ load_pnadc(
 
     - `none`: No panel is built. If `raw_data = TRUE`, returns the
       original data. Otherwise, creates some extra treated variables.
-      Quarterly `.fst` files are always kept when `panel = "none"`.
+      The intermediate quarters parquet is always kept when
+      `panel = "none"`.
     - `basic`: Performs basic identification steps for creating
       households and individual identifiers for panel construction
     - `advanced`: Performs advanced identification steps for creating
@@ -172,23 +196,17 @@ load_pnadc(
     - `TRUE`: if you want the PNADC variables as they come.
     - `FALSE`: if you want the treated version of the PNADC variables.
 
-6.  **save_trimestres**: A command to define whether the quarterly
-    `.fst` files should be kept after the panel is built. There are two
-    options:
+6.  **save_options**: A logical vector of length 2 controlling file
+    saving behaviour:
 
-    - `TRUE`: the `.fst` files for each quarter are kept in `save_to`
-      after the panel is built.
-    - `FALSE` (default): the `.fst` files are deleted after the panel is
-      built. Ignored when `panel = "none"` (files are always kept in
-      that case).
-
-7.  **panel_format**: The file format for the output panel files. There
-    are two options:
-
-    - `".csv"` (default): panel files are saved as `.csv`.
-    - `".parquet"`: panel files are saved as `.parquet`, using the
-      `arrow` package. Parquet files are faster to read and more
-      space-efficient than CSV.
+    - `c(TRUE, TRUE)` (default): keeps the intermediate quarters parquet
+      after panel is built; saves panel files as `.csv`.
+    - `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves
+      panel files as `.csv`.
+    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as
+      `.parquet` (a list of panel data frames).
+    - `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves
+      panel files as `.parquet`.
 
 ------------------------------------------------------------------------
 
@@ -197,22 +215,21 @@ load_pnadc(
 The function performs the following steps:
 
 1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
-    download the data and save in the `save_to` directory, in files
-    named `pnadc_year_quarter.fst`. If the `raw_data` option is `FALSE`,
-    some PNADC variables are treated at this stage.
+    download the data. All quarters are collected in memory and saved
+    together into a single `pnadc_quarters.parquet` file in `save_to`.
+    If the `raw_data` option is `FALSE`, some PNADC variables are
+    treated at this stage.
 
-2.  Split the data into panels, by reading each `.fst` file and
-    filtering by the quarter variable `V1014`. Data from each panel `x`
-    is saved to `pnadc_panel_x.csv` or `pnadc_panel_x.parquet`,
-    depending on `panel_format`. The use of `.csv` allows for data from
-    each quarter to be appended on top of the previous ones, making the
-    process faster.
+2.  Split the data into panels by lazy-loading the parquet and filtering
+    by the panel variable `V1014`. Data from each panel `x` is saved to
+    `pnadc_panel_x.csv` or `pnadc_panel_x.parquet`, depending on
+    `save_options[2]`.
 
 3.  Read each panel file and apply the identification algorithms defined
-    in the `build_pnadc_panel`.
+    in `build_pnadc_panel`.
 
-4.  If `save_trimestres = FALSE` (default), the intermediate `.fst`
-    quarter files are deleted after the panel is built.
+4.  If `save_options[1] = FALSE`, the intermediate quarters parquet is
+    deleted after the panels are built.
 
 - The identification algorithms in `build_pnadc_panel` are drawn from
   Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): “Sobre o

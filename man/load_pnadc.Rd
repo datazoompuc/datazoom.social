@@ -10,8 +10,7 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
-  save_quarters = FALSE,
-  panel_format = c(".csv", ".parquet")
+  save_options = c(TRUE, TRUE)
 )
 }
 \arguments{
@@ -25,9 +24,16 @@ load_pnadc(
 
 \item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.}
 
-\item{save_quarters}{A \code{logical}. If \code{TRUE}, keeps each quarter saved as a .fst file after the panel is built. If \code{FALSE} (default), the .fst files are deleted after use. Ignored when \code{panel = "none"} (quarters are always kept in that case).}
-
-\item{panel_format}{A \code{character} choosing the output format for panel files: ".csv" (default) or ".parquet".}
+\item{save_options}{A \code{logical} vector of length 2 controlling how files are saved.
+The first element controls whether quarter files are kept after the panel is built;
+the second controls whether output files are saved as CSV (\code{TRUE}) or Parquet (\code{FALSE}).
+\itemize{
+\item \code{c(TRUE, TRUE)} (default): saves quarters parquet; saves panels as CSV.
+\item \code{c(FALSE, TRUE)}: does not keep quarter parquet; saves panels as CSV.
+\item \code{c(TRUE, FALSE)}: saves quarters parquet; saves panels as Parquet.
+\item \code{c(FALSE, FALSE)}: does not keep quarter parquet; saves panels as Parquet.
+}
+When \code{panel = "none"}, the quarter parquet is always kept regardless of \code{save_options[1]}.}
 }
 \value{
 A message indicating the successful save of panel files.
@@ -43,8 +49,7 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
-  save_quarters = TRUE,
-  pane_format = ".parquet"
+  save_options = c(TRUE, FALSE)
 )
 }
 }

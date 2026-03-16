@@ -20,7 +20,6 @@ Imports:
     arrow,
     data.table,
     dplyr,
-    fst,
     PNADcIBGE,
     purrr,
     readr,
