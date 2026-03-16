@@ -50,7 +50,7 @@ build_pnadc_panel <- function(dat, panel) {
         .by = c(UPA, V1008, V1014)
       )
 
-    # Individual id combines the household id, V2007, and date of birth( V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
+    # Individual id combines the household id, sex (V2007), and date of birth (V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
@@ -99,6 +99,9 @@ build_pnadc_panel <- function(dat, panel) {
       )
     
     # twin removal
+    ## kept here so we remember this step
+    ## in practice it is useless here
+    ## mechanically there are no repeated V2003 in a household/trimestre/year
     
     dat <- dat %>%
       dplyr::mutate(
