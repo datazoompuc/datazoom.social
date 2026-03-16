@@ -87,8 +87,9 @@ build_pnadc_panel <- function(dat, panel) {
   ## Stage 1:
 
   if (!(panel %in% c("none", "basic"))) {
-    m <- max(dat$id_ind) # to avoid overlap between id numbers
+    m <- max(dat$id_ind, na.rm = TRUE) # to avoid overlap between id numbers
     # id_rs are always higher numbers than id_ind
+    # remove NAs otherwise m is NA and all id_rs are NAs
 
     # advanced identification is only run on previously unmatched individuals
 
