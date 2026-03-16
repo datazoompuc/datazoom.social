@@ -138,7 +138,7 @@ build_pnadc_panel <- function(dat, panel) {
           # no more than 5 appearances (or else errors are introduced)
           q_count_rs > q_count_ind & q_count_rs <= 5 ~ id_rs,
           
-          # if else stick to id_in
+          # if else stick to id_ind
           TRUE ~ id_ind
         )
       )
