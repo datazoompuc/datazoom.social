@@ -24,16 +24,19 @@ load_pnadc(
 
 \item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.}
 
-\item{save_options}{A \code{logical} vector of length 2 controlling how files are saved.
-The first element controls whether quarter files are kept after the panel is built;
-the second controls whether output files are saved as CSV (\code{TRUE}) or Parquet (\code{FALSE}).
+\item{save_options}{A \code{logical} vector of length 2. Controls whether quarterly
+files are saved and in which format all files are saved. Panel files are
+always saved. There are four possible combinations:
 \itemize{
-\item \code{c(TRUE, TRUE)} (default): saves quarters parquet; saves panels as CSV.
-\item \code{c(FALSE, TRUE)}: does not keep quarter parquet; saves panels as CSV.
-\item \code{c(TRUE, FALSE)}: saves quarters parquet; saves panels as Parquet.
-\item \code{c(FALSE, FALSE)}: does not keep quarter parquet; saves panels as Parquet.
-}
-When \code{panel = "none"}, the quarter parquet is always kept regardless of \code{save_options[1]}.}
+\item \code{c(TRUE, TRUE)}: saves quarterly and panel files in
+\code{.csv} format. This is the default.
+\item \code{c(TRUE, FALSE)}: saves quarterly and panel files in
+\code{.parquet} format.
+\item \code{c(FALSE, TRUE)}: does not save quarterly files; panel files
+are saved in \code{.csv} format.
+\item \code{c(FALSE, FALSE)}: does not save quarterly files; panel files
+are saved in \code{.parquet} format.
+}}
 }
 \value{
 A message indicating the successful save of panel files.
@@ -42,14 +45,15 @@ A message indicating the successful save of panel files.
 This function downloads PNADC data and applies panel identification algorithms
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2016,
   quarters = 1:4,
-  panel = "advanced",
+  panel = "basic",
   raw_data = FALSE,
-  save_options = c(TRUE, FALSE)
+  save_options = c(FALSE, FALSE)
 )
-}
+\dontshow{\}) # examplesIf}
 }

@@ -7,7 +7,7 @@
 #' @param quarters The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
 #' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
-#' @param save_files A \code{logical} vector of length 2. Controls whether quarterly
+#' @param save_options A \code{logical} vector of length 2. Controls whether quarterly
 #'   files are saved and in which format all files are saved. Panel files are
 #'   always saved. There are four possible combinations:
 #'   \itemize{
@@ -27,21 +27,21 @@
 #' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
+#' 
 #' load_pnadc(
 #'   save_to = "Directory/You/Would/like/to/save/the/files",
 #'   years = 2016,
 #'   quarters = 1:4,
 #'   panel = "basic",
-#'   raw_data = FALSE
+#'   raw_data = FALSE,
+#'   save_options = c(FALSE, FALSE)
 #' )
-#' }
 #' @export
 
 load_pnadc <- function(save_to = getwd(), years,
                        quarters = 1:4, panel = "advanced",
-                       raw_data = FALSE, save_files = c(TRUE, TRUE)) {
+                       raw_data = FALSE, save_options = c(TRUE, TRUE)) {
   # Check if PNADcIBGE namespace is already attached
   if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it
@@ -75,8 +75,8 @@ load_pnadc <- function(save_to = getwd(), years,
   param$panel     <- panel     # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data  <- raw_data  # A command to define if the user would like to download the raw data from the IBGE website directly
   param$save_to   <- save_to   # the directory in which the user desires to save the files downloaded
-  param$save_quarters <- save_files[1] # whether to save quarterly files to disk
-  param$csv           <- save_files[2] # if TRUE, saves as .csv; if FALSE, saves as .parquet
+  param$save_quarters <- save_options[1] # whether to save quarterly files to disk
+  param$csv           <- save_options[2] # if TRUE, saves as .csv; if FALSE, saves as .parquet
   
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {

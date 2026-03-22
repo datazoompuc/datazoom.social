@@ -154,7 +154,7 @@ load_pnadc(
 ```
 
 To download PNADC data and save panels as CSV but discard the
-intermediate quarters parquet, run
+intermediate quarters, run
 
 ``` r
 load_pnadc(
@@ -199,14 +199,14 @@ load_pnadc(
 6.  **save_options**: A logical vector of length 2 controlling file
     saving behaviour:
 
-    - `c(TRUE, TRUE)` (default): keeps the intermediate quarters parquet
-      after panel is built; saves panel files as `.csv`.
-    - `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves
-      panel files as `.csv`.
-    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as
+    - `c(TRUE, TRUE)` (default): keeps the intermediate quarters after
+      panel is built; saves all files as `.csv`.
+    - `c(FALSE, TRUE)`: deletes the quarters after use; saves panel
+      files as `.csv`.
+    - `c(TRUE, FALSE)`: keeps the quarters; saves all files as
       `.parquet` (a list of panel data frames).
-    - `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves
-      panel files as `.parquet`.
+    - `c(FALSE, FALSE)`: deletes the quarters after use; saves panel
+      files as `.parquet`.
 
 ------------------------------------------------------------------------
 
