@@ -45,18 +45,6 @@ install.packages("devtools")
 devtools::install_github("datazoompuc/datazoom.social")
 ```
 
-    ## Warning: replacing previous import 'data.table::first' by 'dplyr::first' when
-    ## loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::last' by 'dplyr::last' when
-    ## loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::between' by 'dplyr::between'
-    ## when loading 'datazoom.social'
-
-    ## Warning: replacing previous import 'data.table::transpose' by
-    ## 'purrr::transpose' when loading 'datazoom.social'
-
 ## Data
 
 <table>
@@ -81,17 +69,43 @@ build a Panel.
 
 ------------------------------------------------------------------------
 
+**Panel Structure:**
+
+The table below shows the first and last quarter (`ANOtrimestre`, e.g.
+`20121` = 2012 Q1) covered by each PNADC rotating panel:
+
+| Panel | Start |   End |
+|------:|------:|------:|
+|     1 | 20121 | 20124 |
+|     2 | 20121 | 20141 |
+|     3 | 20132 | 20152 |
+|     4 | 20143 | 20163 |
+|     5 | 20154 | 20174 |
+|     6 | 20171 | 20191 |
+|     7 | 20182 | 20202 |
+|     8 | 20193 | 20213 |
+|     9 | 20204 | 20224 |
+|    10 | 20221 | 20241 |
+|    11 | 20232 | 20252 |
+|    12 | 20243 | 20263 |
+|    13 | 20254 | 20274 |
+|    14 | 20271 | 20291 |
+
+------------------------------------------------------------------------
+
 **Usage:**
 
 Default
 
 ``` r
+
 load_pnadc(
   save_to = getwd(),
   years,
   quarters = 1:4,
   panel = "advanced",
-  raw_data = FALSE
+  raw_data = FALSE,
+  save_options = c(TRUE, TRUE)
 )
 ```
 
@@ -128,6 +142,28 @@ load_pnadc(
 )
 ```
 
+To download PNADC data, keep the quarters parquet on disk, and save
+panels as Parquet, run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022,
+  save_options = c(TRUE, FALSE)
+)
+```
+
+To download PNADC data and save panels as CSV but discard the
+intermediate quarters, run
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022,
+  save_options = c(FALSE, TRUE)
+)
+```
+
 ------------------------------------------------------------------------
 
 **Options:**
@@ -147,6 +183,8 @@ load_pnadc(
 
     - `none`: No panel is built. If `raw_data = TRUE`, returns the
       original data. Otherwise, creates some extra treated variables.
+      The intermediate quarters parquet is always kept when
+      `panel = "none"`.
     - `basic`: Performs basic identification steps for creating
       households and individual identifiers for panel construction
     - `advanced`: Performs advanced identification steps for creating
@@ -158,6 +196,18 @@ load_pnadc(
     - `TRUE`: if you want the PNADC variables as they come.
     - `FALSE`: if you want the treated version of the PNADC variables.
 
+6.  **save_options**: A logical vector of length 2 controlling file
+    saving behaviour:
+
+    - `c(TRUE, TRUE)` (default): keeps the intermediate quarters after
+      panel is built; saves all files as `.csv`.
+    - `c(FALSE, TRUE)`: deletes the quarters after use; saves panel
+      files as `.csv`.
+    - `c(TRUE, FALSE)`: keeps the quarters; saves all files as
+      `.parquet` (a list of panel data frames).
+    - `c(FALSE, FALSE)`: deletes the quarters after use; saves panel
+      files as `.parquet`.
+
 ------------------------------------------------------------------------
 
 **Details:**
@@ -165,18 +215,21 @@ load_pnadc(
 The function performs the following steps:
 
 1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
-    download the data and save in the `save_to` directory, in files
-    named `pnadc_year_quarter.rds`. If the `raw_data` option is `FALSE`,
-    some PNADC variables are treated at this stage.
+    download the data. All quarters are collected in memory and saved
+    together into a single `pnadc_quarters.parquet` file in `save_to`.
+    If the `raw_data` option is `FALSE`, some PNADC variables are
+    treated at this stage.
 
-2.  Split the data into panels, by reading each `.rds` file and
-    filtering by the quarter variable `V1014`. Data from each panel `x`
-    is saved to `pnad_panel_x.csv`. The use of `.csv` allows for data
-    from each quarter to be appended on top of the previous ones, making
-    the process faster.
+2.  Split the data into panels by lazy-loading the parquet and filtering
+    by the panel variable `V1014`. Data from each panel `x` is saved to
+    `pnadc_panel_x.csv` or `pnadc_panel_x.parquet`, depending on
+    `save_options[2]`.
 
 3.  Read each panel file and apply the identification algorithms defined
-    in the `build_pnadc_panel`.
+    in `build_pnadc_panel`.
+
+4.  If `save_options[1] = FALSE`, the intermediate quarters parquet is
+    deleted after the panels are built.
 
 - The identification algorithms in `build_pnadc_panel` are drawn from
   Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): “Sobre o
@@ -270,18 +323,18 @@ the advanced algorithm in each interview.
 
 DataZoom is developed by a team at Pontifícia Universidade Católica do
 Rio de Janeiro (PUC-Rio), Department of Economics. Our official website
-is at: <https://datazoom.com.br/en/>.
+is at: <https://www.econ.puc-rio.br/datazoom/>.
 
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian
 > Microdata.  
-> <https://datazoom.com.br/en/>
+> <https://www.econ.puc-rio.br/datazoom/english/index.html>
 
 A BibTeX entry for LaTeX users is:
 
-    @Unpublished{DataZoom2023,
+    @Unpublished{DataZoom2024,
         author = {Data Zoom},
         title = {Data Zoom: Simplifying Access To Brazilian Microdata},
-        url = {https://datazoom.com.br/en/},
-        year = {2023}}
+        url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
+        year = {2024}}
