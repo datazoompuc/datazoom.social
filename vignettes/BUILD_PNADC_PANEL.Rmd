@@ -16,6 +16,26 @@ knitr::opts_chunk$set(
 library(datazoom.social)
 ```
 
+***
+**Usage:**
+
+Basic Panel
+
+```{r eval=TRUE}
+
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+
+```
+
+Advanced Panel
+
+```{r eval=TRUE}
+
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced")
+
+```
+
+***
 **Description**
 
 Our `load_pnadc` function uses the internal function `build_pnadc_panel` to identify households and individuals across quarters. The method used for the identification is based on the paper of Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE". 

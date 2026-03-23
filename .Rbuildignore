@@ -7,3 +7,4 @@
 ^logo_hex\.png$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^data-raw$

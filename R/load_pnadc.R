@@ -7,28 +7,51 @@
 #' @param quarters The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
 #' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
+#' @param save_options A \code{logical} vector of length 2 controlling how files are saved.
+#'   The first element controls whether quarter files are kept after the panel is built;
+#'   the second controls whether output files are saved as CSV (\code{TRUE}) or Parquet (\code{FALSE}).
+#'   \itemize{
+#'     \item \code{c(TRUE, TRUE)} (default): saves quarters parquet; saves panels as CSV.
+#'     \item \code{c(FALSE, TRUE)}: does not keep quarter parquet; saves panels as CSV.
+#'     \item \code{c(TRUE, FALSE)}: saves quarters parquet; saves panels as Parquet.
+#'     \item \code{c(FALSE, FALSE)}: does not keep quarter parquet; saves panels as Parquet.
+#'   }
+#'   When \code{panel = "none"}, the quarter parquet is always kept regardless of \code{save_options[1]}.
 #'
 #' @return A message indicating the successful save of panel files.
-#'  
+#'
 #' @import data.table
 #' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
 #'
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' load_pnadc(
-#'   save_to = "Directory/You/Would/like/to/save/the/files",
+#'   save_to = getwd(),
 #'   years = 2016,
 #'   quarters = 1:4,
-#'   panel = "basic",
-#'   raw_data = FALSE
+#'   panel = "advanced",
+#'   raw_data = FALSE,
+#'   save_options = c(TRUE, FALSE)
 #' )
-#' }
+#' 
 #' @export
 
-load_pnadc <- function(save_to = getwd(), years,
-                       quarters = 1:4, panel = "advanced",
-                       raw_data = FALSE) {
+
+load_pnadc <- function(save_to = getwd(),
+                       years,
+                       quarters = 1:4,
+                       panel = "advanced",
+                       raw_data = FALSE,
+                       save_options = c(TRUE, TRUE)) {
+  
+  # Validate save_options
+  if (!is.logical(save_options) || length(save_options) != 2) {
+    stop("`save_options` must be a logical vector of length 2, e.g. c(TRUE, TRUE).")
+  }
+  
+  save_quarters <- save_options[1]  # keep quarter parquet on disk after panel is built
+  panels_as_csv <- save_options[2]  # TRUE = panels saved as .csv, FALSE = panels saved as .parquet
+  
   # Check if PNADcIBGE namespace is already attached
   if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it
@@ -49,7 +72,7 @@ load_pnadc <- function(save_to = getwd(), years,
   ## Bind Global Variables ##
   ###########################
   
-  year <- . <- NULL
+  year <- . <- V1014 <- NULL
   
   #############################
   ## Define Basic Parameters ##
@@ -62,7 +85,7 @@ load_pnadc <- function(save_to = getwd(), years,
   param$panel <- panel # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data <- raw_data # A command to define if the user would like to download the raw data from the IBGE website directly
   param$save_to <- save_to # the directory in which the user desires to save the files downloaded
-  
+
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
     param$quarters <- rep(list(quarters), length(years))
@@ -93,21 +116,20 @@ load_pnadc <- function(save_to = getwd(), years,
   panel_list <- c()
   cnames <- NULL
   
-  # download to the saving directory
+  # Download all quarters, collecting each as a named data frame in a list
+  # The list will be saved as a single parquet file: pnadc_quarters.parquet
+  # Each element is named "year_quarter" for traceability
   
-  source_files <- purrr::map2(
-    param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
-    
+  quarters_df_list <- list()
+  
+  purrr::map2(
+    param$years, param$quarters,
     
     function(year, quarter) {
-      base::message(
-        paste0("Downloading PNADC ", year, " Q", quarter, "\n") # just generating a message so the user knows which file is being downloaded now
-      )
+      base::message(paste0("Downloading PNADC ", year, " Q", quarter, "\n"))
       
-      df <- get_pnadc(
-        year = year, quarter = quarter, labels = FALSE, design = FALSE) # downloading the file, design= FALSE returns to us just the dataframe with all variables in the PNADc)
+      df <- get_pnadc(year = year, quarter = quarter, labels = FALSE, design = FALSE)
       
-      # get_pnadc returns a message and the NULL object when download fails due to non-existing file
       if (is.null(df)) {
         return(NULL)
         
@@ -116,12 +138,7 @@ load_pnadc <- function(save_to = getwd(), years,
         df <- df %>%
           dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
         
-        panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but there should be OBS inserted in 2 to 3 panels for every quarter, check our READ-ME or the IBGE's website about the rotation scheme for PNADc surveys)
-        #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-        
-        file_path <- file.path(
-          param$save_to, paste0("pnadc_", year, "_", quarter, ".rds") # defining the file's names to a certain format: year= 2022, quarter=3, file -> pnadc_2022_3.rds
-        )
+        panel_list <<- c(panel_list, unique(df$V1014))
         
         # runs data cleaning if desired
         if (!param$raw_data) {
@@ -130,126 +147,132 @@ load_pnadc <- function(save_to = getwd(), years,
         
         cnames <<- names(df)
         
-        # download each quarter to a separate file
+        key <- paste0(year, "_", quarter)
+        quarters_df_list[[key]] <<- df
         
-        base::message(
-          paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
-        )
-        
-        readr::write_rds(df, file_path, compress = "gz") # saving the file into the user's computer
-        
-        return(file_path)
+        base::message(paste0("Processed PNADC ", year, " Q", quarter, "\n"))
       }
     }
   )
   
-  # erase NULL observations from source_files list
-  source_files <- purrr::compact(source_files)
+  # Remove NULL entries (failed downloads)
+  quarters_df_list <- purrr::compact(quarters_df_list)
   
-  ## Return Raw Data
+  # Save all quarters to a single parquet file (list of data frames as separate row groups / named list)
+  quarters_parquet_path <- file.path(param$save_to, "pnadc_quarters.parquet")
+  
+  base::message(paste0("Saving all quarters to ", quarters_parquet_path, "\n"))
+  
+  # Write as a single parquet by binding all quarters and adding a key column
+  quarters_combined <- dplyr::bind_rows(
+    purrr::imap(quarters_df_list, function(df, key) {
+      dplyr::mutate(df, .quarter_key = key)
+    })
+  )
+  arrow::write_parquet(quarters_combined, sink = quarters_parquet_path)
+  
+  ## Return Raw Data (panel = "none")
   
   if (param$panel == "none") {
-    return(paste("Quarters saved to", param$save_to))
+    return(paste("Quarters saved to", quarters_parquet_path))
   }
   
   #################
   ## Panel Files ##
   #################
   
-  if (param$panel != "none") {
-    ## Split data into panels
-    
-    panel_list <- unique(panel_list) # listing all the panels included in the quarters downloaded
-    
-    # set up .csv file paths for each panel such as "pnadc_panel_2.csv"
-    
-    panel_files <- purrr::map(
-      panel_list,
-      function(panel) {
-        file_path <- file.path(
-          param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
-        )
-        
-        file_path
-      }
-    )
-    
-    # write an empty dataframe into each
-    
-    purrr::map(
-      panel_files,
-      function(path) {
-        readr::write_csv(data.frame(), path, col_names = cnames)
-      }
-    )
-    
-    # read each of the source files, split into panels, and append
-    # to their corresponding .csv files
-    
-    # we use the .csv files because they have a appending propriety, meaning that they can receive new information without having the older one deleted
-    # for the R users, you can simply think as literally doing a rbind() into those files, but in a much more efficient way
-    
-    purrr::map(
-      source_files, # source_files= the .rds files with the data that were downloaded way before in this function before
-      function(file) {
-        dat <- readr::read_rds(file) %>%
-          split(.$V1014)
-        
-        dat %>%
-          purrr::imap(
-            function(df, panel) {
-              file_path <- file.path(
-                param$save_to, paste0("pnadc", "_panel_", panel, ".csv")
-              )
-              
-              message(paste("Compiling panel", panel, "to", file_path, "\n"))
-              
-              readr::write_csv(df, file_path, append = TRUE) # append=TRUE allows us to add new info without deleting the older one, as comented above
-            }
-          )
-      }
-    )
-    
-    ##########################
-    ## Panel Identification ##
-    ##########################
-    
-    # defining column types
-    
-    if (param$raw_data) {
-      ctypes <- readr::cols(.default = readr::col_number())
+  panel_list <- unique(panel_list)
+  
+  # Determine panel file extension
+  panel_ext <- if (panels_as_csv) ".csv" else ".parquet"
+  
+  panel_files <- purrr::map(
+    panel_list,
+    function(p) {
+      file.path(param$save_to, paste0("pnadc_panel_", p, panel_ext))
     }
+  )
+  
+  # Initialize empty CSV panel files if needed (for appending)
+  if (panels_as_csv) {
+    purrr::map(panel_files, function(path) {
+      readr::write_csv(data.frame(), path, col_names = TRUE)
+    })
+  }
+  
+  # Lazy-load the quarters parquet and split into panels
+  # We use arrow::open_dataset for lazy/columnar reading
+  base::message("Splitting quarters into panels...\n")
+  
+  quarters_dataset <- arrow::open_dataset(quarters_parquet_path)
+  
+  # Only load the columns needed: V1014 (panel assignment) + all cnames
+  # (lazy scan: only materialise when we filter by panel)
+  
+  purrr::walk(panel_list, function(p) {
+    base::message(paste("Compiling panel", p, "\n"))
     
-    else {
-      ctypes <- readr::cols(
-        .default = readr::col_number(),
-        regiao = readr::col_character(),
-        sigla_uf = readr::col_character(),
-        sexo = readr::col_character(),
-        faixa_idade = readr::col_character(),
-        faixa_educ = readr::col_character(),
-        cnae_2dig = readr::col_character(),
-        cod_2dig = readr::col_character()
-      )
+    # Lazy filter — only reads rows for this panel from the parquet
+    panel_df <- quarters_dataset %>%
+      dplyr::filter(V1014 == p) %>%
+      dplyr::select(dplyr::all_of(cnames)) %>%  # drop the .quarter_key helper column
+      dplyr::collect()
+    
+    ext <- if (panels_as_csv) ".csv" else ".parquet"
+    file_path <- file.path(param$save_to, paste0("pnadc_panel_", p, ext))
+    
+    if (panels_as_csv) {
+      readr::write_csv(panel_df, file_path, append = TRUE)
+    } else {
+      arrow::write_parquet(panel_df, sink = file_path)
     }
-    
-    # read each file in panel_files and apply the identification algorithms defined in the build_pnadc_panel.R
-    
-    purrr::map(
-      panel_files,
-      function(path) {
-        message(paste("Running", param$panel, "identification on", path, "\n"))
-        
+  })
+  
+  ##########################
+  ## Panel Identification ##
+  ##########################
+  
+  # defining column types (only needed for CSV reading)
+  if (param$raw_data) {
+    ctypes <- readr::cols(.default = readr::col_number())
+  } else {
+    ctypes <- readr::cols(
+      .default     = readr::col_number(),
+      regiao       = readr::col_character(),
+      sigla_uf     = readr::col_character(),
+      sexo         = readr::col_character(),
+      faixa_idade  = readr::col_character(),
+      faixa_educ   = readr::col_character(),
+      cnae_2dig    = readr::col_character(),
+      cod_2dig     = readr::col_character()
+    )
+  }
+  
+  purrr::map(
+    panel_files,
+    function(path) {
+      message(paste("Running", param$panel, "identification on", path, "\n"))
+      
+      if (panels_as_csv) {
         df <- data.table::fread(
           path,
-          col.names = cnames,
+          col.names  = cnames,
           colClasses = ctypes
         ) %>%
           build_pnadc_panel(panel = param$panel)
-        
         readr::write_csv(df, path)
+      } else {
+        df <- arrow::read_parquet(path) %>%
+          build_pnadc_panel(panel = param$panel)
+        arrow::write_parquet(df, sink = path)
       }
-    )
+    }
+  )
+  
+  # Delete the quarter parquet if the user did not ask to keep it
+  # (ignored when panel = "none" — quarters always kept in that case)
+  if (!save_quarters) {
+    if (file.exists(quarters_parquet_path)) file.remove(quarters_parquet_path)
   }
   
   ####################
@@ -258,7 +281,7 @@ load_pnadc <- function(save_to = getwd(), years,
   
   return(paste("Panel files saved to", param$save_to))
 }
-
+  
 ######################
 ## Data Engineering ##
 ######################
