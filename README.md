@@ -241,6 +241,26 @@ The function performs the following steps:
 
 ## PNAD Panel Identification
 
+------------------------------------------------------------------------
+
+**Usage:**
+
+Basic Panel
+
+``` r
+
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+```
+
+Advanced Panel
+
+``` r
+
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced")
+```
+
+------------------------------------------------------------------------
+
 **Description**
 
 Our `load_pnadc` function uses the internal function `build_pnadc_panel`
