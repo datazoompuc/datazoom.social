@@ -62,6 +62,7 @@ load_pnadc <- function(save_to = getwd(), years,
   ## Bind Global Variables ##
   ###########################
   
+  year <- . <- V1014 <- Ano <- Trimestre <- NULL
   
   #############################
   ## Define Basic Parameters ##
@@ -107,6 +108,7 @@ load_pnadc <- function(save_to = getwd(), years,
   panel_list <- c()
   cnames     <- NULL
   
+  # download all quarters into a list of data frames
   
   source_files <- purrr::map2(
     param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
