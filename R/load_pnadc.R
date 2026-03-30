@@ -62,7 +62,6 @@ load_pnadc <- function(save_to = getwd(), years,
   ## Bind Global Variables ##
   ###########################
   
-  year <- . <- NULL
   
   #############################
   ## Define Basic Parameters ##
@@ -108,7 +107,6 @@ load_pnadc <- function(save_to = getwd(), years,
   panel_list <- c()
   cnames     <- NULL
   
-  # download to the saving directory
   
   source_files <- purrr::map2(
     param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
@@ -140,34 +138,50 @@ load_pnadc <- function(save_to = getwd(), years,
         
         cnames <<- names(df)
         
-        if (param$save_quarters) {
-          if (param$csv) {
-            file_path <- file.path(
-              param$save_to, paste0("pnadc_", year, "_", quarter, ".csv")
-            )
-            base::message(
-              paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
-            )
-            readr::write_csv(df, file_path)
-          } else {
-            file_path <- file.path(
-              param$save_to, paste0("pnadc_", year, "_", quarter, ".parquet")
-            )
-            base::message(
-              paste0("Saving ", year, " Q", quarter, " to\n", file_path, "\n")
-            )
-            arrow::write_parquet(df, file_path)
-          }
-          return(file_path)
-        } else {
-          return(df) # return the df in memory instead of the file path
-        }
+        # tag each row with its year and quarter for later reference
+        df$Ano       <- year
+        df$Trimestre <- quarter
+        
+        return(df)
       }
     }
   )
   
   # erase NULL observations from source_files list
   source_files <- purrr::compact(source_files)
+  
+  # bind all quarters into one data frame
+  all_quarters <- purrr::list_rbind(source_files)
+  
+  # save quarterly files to disk if requested
+  if (param$save_quarters) {
+    if (param$csv) {
+      # CSV: write one flat file per year-quarter
+      purrr::map2(
+        param$years, param$quarters,
+        function(y, q) {
+          quarter_df <- all_quarters %>% dplyr::filter(Ano == y, Trimestre == q)
+          file_path <- file.path(
+            param$save_to, paste0("pnadc_", y, "_", q, ".csv")
+          )
+          base::message(paste0("Saving ", y, " Q", q, " to\n", file_path, "\n"))
+          readr::write_csv(quarter_df, file_path)
+        }
+      )
+    } else {
+      # Parquet: write a partitioned dataset grouped by Ano/Trimestre
+      quarters_dir <- file.path(param$save_to, "pnadc_quarters")
+      base::message(paste0(
+        "Saving quarterly parquet dataset to\n", quarters_dir, "\n"
+      ))
+      all_quarters %>%
+        dplyr::group_by(Ano, Trimestre) %>%
+        arrow::write_dataset(
+          path = quarters_dir,
+          format = "parquet"
+        )
+    }
+  }
   
   ## Return Raw Data
   
@@ -184,43 +198,19 @@ load_pnadc <- function(save_to = getwd(), years,
     
     panel_list <- unique(panel_list) # listing all the panels included in the quarters downloaded
     
-    # set up file paths for each panel such as "pnadc_panel_2.csv" or "pnadc_panel_2.parquet"
+    # Apply panel identification to each panel's data
     
-    panel_files <- purrr::map(
+    identified_panels <- purrr::map(
       panel_list,
       function(p) {
-        ext <- if (param$csv) ".csv" else ".parquet"
-        file_path <- file.path(
-          param$save_to, paste0("pnadc_panel_", p, ext)
-        )
-        file_path
-      }
-    )
-    
-    # read each of the source files, split into panels, and compile them
-    
-    # we use the .csv files because they have a appending propriety, meaning that they can receive new information without having the older one deleted
-    # for the R users, you can simply think as literally doing a rbind() into those files, but in a much more efficient way
-    
-    panel_data <- purrr::map(
-      panel_list,
-      function(p) {
-        purrr::map(
-          source_files,
-          function(file) {
-            dat <- if (param$save_quarters) {
-              if (param$csv) {
-                readr::read_csv(file, show_col_types = FALSE)
-              } else {
-                arrow::read_parquet(file)
-              }
-            } else {
-              file # already a df in memory
-            }
-            dat %>% dplyr::filter(V1014 == p)
-          }
-        ) %>%
-          purrr::list_rbind()
+        base::message(paste("Compiling panel", p, "\n"))
+        dat <- all_quarters %>% dplyr::filter(V1014 == p)
+        
+        message(paste("Running", param$panel, "identification on panel", p, "\n"))
+        df <- dat %>%
+          build_pnadc_panel(panel = param$panel)
+        
+        return(df)
       }
     )
     
@@ -228,7 +218,7 @@ load_pnadc <- function(save_to = getwd(), years,
     ## Panel Identification ##
     ##########################
     
-    # defining column types
+    # defining column types (kept for reference / potential CSV re-reads)
     
     if (param$raw_data) {
       ctypes <- readr::cols(.default = readr::col_number())
@@ -245,27 +235,32 @@ load_pnadc <- function(save_to = getwd(), years,
       )
     }
     
-    # apply the identification algorithms defined in build_pnadc_panel.R and save panel files
+    # save panel files
     
-    purrr::map2(
-      panel_data, panel_files,
-      function(dat, path) {
-        message(paste("Running", param$panel, "identification on panel", "\n"))
-        
-        df <- dat %>%
-          build_pnadc_panel(panel = param$panel)
-        
-        if (param$csv) {
-          message(paste("Compiling panel to", path, "\n"))
+    if (param$csv) {
+      # CSV: write one flat file per panel
+      purrr::map2(
+        identified_panels, panel_list,
+        function(df, p) {
+          path <- file.path(param$save_to, paste0("Panel_", p, ".csv"))
+          message(paste("Saving panel to", path, "\n"))
           readr::write_csv(df, path)
-        } else {
-          message(paste("Compiling panel to", path, "\n"))
-          arrow::write_parquet(df, path)
         }
-        
-        return(df)
-      }
-    )
+      )
+    } else {
+      # Parquet: bind all panels and write a partitioned dataset grouped by V1014
+      all_panels <- purrr::list_rbind(identified_panels)
+      panels_dir <- file.path(param$save_to, "pnadc_panels")
+      message(paste(
+        "Saving partitioned panel parquet dataset to", panels_dir, "\n"
+      ))
+      all_panels %>%
+        dplyr::group_by(V1014) %>%
+        arrow::write_dataset(
+          path = panels_dir,
+          format = "parquet"
+        )
+    }
   }
   
   ####################
