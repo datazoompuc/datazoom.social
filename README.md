@@ -94,6 +94,30 @@ The table below shows the first and last quarter (`ANOtrimestre`, e.g.
 
 ------------------------------------------------------------------------
 
+**Panel Structure:**
+
+The table below shows the first and last quarter (`ANOtrimestre`, e.g.
+`20121` = 2012 Q1) covered by each PNADC rotating panel:
+
+| Panel | Start |   End |
+|------:|------:|------:|
+|     1 | 20121 | 20124 |
+|     2 | 20121 | 20141 |
+|     3 | 20132 | 20152 |
+|     4 | 20143 | 20163 |
+|     5 | 20154 | 20174 |
+|     6 | 20171 | 20191 |
+|     7 | 20182 | 20202 |
+|     8 | 20193 | 20213 |
+|     9 | 20204 | 20224 |
+|    10 | 20221 | 20241 |
+|    11 | 20232 | 20252 |
+|    12 | 20243 | 20263 |
+|    13 | 20254 | 20274 |
+|    14 | 20271 | 20291 |
+
+------------------------------------------------------------------------
+
 **Usage:**
 
 Default
@@ -204,10 +228,10 @@ load_pnadc(
       after panel is built; saves panel files as `.csv`.
     - `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves
       panel files as `.csv`.
-    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as
-      `.parquet` (a list of panel data frames).
+    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as a
+      `.parquet` dataset.
     - `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves
-      panel files as `.parquet`.
+      panel files as a `.parquet` dataset.
 
 ------------------------------------------------------------------------
 

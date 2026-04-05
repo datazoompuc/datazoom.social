@@ -7,7 +7,7 @@
 #' @param data The input data frame, preferably a PNADc panel file with all 5
 #'   interviews of the individuals of that panel, with a certain panel method
 #'   already applied.
-#' @param panel The identification strategy whose friction will be identified. Can either be "basic" or "advanced"
+#' @param panel The identification strategy whose friction will be identified. Can either be "basic", "advanced" or "household"
 #'
 #' @return A data frame summarizing missing interviews and the percentage of
 #'   interviews attended for the individuals forming that panel.
@@ -32,6 +32,9 @@ cria_df_de_atrito <- function(data, panel) {
   } else if (panel == "advanced") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_rs")
     print("Advanced panel attrition calculated.")
+  } else if (panel == "households") {
+    data <- data %>% dplyr::rename("individual_identifier" = "id_dom")
+    print("Household panel attrition calculated.")
   }
 
   # Create a vector with the IDs of individuals present in the 1st interview
