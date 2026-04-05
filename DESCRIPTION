@@ -20,10 +20,13 @@ Imports:
     arrow,
     data.table,
     dplyr,
+    magrittr,
     PNADcIBGE,
     purrr,
     readr,
-    magrittr
+    rlang,
+    stringr,
+    tidyr
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2

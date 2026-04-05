@@ -6,6 +6,9 @@
 #' @return A data frame with 8 columns detailing unconditional and conditional attrition.
 calculate_panel_attrition <- function(data, panel) {
   
+  # binding globals
+  V1016 <- individual_id <- present <- NULL
+  
   # 1. Standardize ID column based on panel type
   id_col <- switch(panel,
                    "basic"      = "id_ind",

@@ -11,7 +11,7 @@ cria_df_de_atrito(data, panel)
 interviews of the individuals of that panel, with a certain panel method
 already applied.}
 
-\item{panel}{The identification strategy whose friction will be identified. Can either be "basic" or "advanced"}
+\item{panel}{The identification strategy whose friction will be identified. Can either be "basic", "advanced" or "household"}
 }
 \value{
 A data frame summarizing missing interviews and the percentage of

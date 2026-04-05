@@ -46,13 +46,14 @@ This function downloads PNADC data and applies panel identification algorithms
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+### DO NOT RUN ###
 load_pnadc(
   save_to = getwd(),
   years = 2016,
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
-  save_options = c(TRUE, FALSE)
+  save_options = c(FALSE, FALSE)
 )
 \dontshow{\}) # examplesIf}
 }

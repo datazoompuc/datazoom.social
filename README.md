@@ -65,7 +65,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 The `load_pnadc` function is a wrapper for
 [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
 from the package `PNADcIBGE`, with added identification algorithms to
-build a Panel.For any additional questions not related to the
+build a Panel. For any additional questions not related to the
 identification variables, please check with them.
 
 ------------------------------------------------------------------------
@@ -228,8 +228,8 @@ load_pnadc(
       after panel is built; saves panel files as `.csv`.
     - `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves
       panel files as `.csv`.
-    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as a
-      `.parquet` dataset.
+    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as
+      a `.parquet` dataset.
     - `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves
       panel files as a `.parquet` dataset.
 
@@ -245,10 +245,8 @@ The function performs the following steps:
     If the `raw_data` option is `FALSE`, some PNADC variables are
     treated at this stage.
 
-2.  Split the data into panels by lazy-loading the parquet and filtering
-    by the panel variable `V1014`. Data from each panel `x` is saved to
-    `pnadc_panel_x.csv` or `pnadc_panel_x.parquet`, depending on
-    `save_options[2]`.
+2.  Split the data into panels by the panel variable `V1014`. Data from
+    each panel is saved depending on `save_options`.
 
 3.  Read each panel file and apply the identification algorithms defined
     in `build_pnadc_panel`.
@@ -299,8 +297,6 @@ de Emprego (PME) do IBGE”.
 ## Basic Identification
 
 The household identifier – stored as `id_dom` – combines the variables:
-
-- `UF` – State;
 
 - `UPA` – Primary Sampling Unit - PSU;
 

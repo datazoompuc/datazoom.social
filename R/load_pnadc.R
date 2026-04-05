@@ -28,6 +28,7 @@
 #' @importFrom magrittr `%>%`
 #'
 #' @examplesIf interactive()
+#' ### DO NOT RUN ###
 #' load_pnadc(
 #'   save_to = getwd(),
 #'   years = 2016,
