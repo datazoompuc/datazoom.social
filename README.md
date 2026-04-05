@@ -65,7 +65,8 @@ devtools::install_github("datazoompuc/datazoom.social")
 The `load_pnadc` function is a wrapper for
 [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
 from the package `PNADcIBGE`, with added identification algorithms to
-build a Panel.
+build a Panel.For any additional questions not related to the
+identification variables, please check with them.
 
 ------------------------------------------------------------------------
 
