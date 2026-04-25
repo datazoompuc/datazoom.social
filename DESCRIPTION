@@ -12,8 +12,11 @@ Authors@R: c(
     person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut"),
     person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "aut")
   )
-Description: Functions to download and treat Brazilian social data from a
-    variety of official sources.
+Description: Provides tools for downloading and processing microdata from 
+    the PNAD Contínua (PNADC, Continuous National Household Sample Survey), 
+    a rotating panel survey published quarterly by IBGE (Brazilian Institute 
+    of Geography and Statistics). Includes panel identification algorithms 
+    for linking individuals across survey waves.
 License: MIT + file LICENSE
 URL: https://datazoom.com.br/en/
 Imports: 

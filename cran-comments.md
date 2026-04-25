@@ -3,6 +3,7 @@
 0 errors | 0 warnings | 1 note
 
 * This is a new submission to CRAN.
+* New Maintainer: 'Laura Tavares Regadas'.
 
 ## Notes
 
@@ -16,8 +17,4 @@
 
 ## Vignettes
 
-Vignette code chunks are set to `eval = FALSE` because the examples 
-require downloading large microdata files (~100MB+ per quarter) from 
-IBGE's servers, which would make vignette build times impractical 
-for CRAN checks. The code is correct and functional — users can run 
-it interactively after installing the package.
+* Vignette code chunks are set to `eval = FALSE` because the examples require downloading large microdata files (~100MB+ per quarter) from IBGE's servers, which would make vignette build times impractical for CRAN checks. The code is correct and functional. Users can run it interactively after installing the package. This is the same reason why the examples are run only if interactive.
