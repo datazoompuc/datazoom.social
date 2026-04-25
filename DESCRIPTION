@@ -1,6 +1,6 @@
 Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
-Version: 0.1.0.0
+Version: 0.1.0
 Authors@R: c(
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
@@ -12,8 +12,11 @@ Authors@R: c(
     person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut"),
     person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "aut")
   )
-Description: Functions to download and treat Brazilian social data from a
-    variety of official sources.
+Description: Provides tools for downloading and processing microdata from 
+    the PNAD Contínua (PNADC, Continuous National Household Sample Survey), 
+    a rotating panel survey published quarterly by IBGE (Brazilian Institute 
+    of Geography and Statistics). Includes panel identification algorithms 
+    for linking individuals across survey waves.
 License: MIT + file LICENSE
 URL: https://datazoom.com.br/en/
 Imports: 
@@ -35,6 +38,6 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 BugReports: https://github.com/datazoompuc/datazoom.social/issues
 LazyData: true

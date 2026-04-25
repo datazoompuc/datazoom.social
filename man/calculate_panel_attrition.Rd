@@ -17,3 +17,4 @@ A data frame with 8 columns detailing unconditional and conditional attrition.
 \description{
 Create an attrition table for a PNADc panel file
 }
+\keyword{internal}

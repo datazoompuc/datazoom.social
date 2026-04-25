@@ -1,6 +1,6 @@
 #' Build PNADc Panel
 #'
-#' This function builds a panel dataset from PNADC data, indentifying households and individuals
+#' This function builds a panel dataset from PNADC data, identifying households and individuals
 #'
 #' @param dat Data frame with PNADC data, sorted into a single panel.
 #' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
