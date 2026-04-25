@@ -29,3 +29,4 @@ attrition_panel_6_PNADc <- cria_df_de_atrito(data, panel = "advanced")
 }
 
 }
+\keyword{internal}

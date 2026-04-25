@@ -15,7 +15,7 @@ build_pnadc_panel(dat, panel)
 A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
 }
 \description{
-This function builds a panel dataset from PNADC data, indentifying households and individuals
+This function builds a panel dataset from PNADC data, identifying households and individuals
 }
 \examples{
 \dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

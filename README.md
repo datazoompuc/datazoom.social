@@ -335,9 +335,6 @@ variables.
 The basic individual identifier – stored as `id_ind` – combines the
 household id with:
 
-- `V2003` – Order number: individual’s unique number within their
-  household;
-
 - `V2007` – Sex;
 
 - Date of Birth – \[`V20082` (year), `V20081` (month), `V2008` (day)\];
@@ -387,18 +384,18 @@ the advanced algorithm in each interview.
 
 DataZoom is developed by a team at Pontifícia Universidade Católica do
 Rio de Janeiro (PUC-Rio), Department of Economics. Our official website
-is at: <https://www.econ.puc-rio.br/datazoom/>.
+is at: <https://datazoom.com.br/en/>.
 
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian
 > Microdata.  
-> <https://www.econ.puc-rio.br/datazoom/english/index.html>
+> <https://datazoom.com.br/en/>
 
 A BibTeX entry for LaTeX users is:
 
     @Unpublished{DataZoom2024,
         author = {Data Zoom},
         title = {Data Zoom: Simplifying Access To Brazilian Microdata},
-        url = {https://www.econ.puc-rio.br/datazoom/english/index.html},
+        url = {https://datazoom.com.br/en/},
         year = {2024}}

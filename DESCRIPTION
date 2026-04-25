@@ -1,6 +1,6 @@
 Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
-Version: 0.1.0.0
+Version: 0.1.0
 Authors@R: c(
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
@@ -35,6 +35,6 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 BugReports: https://github.com/datazoompuc/datazoom.social/issues
 LazyData: true
