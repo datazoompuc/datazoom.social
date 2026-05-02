@@ -1,10 +1,6 @@
-#' Create an attrition table for a PNADc panel file
-#'
-#' @param data Input data frame (PNADc panel).
-#' @param panel ID strategy: "basic" (id_ind), "advanced" (id_rs), or "households" (id_dom).
-#'
-#' @return A data frame with 8 columns detailing unconditional and conditional attrition.
-#' @keywords internal
+# Create an attrition table for a PNADc panel file
+#
+# @keywords internal
 calculate_panel_attrition <- function(data, panel) {
   
   # binding globals

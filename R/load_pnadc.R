@@ -60,7 +60,7 @@
 #' @examplesIf interactive()
 #' ### DO NOT RUN ###
 #' load_pnadc(
-#'   save_to = getwd(),
+#'   save_to = tempdir(),
 #'   years = 2016,
 #'   quarters = 1:4,
 #'   panel = "advanced",
@@ -69,10 +69,18 @@
 #' )
 #' @export
 
-load_pnadc <- function(save_to = getwd(), years,
+load_pnadc <- function(save_to, years,
                        quarters = 1:4, panel = "advanced",
                        raw_data = FALSE, save_options = c(TRUE, TRUE),
                        vars = NULL) {
+  
+  if (missing(save_to) || is.null(save_to) || !nzchar(save_to)) {
+    stop("'save_to' must be a non-empty path to an existing directory.", call. = FALSE)
+  }
+  if (!dir.exists(save_to)) {
+    stop("Directory '", save_to, "' does not exist. Please create it first.", call. = FALSE)
+  }
+  
   # Check if PNADcIBGE namespace is already attached
   if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it

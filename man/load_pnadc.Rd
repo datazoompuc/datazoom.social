@@ -5,7 +5,7 @@
 \title{Load Continuous PNAD Data}
 \usage{
 load_pnadc(
-  save_to = getwd(),
+  save_to,
   years,
   quarters = 1:4,
   panel = "advanced",
@@ -77,10 +77,10 @@ A message indicating the successful save of panel files.
 This function downloads PNADC data and applies panel identification algorithms
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 ### DO NOT RUN ###
 load_pnadc(
-  save_to = getwd(),
+  save_to = tempdir(),
   years = 2016,
   quarters = 1:4,
   panel = "advanced",
