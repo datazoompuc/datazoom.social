@@ -18,7 +18,7 @@ A modified dataset with added identifiers for household (\code{id_dom}) and indi
 This function builds a panel dataset from PNADC data, identifying households and individuals
 }
 \examples{
-\dontshow{if (interactive()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Example usage:
 
 panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")

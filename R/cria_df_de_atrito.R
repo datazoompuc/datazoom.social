@@ -1,24 +1,10 @@
-#' Create an attrition table for a panel file
-#'
-#' This function generates a summary dataframe indicating the count of missing
-#' interviews for each individual and the percentage of interviews attended,
-#' calculating the attrition for a PNADc panel.
-#'
-#' @param data The input data frame, preferably a PNADc panel file with all 5
-#'   interviews of the individuals of that panel, with a certain panel method
-#'   already applied.
-#' @param panel The identification strategy whose friction will be identified. Can either be "basic", "advanced" or "household"
-#'
-#' @return A data frame summarizing missing interviews and the percentage of
-#'   interviews attended for the individuals forming that panel.
-#'
-#' @examples
-#' \dontrun{
-#' data <- read.csv("path/to/your/database/pnadc_panel_6.csv")
-#' attrition_panel_6_PNADc <- cria_df_de_atrito(data, panel = "advanced")
-#' }
-#'
-#' @keywords internal
+# Create an attrition table for a panel file
+#
+# This function generates a summary dataframe indicating the count of missing
+# interviews for each individual and the percentage of interviews attended,
+# calculating the attrition for a PNADc panel.
+# 
+# @keywords internal
 cria_df_de_atrito <- function(data, panel) {
   # binding globals
   V1016 <- individual_identifier <- disappearances <- NULL
@@ -29,13 +15,13 @@ cria_df_de_atrito <- function(data, panel) {
 
   if (panel == "basic") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_ind")
-    print("Basic panel attrition calculated.")
+    message("Basic panel attrition calculated.")
   } else if (panel == "advanced") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_rs")
-    print("Advanced panel attrition calculated.")
+    message("Advanced panel attrition calculated.")
   } else if (panel == "households") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_dom")
-    print("Household panel attrition calculated.")
+    message("Household panel attrition calculated.")
   }
 
   # Create a vector with the IDs of individuals present in the 1st interview
