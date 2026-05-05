@@ -20,7 +20,7 @@ The `load_pnadc` function is a wrapper for [*`get_pnadc`*](https://www.rdocument
 ***
 **Panel Structure:**
 
-The table below shows the first and last quarter (`ANOtrimestre`, e.g.
+Use the table below to identify what time span to download. It shows the first and last quarter (`ANOtrimestre`, e.g.
 `20121` = 2012 Q1) covered by each PNADC rotating panel:
 
 | Panel | Start | End   |
@@ -38,7 +38,9 @@ The table below shows the first and last quarter (`ANOtrimestre`, e.g.
 | 11    | 20232 | 20252 |
 | 12    | 20243 | 20263 |
 | 13    | 20254 | 20274 |
-| 14    | 20271 | 20291 |
+| 14    | 20261 | 20281 |
+
+\small Source: authors' calculations and IBGE's Methodological Notes on PNADC (2014).
 
 ***
 **Usage:**
