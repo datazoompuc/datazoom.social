@@ -28,7 +28,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          Rscript -e 'install.packages(c("rmarkdown", "knitr"))'
+          Rscript -e 'install.packages(c("rmarkdown", "knitr", "devtools"))'
 
       - name: Render README.Rmd
         run: |
