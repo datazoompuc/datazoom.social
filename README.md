@@ -1,12 +1,20 @@
 
 <a href="https://github.com/datazoompuc/datazoom.social"><img src="https://raw.githubusercontent.com/datazoompuc/datazoom.social/master/logo_hex.png" align="left" width="100" hspace="10" vspace="6"></a>
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit .Rmd file -->
 
 # datazoom.social
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
+[![R build
+status](https://github.com/datazoompuc/datazoom.social/workflows/R-CMD-check/badge.svg)](https://github.com/datazoompuc/datazoom.social/actions?style=flat)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
+[![CRAN RStudio mirror
+downloads](https://cranlogs.r-pkg.org/badges/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
 ![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom.social?style=flat)
 ![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom.social?style=flat)
 ![Open
@@ -20,21 +28,23 @@ Issues](https://img.shields.io/github/issues-closed-raw/datazoompuc/datazoom.soc
 The datazoom.social package facilitates access to official Brazilian
 social data.
 
-This package is in development stage - more datasets will be released
-soon.
+This package is in development: more datasets will be added soon.
 
-In this first version of the package, the focus is only on the
-[Continuous
-PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html).
-We allow for many quarters to be easily downloaded and read, as well as
-identifying individuals across time, forming a panel.
+In the first version of the package, the focus is on the [Continuous
+PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html)
+panel. We allow for many quarters to be easily downloaded and read, and
+provide identification of individuals accross time forming a panel.
 
 # Installation
 
 <!-- You can install the released version of `datazoom.social` from -->
+
 <!-- [CRAN](https://CRAN.R-project.org/package=datazoom.social) with: -->
+
 <!-- ``` {r, eval=FALSE} -->
+
 <!-- install.packages("datazoom.social") -->
+
 <!-- ``` -->
 
 You can install the development version of `datazoom.social` from GitHub
@@ -48,16 +58,20 @@ devtools::install_github("datazoompuc/datazoom.social")
 ## Data
 
 <table>
+
 <tr>
+
 <td>
 
-|                                                        |                                         |
-|--------------------------------------------------------|-----------------------------------------|
-| **[Continuous PNAD](#continuous-pnad)**                | *Download PNADC of a range of quarters* |
-| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals*    |
+|  |  |
+|----|----|
+| **[Continuous PNAD](#continuous-pnad)** | *Download PNADC of a range of quarters* |
+| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals* |
 
 </td>
+
 </tr>
+
 </table>
 
 ## Continuous PNAD
