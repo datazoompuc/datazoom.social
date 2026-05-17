@@ -9,6 +9,10 @@ output: github_document
 # datazoom.social
 
 <!-- badges: start -->
+[![CRAN status](https://www.r-pkg.org/badges/version/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
+[![R build status](https://github.com/datazoompuc/datazoom.social/workflows/R-CMD-check/badge.svg)](https://github.com/datazoompuc/datazoom.social/actions?style=flat) 
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
 ![Languages](https://img.shields.io/github/languages/count/datazoompuc/datazoom.social?style=flat)
 ![Commits](https://img.shields.io/github/commit-activity/y/datazoompuc/datazoom.social?style=flat)
 ![Open Issues](https://img.shields.io/github/issues-raw/datazoompuc/datazoom.social?style=flat)
