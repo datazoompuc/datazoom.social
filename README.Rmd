@@ -24,9 +24,6 @@ output: github_document
 The datazoom.social package facilitates access to official 
 Brazilian social data.
 
-This package is in development stage - more datasets will
-be released soon.
-
 In this first version of the package, the focus is only on the [Continuous PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html). We allow for many quarters to be easily downloaded and read, as well as identifying individuals across time, forming a panel.
 
 
