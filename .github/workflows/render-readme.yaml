@@ -28,7 +28,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          Rscript -e 'install.packages(c("rmarkdown", "knitr", "devtools"))'
+          Rscript -e 'install.packages(c("rmarkdown", "knitr", "devtools", "remotes"))'
+          Rscript -e 'remotes::install_deps(dependencies = TRUE)'
+          Rscript -e 'devtools::install_local(".", dependencies = TRUE, upgrade = "never")'
 
       - name: Render README.Rmd
         run: |
