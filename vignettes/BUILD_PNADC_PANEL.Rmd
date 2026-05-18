@@ -76,20 +76,18 @@ The advanced identifier is saved as `id_rs`. On individuals who were not matched
 
 For these observations, we run the basic identification again, but allowing the year of birth to be wrong. We also include the order number.
 
-## Attrition
+## Identification Rates
 
-The tables below show the levels of attrition obtained using the basic and advanced identification algorithms, and compares them to the attrition levels obtained in the Stata `datazoom_social` package.
+The table below shows the weighted average tracking rates obtained using the basic and advanced identification algorithms across multiple panels. 
 
-```{r, echo = FALSE}
-knitr::kable(
-  datazoom.social:::atrito,
-  col.names = c(
-    "Interview",
-    "Percentage found (R)",
-    "Percentage found (Stata)"
-  ),
-  caption = "Attrition for Panel 2"
-)
-```
+*Note: We reserve the term **Attrition Rate** strictly for the dropout of households. When referring to individuals (people), we use the term **Identification Rate**. Wave 1 represents the pure initial identification rate (data lost exclusively due to the inability to construct a valid identifier or household grouping constraints). The subsequent waves (2 to 5) represent the cumulative loss of tracked data over time.*
 
-Each cell is the percentage of PNADC observations that are identified by the advanced algorithm in each interview.
+| Interview (Wave) | Basic Identification Rate (%) | Advanced Identification Rate (%) | Difference (Advanced - Basic) |
+| :---: | :---: | :---: | :---: |
+| 1 | 88.41460 | 88.78972 | + 0.37512 p.p. |
+| 2 | 78.23421 | 78.90977 | + 0.67556 p.p. |
+| 3 | 72.96572 | 73.84626 | + 0.88054 p.p. |
+| 4 | 69.00672 | 70.01432 | + 1.00760 p.p. |
+| 5 | 65.77913 | 66.85078 | + 1.07165 p.p. |
+
+Each cell in the first two columns represents the percentage of raw PNADC individual observations successfully identified and tracked in that specific interview, using the total number of raw lines from Wave 1 as the universal denominator.

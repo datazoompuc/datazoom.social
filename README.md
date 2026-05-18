@@ -373,24 +373,31 @@ For these observations, we run the basic identification again, but
 allowing the year of birth to be wrong. We also include the order
 number.
 
-## Attrition
+## Identification Rates
 
-The tables below show the levels of attrition obtained using the basic
-and advanced identification algorithms, and compares them to the
-attrition levels obtained in the Stata `datazoom_social` package.
+The table below shows the weighted average tracking rates obtained using
+the basic and advanced identification algorithms across multiple panels.
 
-| Interview | Percentage found (R) | Percentage found (Stata) |
-|----------:|---------------------:|-------------------------:|
-|         1 |                100.0 |                    100.0 |
-|         2 |                 86.2 |                     85.7 |
-|         3 |                 78.5 |                     77.5 |
-|         4 |                 73.2 |                     71.6 |
-|         5 |                 69.1 |                     66.8 |
+*Note: We reserve the term **Attrition Rate** strictly for the dropout
+of households. When referring to individuals (people), we use the term
+**Identification Rate**. Wave 1 represents the pure initial
+identification rate (data lost exclusively due to the inability to
+construct a valid identifier or household grouping constraints). The
+subsequent waves (2 to 5) represent the cumulative loss of tracked data
+over time.*
 
-Attrition for Panel 2
+| Interview (Wave) | Basic Identification Rate (%) | Advanced Identification Rate (%) | Difference (Advanced - Basic) |
+|:--:|:--:|:--:|:--:|
+| 1 | 88.41460 | 88.78972 | \+ 0.37512 p.p. |
+| 2 | 78.23421 | 78.90977 | \+ 0.67556 p.p. |
+| 3 | 72.96572 | 73.84626 | \+ 0.88054 p.p. |
+| 4 | 69.00672 | 70.01432 | \+ 1.00760 p.p. |
+| 5 | 65.77913 | 66.85078 | \+ 1.07165 p.p. |
 
-Each cell is the percentage of PNADC observations that are identified by
-the advanced algorithm in each interview.
+Each cell in the first two columns represents the percentage of raw
+PNADC individual observations successfully identified and tracked in
+that specific interview, using the total number of raw lines from Wave 1
+as the universal denominator.
 
 ------------------------------------------------------------------------
 
