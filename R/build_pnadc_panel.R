@@ -1,16 +1,16 @@
 #' Build PNADc Panel
 #'
-#' This function builds a panel dataset from PNADC data, identifying households and individuals
+#' This function builds a panel dataset from PNADC data, identifying households and individuals.
 #'
 #' @param dat Data frame with PNADC data, sorted into a single panel.
-#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.
+#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, "advanced_1" for advanced stage 1 paneling, and "advanced_2" for advanced stage 2 paneling.
 #'
-#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}, and progressively \code{id_rs1} or \code{id_rs2}) based on the chosen panel algorithm.
 #'
 #' @examplesIf interactive()
 #' # Example usage:
 #' 
-#' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+#' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_2")
 #'
 #' @export
 build_pnadc_panel <- function(dat, panel) {
@@ -19,8 +19,11 @@ build_pnadc_panel <- function(dat, panel) {
   ###########################
   
   UPA <- V1008 <- V1014 <- id_dom <- V20082 <- V20081 <- V2008 <- V2007 <- NULL
-  Ano <- Trimestre <- id_ind <- num_appearances <- V2003 <- id_rs <- NULL
-  num_appearances_rs <- q_count_ind <- q_count_rs <- NULL
+  Ano <- Trimestre <- id_ind <- num_appearances <- V2003 <- NULL
+  q_count_ind <- NULL
+  birth_day <- birth_month <- birth_year <- NULL
+  id_rs1 <- id_rs2 <- num_appearances_rs1 <- num_appearances_rs2 <- NULL
+  q_count_rs1 <- q_count_rs2 <- NULL
   
   #############################
   ## Define Basic Parameters ## 
@@ -52,7 +55,6 @@ build_pnadc_panel <- function(dat, panel) {
       )
     
     # twin removal
-    
     dat <- dat %>%
       dplyr::add_count(id_ind, Ano, Trimestre, name = "num_appearances") %>% # counts number of times that each id_ind appears
       dplyr::mutate(
@@ -62,7 +64,6 @@ build_pnadc_panel <- function(dat, panel) {
         ))
     
     # missing values
-    
     dat <- dat %>% dplyr::mutate(
       id_ind = dplyr::case_when(
         V2008 == "99" | V20081 == "99" | V20082 == "9999" ~ NA_real_,
@@ -75,68 +76,100 @@ build_pnadc_panel <- function(dat, panel) {
   ## Advanced Identification ##
   #############################
   
-  ## Stage 1:
-  
-  if (!(panel %in% c("none", "basic"))) {
+  if (panel %in% c("advanced_1", "advanced_2")) {
+    
+    # Call the internal donation function to populate birth_day, birth_month, and birth_year
+    dat <- donate_birth_dates(dat)
+    
+    ## Stage 1:
     m <- max(dat$id_ind, na.rm = TRUE) # to avoid overlap between id numbers
-    # id_rs are always higher numbers than id_ind
-    # remove NAs otherwise m is NA and all id_rs are NAs
-    
-    # advanced identification is only run on previously unmatched individuals
     
     dat <- dat %>%
       dplyr::mutate(
-        id_rs = dplyr::cur_group_id() + m,
-        .by = c(id_dom, V20081, V2008, V2003)
-      )
-    
-    # twin removal
-    ## kept here so we remember this step
-    ## in practice it is useless here
-    ## mechanically there are no repeated V2003 in a household/trimestre/year
-    
-    dat <- dat %>%
-      dplyr::add_count(id_rs, Ano, Trimestre, name = "num_appearances_rs") %>% # counts number of times that each id_ind appears
+        id_rs1 = dplyr::cur_group_id() + m,
+        .by = c(id_dom, birth_year, birth_month, birth_day, V2007)
+      ) %>%
+      # twin removal for stage 1
+      dplyr::add_count(id_rs1, Ano, Trimestre, name = "num_appearances_rs1") %>%
       dplyr::mutate(
-        id_rs = dplyr::case_when(
-          num_appearances_rs != 1 ~ NA_real_,
-          .default = id_rs
-        ))
-    
-    # missing values
-    
-    dat <- dat %>% dplyr::mutate(
-      id_rs = dplyr::case_when(
-        V2008 == "99" | V20081 == "99" ~ NA_real_,
-        .default = id_rs
+        id_rs1 = dplyr::case_when(
+          num_appearances_rs1 != 1 ~ NA_real_,
+          is.na(birth_year) | is.na(birth_month) | is.na(birth_day) ~ NA_real_,
+          .default = id_rs1
+        )
       )
-    )
     
+    # Stage 1 evaluation and fallback
     dat <- dat %>%
-      # calculate distinct quarter counts for each ID type
-      # how many times (in diff quarters/years) each ID appears
       dplyr::mutate(
         q_count_ind = dplyr::n_distinct(interaction(Ano, Trimestre)), 
         .by = id_ind
       ) %>%
       dplyr::mutate(
-        q_count_rs = dplyr::n_distinct(interaction(Ano, Trimestre)), 
-        .by = id_rs
+        q_count_rs1 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+        .by = id_rs1
       ) %>%
       dplyr::mutate(
-        id_rs = dplyr::case_when(
-          # perfect tracking with basic identification
+        # id_rs1 falls back to id_ind if ind performed better or perfectly
+        id_rs1 = dplyr::case_when(
           q_count_ind == 5 ~ id_ind,
-          
-          # id_rs takes over if it finds more quarters than id_ind does
-          # no more than 5 appearances (or else errors are introduced)
-          q_count_rs > q_count_ind & q_count_rs <= 5 ~ id_rs,
-          
-          # fallback: prefer id_ind if available, otherwise keep id_rs
-          TRUE ~ dplyr::coalesce(id_ind, id_rs)
+          q_count_rs1 > q_count_ind & q_count_rs1 <= 5 ~ id_rs1,
+          TRUE ~ dplyr::coalesce(id_ind, id_rs1)
+        ),
+        # Update q_count_rs1 to reflect the merged reality for the potential next stage
+        q_count_rs1 = dplyr::case_when(
+          q_count_ind == 5 ~ q_count_ind,
+          q_count_rs1 > q_count_ind & q_count_rs1 <= 5 ~ q_count_rs1,
+          TRUE ~ dplyr::coalesce(q_count_ind, q_count_rs1)
         )
       )
     
+    ## Stage 2:
+    if (panel == "advanced_2") {
+      m2 <- max(dat$id_rs1, na.rm = TRUE) # avoid overlap with Stage 1
+      
+      dat <- dat %>%
+        dplyr::mutate(
+          id_rs2 = dplyr::cur_group_id() + m2,
+          .by = c(id_dom, birth_month, birth_day, V2003)
+        ) %>%
+        # twin removal for stage 2
+        dplyr::add_count(id_rs2, Ano, Trimestre, name = "num_appearances_rs2") %>%
+        dplyr::mutate(
+          id_rs2 = dplyr::case_when(
+            num_appearances_rs2 != 1 ~ NA_real_,
+            is.na(birth_month) | is.na(birth_day) ~ NA_real_,
+            .default = id_rs2
+          )
+        )
+      
+      # Stage 2 evaluation and fallback
+      dat <- dat %>%
+        dplyr::mutate(
+          q_count_rs2 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+          .by = id_rs2
+        ) %>%
+        dplyr::mutate(
+          # id_rs2 falls back to the already-optimized id_rs1
+          id_rs2 = dplyr::case_when(
+            q_count_rs1 == 5 ~ id_rs1, 
+            q_count_rs2 > q_count_rs1 & q_count_rs2 <= 5 ~ id_rs2,
+            TRUE ~ dplyr::coalesce(id_rs1, id_rs2)
+          ),
+          q_count_rs2 = dplyr::case_when(
+            q_count_rs1 == 5 ~ q_count_rs1,
+            q_count_rs2 > q_count_rs1 & q_count_rs2 <= 5 ~ q_count_rs2,
+            TRUE ~ dplyr::coalesce(q_count_rs1, q_count_rs2)
+          )
+        )
+    }
+    
+    # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2)
+    cols_to_remove <- c("num_appearances_rs1", "q_count_rs1", "q_count_ind")
+    if (panel == "advanced_2") {
+      cols_to_remove <- c(cols_to_remove, "num_appearances_rs2", "q_count_rs2")
+    }
+    dat <- dat %>% dplyr::select(-dplyr::any_of(cols_to_remove))
   }
   
   ##########################
@@ -148,24 +181,29 @@ build_pnadc_panel <- function(dat, panel) {
   
   # basic panel
   if (panel != "none") {
-    
     dat$id_ind <- ifelse(
       is.na(dat$id_ind),
       NA_character_,
       paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_ind))
     )
-    
   }
   
-  # advanced panel
-  if (!(panel %in% c("none", "basic"))) {
-    
-    dat$id_rs <- ifelse(
-      is.na(dat$id_rs),
+  # advanced panel 1
+  if (panel %in% c("advanced_1", "advanced_2")) {
+    dat$id_rs1 <- ifelse(
+      is.na(dat$id_rs1),
       NA_character_,
-      paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs))
+      paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs1))
     )
-    
+  }
+  
+  # advanced panel 2
+  if (panel == "advanced_2") {
+    dat$id_rs2 <- ifelse(
+      is.na(dat$id_rs2),
+      NA_character_,
+      paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs2))
+    )
   }
   
   #################
