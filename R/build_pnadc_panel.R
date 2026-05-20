@@ -3,14 +3,14 @@
 #' This function builds a panel dataset from PNADC data, identifying households and individuals.
 #'
 #' @param dat Data frame with PNADC data, sorted into a single panel.
-#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, "advanced_1" for advanced stage 1 paneling, and "advanced_2" for advanced stage 2 paneling.
+#' @param panel A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, "advanced_1" for advanced stage 1 paneling, "advanced_2" for advanced stage 2 paneling, and "advanced_3" for the fuzzy-matching stage 3 paneling.
 #'
-#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}, and progressively \code{id_rs1} or \code{id_rs2}) based on the chosen panel algorithm.
+#' @return A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}, and progressively \code{id_rs1}, \code{id_rs2}, or \code{id_rs3}) based on the chosen panel algorithm.
 #'
 #' @examplesIf interactive()
 #' # Example usage:
 #' 
-#' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_2")
+#' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
 #'
 #' @export
 build_pnadc_panel <- function(dat, panel) {
@@ -19,11 +19,16 @@ build_pnadc_panel <- function(dat, panel) {
   ###########################
   
   UPA <- V1008 <- V1014 <- id_dom <- V20082 <- V20081 <- V2008 <- V2007 <- NULL
-  Ano <- Trimestre <- id_ind <- num_appearances <- V2003 <- NULL
+  Ano <- Trimestre <- id_ind <- num_appearances <- V2003 <- V2009 <- NULL
   q_count_ind <- NULL
   birth_day <- birth_month <- birth_year <- NULL
-  id_rs1 <- id_rs2 <- num_appearances_rs1 <- num_appearances_rs2 <- NULL
-  q_count_rs1 <- q_count_rs2 <- NULL
+  id_rs1 <- id_rs2 <- id_rs3 <- num_appearances_rs1 <- num_appearances_rs2 <- NULL
+  q_count_rs1 <- q_count_rs2 <- q_count_rs3 <- NULL
+  is_candidate <- row_id <- row_id.A <- row_id.B <- NULL
+  Ano.A <- Ano.B <- Trimestre.A <- Trimestre.B <- NULL
+  V2007.A <- V2007.B <- birth_day.A <- birth_day.B <- NULL
+  birth_month.A <- birth_month.B <- V2009.A <- V2009.B <- NULL
+  id_rs3_fuzzy <- cluster_id <- NULL
   
   #############################
   ## Define Basic Parameters ## 
@@ -76,7 +81,7 @@ build_pnadc_panel <- function(dat, panel) {
   ## Advanced Identification ##
   #############################
   
-  if (panel %in% c("advanced_1", "advanced_2")) {
+  if (panel %in% c("advanced_1", "advanced_2", "advanced_3")) {
     
     # Call the internal donation function to populate birth_day, birth_month, and birth_year
     dat <- donate_birth_dates(dat)
@@ -125,7 +130,7 @@ build_pnadc_panel <- function(dat, panel) {
       )
     
     ## Stage 2:
-    if (panel == "advanced_2") {
+    if (panel %in% c("advanced_2", "advanced_3")) {
       m2 <- max(dat$id_rs1, na.rm = TRUE) # avoid overlap with Stage 1
       
       dat <- dat %>%
@@ -164,10 +169,104 @@ build_pnadc_panel <- function(dat, panel) {
         )
     }
     
-    # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2)
+    ## Stage 3 (Fuzzy Matching):
+    if (panel == "advanced_3") {
+      if (!requireNamespace("igraph", quietly = TRUE)) {
+        stop("The 'igraph' package is required for the 'advanced_3' panel algorithm. Please install it using install.packages('igraph').")
+      }
+      
+      # 1. Target Candidates (Less than 5 matches in id_rs2)
+      dat <- dat %>%
+        dplyr::mutate(
+          is_candidate = dplyr::coalesce(q_count_rs2 < 5, TRUE),
+          row_id = dplyr::row_number()
+        )
+      
+      candidates <- dat %>% dplyr::filter(is_candidate)
+      
+      # 2. Build the Nest (Self-join within household)
+      nest <- candidates %>%
+        dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre) %>%
+        dplyr::inner_join(
+          candidates %>% dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre),
+          by = "id_dom",
+          suffix = c(".A", ".B"),
+          relationship = "many-to-many"
+        ) %>%
+        # Apply strict fuzzy evaluation constraints inside the nest
+        dplyr::filter(
+          row_id.A != row_id.B,
+          interaction(Ano.A, Trimestre.A) != interaction(Ano.B, Trimestre.B),
+          V2007.A == V2007.B,
+          abs(birth_day.A - birth_day.B) <= 4,
+          abs(birth_month.A - birth_month.B) <= 2,
+          abs(V2009.A - V2009.B) <= dplyr::if_else(V2009.A < 25, 2, exp(V2009.A / 30))
+        )
+      
+      # 3. Apply Uniqueness Tie-Breaker
+      valid_matches <- nest %>%
+        dplyr::group_by(row_id.A, Ano.B, Trimestre.B) %>%
+        dplyr::filter(dplyr::n() == 1) %>% 
+        dplyr::ungroup()
+      
+      # 4. Generate Graph & Component IDs
+      if (nrow(valid_matches) > 0) {
+        edges <- as.matrix(valid_matches[, c("row_id.A", "row_id.B")])
+        g <- igraph::graph_from_edgelist(as.character(edges), directed = FALSE)
+        comps <- igraph::components(g)$membership
+        
+        cluster_map <- data.frame(
+          row_id = as.integer(names(comps)),
+          cluster_id = as.integer(comps)
+        )
+        
+        m3 <- max(dat$id_rs2, na.rm = TRUE)
+        cluster_map$id_rs3_fuzzy <- cluster_map$cluster_id + m3
+        
+        dat <- dat %>%
+          dplyr::left_join(cluster_map, by = "row_id") %>%
+          dplyr::mutate(
+            id_rs3 = dplyr::case_when(
+              !is_candidate ~ id_rs2,
+              !is.na(id_rs3_fuzzy) ~ id_rs3_fuzzy,
+              TRUE ~ id_rs2
+            )
+          )
+      } else {
+        dat <- dat %>% dplyr::mutate(id_rs3 = id_rs2)
+      }
+      
+      # 5. Evaluate and Fallback
+      dat <- dat %>%
+        dplyr::mutate(
+          q_count_rs3 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+          .by = id_rs3
+        ) %>%
+        dplyr::mutate(
+          # id_rs3 falls back to id_rs2 if rs2 performed better
+          id_rs3 = dplyr::case_when(
+            q_count_rs2 == 5 ~ id_rs2,
+            q_count_rs3 > q_count_rs2 & q_count_rs3 <= 5 ~ id_rs3,
+            TRUE ~ dplyr::coalesce(id_rs2, id_rs3)
+          ),
+          q_count_rs3 = dplyr::case_when(
+            q_count_rs2 == 5 ~ q_count_rs2,
+            q_count_rs3 > q_count_rs2 & q_count_rs3 <= 5 ~ q_count_rs3,
+            TRUE ~ dplyr::coalesce(q_count_rs2, q_count_rs3)
+          )
+        )
+      
+      # Discard the nest and related tracking vars from the environment
+      rm(candidates, nest, valid_matches)
+    }
+    
+    # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2 & id_rs3)
     cols_to_remove <- c("num_appearances_rs1", "q_count_rs1", "q_count_ind")
-    if (panel == "advanced_2") {
+    if (panel %in% c("advanced_2", "advanced_3")) {
       cols_to_remove <- c(cols_to_remove, "num_appearances_rs2", "q_count_rs2")
+    }
+    if (panel == "advanced_3") {
+      cols_to_remove <- c(cols_to_remove, "is_candidate", "row_id", "id_rs3_fuzzy", "q_count_rs3")
     }
     dat <- dat %>% dplyr::select(-dplyr::any_of(cols_to_remove))
   }
@@ -189,7 +288,7 @@ build_pnadc_panel <- function(dat, panel) {
   }
   
   # advanced panel 1
-  if (panel %in% c("advanced_1", "advanced_2")) {
+  if (panel %in% c("advanced_1", "advanced_2", "advanced_3")) {
     dat$id_rs1 <- ifelse(
       is.na(dat$id_rs1),
       NA_character_,
@@ -198,11 +297,20 @@ build_pnadc_panel <- function(dat, panel) {
   }
   
   # advanced panel 2
-  if (panel == "advanced_2") {
+  if (panel %in% c("advanced_2", "advanced_3")) {
     dat$id_rs2 <- ifelse(
       is.na(dat$id_rs2),
       NA_character_,
       paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs2))
+    )
+  }
+  
+  # advanced panel 3
+  if (panel == "advanced_3") {
+    dat$id_rs3 <- ifelse(
+      is.na(dat$id_rs3),
+      NA_character_,
+      paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_rs3))
     )
   }
   
