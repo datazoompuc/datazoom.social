@@ -14,6 +14,10 @@
 #'
 #' @export
 build_pnadc_panel <- function(dat, panel) {
+  
+  func_start_time <- Sys.time()
+  message(sprintf("[%s] Starting build_pnadc_panel with panel type: '%s'", func_start_time, panel))
+  
   ###########################
   ## Bind Global Variables ##
   ###########################
@@ -36,6 +40,7 @@ build_pnadc_panel <- function(dat, panel) {
   
   # Check if the panel type is 'none'; if so, return the original data
   if (panel == "none") {
+    message(sprintf("[%s] Panel is 'none'. Returning original data unmodified.", Sys.time()))
     return(dat)
   }
   
@@ -45,23 +50,26 @@ build_pnadc_panel <- function(dat, panel) {
   
   # If the panel type is not 'none', perform basic identification steps
   if (panel != "none") {
-    # Household identifier combines UPA, V1008, and V1014, creating an unique number for every combination of those variables, all through the function cur_group_id
+    t_start_basic <- Sys.time()
+    message(sprintf("[%s] --> Starting Basic Identification...", t_start_basic))
+    
+    # Household identifier combines UPA, V1008, and V1014
     dat <- dat %>%
       dplyr::mutate(
         id_dom = dplyr::cur_group_id(),
-        .by = c(UPA, V1008, V1014)
+        .by = c("UPA", "V1008", "V1014")
       )
     
-    # Individual id combines the household id, sex (V2007), and date of birth (V20082, V20081, V2008), creating an unique number for every combination of those variables, all through the function cur_group_id
+    # Individual id combines the household id, sex (V2007), and date of birth
     dat <- dat %>%
       dplyr::mutate(
         id_ind = dplyr::cur_group_id(),
-        .by = c(id_dom, V20082, V20081, V2008, V2007)
+        .by = c("id_dom", "V20082", "V20081", "V2008", "V2007")
       )
     
     # twin removal
     dat <- dat %>%
-      dplyr::add_count(id_ind, Ano, Trimestre, name = "num_appearances") %>% # counts number of times that each id_ind appears
+      dplyr::add_count(id_ind, Ano, Trimestre, name = "num_appearances") %>%
       dplyr::mutate(
         id_ind = dplyr::case_when(
           num_appearances != 1 ~ NA_real_,
@@ -75,6 +83,9 @@ build_pnadc_panel <- function(dat, panel) {
         .default = id_ind
       )
     )
+    
+    t_end_basic <- Sys.time()
+    message(sprintf("[%s] <-- Finished Basic Identification. Time elapsed: %s", t_end_basic, format(round(difftime(t_end_basic, t_start_basic), 2))))
   }
   
   #############################
@@ -83,16 +94,23 @@ build_pnadc_panel <- function(dat, panel) {
   
   if (panel %in% c("advanced_1", "advanced_2", "advanced_3")) {
     
+    t_start_donate <- Sys.time()
+    message(sprintf("[%s] --> Populating birth dates (donate_birth_dates)...", t_start_donate))
     # Call the internal donation function to populate birth_day, birth_month, and birth_year
     dat <- donate_birth_dates(dat)
+    t_end_donate <- Sys.time()
+    message(sprintf("[%s] <-- Finished populating birth dates. Time elapsed: %s", t_end_donate, format(round(difftime(t_end_donate, t_start_donate), 2))))
     
     ## Stage 1:
+    t_start_stg1 <- Sys.time()
+    message(sprintf("[%s] --> Starting Advanced Identification: Stage 1...", t_start_stg1))
+    
     m <- max(dat$id_ind, na.rm = TRUE) # to avoid overlap between id numbers
     
     dat <- dat %>%
       dplyr::mutate(
         id_rs1 = dplyr::cur_group_id() + m,
-        .by = c(id_dom, birth_year, birth_month, birth_day, V2007)
+        .by = c("id_dom", "birth_year", "birth_month", "birth_day", "V2007")
       ) %>%
       # twin removal for stage 1
       dplyr::add_count(id_rs1, Ano, Trimestre, name = "num_appearances_rs1") %>%
@@ -108,11 +126,11 @@ build_pnadc_panel <- function(dat, panel) {
     dat <- dat %>%
       dplyr::mutate(
         q_count_ind = dplyr::n_distinct(interaction(Ano, Trimestre)), 
-        .by = id_ind
+        .by = "id_ind"
       ) %>%
       dplyr::mutate(
         q_count_rs1 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
-        .by = id_rs1
+        .by = "id_rs1"
       ) %>%
       dplyr::mutate(
         # id_rs1 falls back to id_ind if ind performed better or perfectly
@@ -129,14 +147,20 @@ build_pnadc_panel <- function(dat, panel) {
         )
       )
     
+    t_end_stg1 <- Sys.time()
+    message(sprintf("[%s] <-- Finished Stage 1. Time elapsed: %s", t_end_stg1, format(round(difftime(t_end_stg1, t_start_stg1), 2))))
+    
     ## Stage 2:
     if (panel %in% c("advanced_2", "advanced_3")) {
+      t_start_stg2 <- Sys.time()
+      message(sprintf("[%s] --> Starting Advanced Identification: Stage 2...", t_start_stg2))
+      
       m2 <- max(dat$id_rs1, na.rm = TRUE) # avoid overlap with Stage 1
       
       dat <- dat %>%
         dplyr::mutate(
           id_rs2 = dplyr::cur_group_id() + m2,
-          .by = c(id_dom, birth_month, birth_day, V2003)
+          .by = c("id_dom", "birth_month", "birth_day", "V2003")
         ) %>%
         # twin removal for stage 2
         dplyr::add_count(id_rs2, Ano, Trimestre, name = "num_appearances_rs2") %>%
@@ -152,7 +176,7 @@ build_pnadc_panel <- function(dat, panel) {
       dat <- dat %>%
         dplyr::mutate(
           q_count_rs2 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
-          .by = id_rs2
+          .by = "id_rs2"
         ) %>%
         dplyr::mutate(
           # id_rs2 falls back to the already-optimized id_rs1
@@ -167,10 +191,16 @@ build_pnadc_panel <- function(dat, panel) {
             TRUE ~ dplyr::coalesce(q_count_rs1, q_count_rs2)
           )
         )
+      
+      t_end_stg2 <- Sys.time()
+      message(sprintf("[%s] <-- Finished Stage 2. Time elapsed: %s", t_end_stg2, format(round(difftime(t_end_stg2, t_start_stg2), 2))))
     }
     
     ## Stage 3 (Fuzzy Matching):
     if (panel == "advanced_3") {
+      t_start_stg3 <- Sys.time()
+      message(sprintf("[%s] --> Starting Advanced Identification: Stage 3 (Fuzzy Matching)...", t_start_stg3))
+      
       if (!requireNamespace("igraph", quietly = TRUE)) {
         stop("The 'igraph' package is required for the 'advanced_3' panel algorithm. Please install it using install.packages('igraph').")
       }
@@ -186,9 +216,9 @@ build_pnadc_panel <- function(dat, panel) {
       
       # 2. Build the Nest (Self-join within household)
       nest <- candidates %>%
-        dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre) %>%
+        dplyr::select("row_id", "id_dom", "V2007", "birth_day", "birth_month", "V2009", "Ano", "Trimestre") %>%
         dplyr::inner_join(
-          candidates %>% dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre),
+          candidates %>% dplyr::select("row_id", "id_dom", "V2007", "birth_day", "birth_month", "V2009", "Ano", "Trimestre"),
           by = "id_dom",
           suffix = c(".A", ".B"),
           relationship = "many-to-many"
@@ -211,8 +241,14 @@ build_pnadc_panel <- function(dat, panel) {
       
       # 4. Generate Graph & Component IDs
       if (nrow(valid_matches) > 0) {
-        edges <- as.matrix(valid_matches[, c("row_id.A", "row_id.B")])
-        g <- igraph::graph_from_edgelist(as.character(edges), directed = FALSE)
+        # Use cbind to ensure a strict 2-column character matrix
+        edges <- cbind(
+          as.character(valid_matches$row_id.A), 
+          as.character(valid_matches$row_id.B)
+        )
+        
+        # Pass the matrix directly; do NOT wrap 'edges' in as.character() here
+        g <- igraph::graph_from_edgelist(edges, directed = FALSE)
         comps <- igraph::components(g)$membership
         
         cluster_map <- data.frame(
@@ -240,7 +276,7 @@ build_pnadc_panel <- function(dat, panel) {
       dat <- dat %>%
         dplyr::mutate(
           q_count_rs3 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
-          .by = id_rs3
+          .by = "id_rs3"
         ) %>%
         dplyr::mutate(
           # id_rs3 falls back to id_rs2 if rs2 performed better
@@ -258,6 +294,9 @@ build_pnadc_panel <- function(dat, panel) {
       
       # Discard the nest and related tracking vars from the environment
       rm(candidates, nest, valid_matches)
+      
+      t_end_stg3 <- Sys.time()
+      message(sprintf("[%s] <-- Finished Stage 3 (Fuzzy Matching). Time elapsed: %s", t_end_stg3, format(round(difftime(t_end_stg3, t_start_stg3), 2))))
     }
     
     # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2 & id_rs3)
@@ -274,6 +313,9 @@ build_pnadc_panel <- function(dat, panel) {
   ##########################
   ## Pasting panel number ##
   ##########################
+  
+  t_start_paste <- Sys.time()
+  message(sprintf("[%s] --> Pasting panel numbers...", t_start_paste))
   
   # to avoid overlap when binding more than one panel (all ids are just counts from 1, ..., N)
   # ifelse guards against as.hexmode(NA) which returns the string "NA" instead of a true NA
@@ -314,9 +356,15 @@ build_pnadc_panel <- function(dat, panel) {
     )
   }
   
+  t_end_paste <- Sys.time()
+  message(sprintf("[%s] <-- Finished pasting panel numbers. Time elapsed: %s", t_end_paste, format(round(difftime(t_end_paste, t_start_paste), 2))))
+  
   #################
   ## Return Data ##
   #################
+  
+  func_end_time <- Sys.time()
+  message(sprintf("[%s] build_pnadc_panel finished successfully. Total Execution Time: %s", func_end_time, format(round(difftime(func_end_time, func_start_time), 2))))
   
   # Return the modified dataset
   return(dat)
