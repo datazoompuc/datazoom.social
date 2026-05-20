@@ -104,7 +104,7 @@ donate_birth_dates <- function(dat) {
     ) %>%
     # Cleanup auxiliary columns
     dplyr::select(-donor_day, -donor_month, -donor_year, -year_missing, 
-                  -year_estimated, -summarised_condition, -id_dom)
+                  -year_estimated, -summarised_condition)
   
   #################
   ## Return Data ##
