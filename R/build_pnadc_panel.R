@@ -274,18 +274,22 @@ build_pnadc_panel <- function(dat, panel) {
       
       # 5. Evaluate and Fallback
       dat <- dat %>%
+        # Count the ID appearances in the same Year/Quarter (exactly like Stages 1 and 2)
+        dplyr::add_count(id_rs3, Ano, Trimestre, name = "num_appearances_rs3") %>%
         dplyr::mutate(
           q_count_rs3 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
           .by = "id_rs3"
         ) %>%
         dplyr::mutate(
-          # id_rs3 falls back to id_rs2 if rs2 performed better
+          # id_rs3 falls back to id_rs2 if it generated twins in the quarter OR if rs2 performed better
           id_rs3 = dplyr::case_when(
+            num_appearances_rs3 > 1 ~ id_rs2, # <- EXPLICIT GUARDRAIL: fallback if multiple rows appear in the same quarter
             q_count_rs2 == 5 ~ id_rs2,
             q_count_rs3 > q_count_rs2 & q_count_rs3 <= 5 ~ id_rs3,
             TRUE ~ dplyr::coalesce(id_rs2, id_rs3)
           ),
           q_count_rs3 = dplyr::case_when(
+            num_appearances_rs3 > 1 ~ q_count_rs2, # Adjust the count to reflect the fallback
             q_count_rs2 == 5 ~ q_count_rs2,
             q_count_rs3 > q_count_rs2 & q_count_rs3 <= 5 ~ q_count_rs3,
             TRUE ~ dplyr::coalesce(q_count_rs2, q_count_rs3)
