@@ -9,7 +9,6 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
-[![render-readme](https://github.com/datazoompuc/datazoom.social/actions/workflows/render-readme.yaml/badge.svg)](https://github.com/datazoompuc/datazoom.social/actions/workflows/render-readme.yaml)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
 [![CRAN RStudio mirror
