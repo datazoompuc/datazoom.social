@@ -1,40 +1,56 @@
-# Create an attrition table for a panel file
-#
-# This function generates a summary dataframe indicating the count of missing
-# interviews for each individual and the percentage of interviews attended,
-# calculating the attrition for a PNADc panel.
-# 
-# @keywords internal
+#' Create an attrition table for a panel file
+#'
+#' This function generates a summary dataframe indicating the count of missing
+#' interviews for each individual and the unconditional tracking rates.
+#'
+#' @param data The input data frame, preferably a PNADc panel file.
+#' @param panel The identification strategy: "basic", "advanced_1", "advanced_2", "advanced_3" or "households".
+#'
+#' @return A data frame summarizing missing interviews and the tracking rates.
 cria_df_de_atrito <- function(data, panel) {
-  # binding globals
+  # Binding globals
   V1016 <- individual_identifier <- disappearances <- NULL
-
+  
   data$V1016 <- as.integer(data$V1016)
-
-  # Identify whether basic or advanced panel attrition will be calculated
-
+  
+  # Identify which panel strategy is being calculated
   if (panel == "basic") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_ind")
-    message("Basic panel attrition calculated.")
-  } else if (panel == "advanced") {
-    data <- data %>% dplyr::rename("individual_identifier" = "id_rs")
-    message("Advanced panel attrition calculated.")
+    print("Basic panel attrition calculated.")
+  } else if (panel == "advanced_1") {
+    data <- data %>% dplyr::rename("individual_identifier" = "id_rs1")
+    print("Advanced Stage 1 panel attrition calculated.")
+  } else if (panel == "advanced_2") {
+    data <- data %>% dplyr::rename("individual_identifier" = "id_rs2")
+    print("Advanced Stage 2 panel attrition calculated.")
+  } else if (panel == "advanced_3") {
+    data <- data %>% dplyr::rename("individual_identifier" = "id_rs3")
+    print("Advanced Stage 3 (Fuzzy) panel attrition calculated.")
   } else if (panel == "households") {
     data <- data %>% dplyr::rename("individual_identifier" = "id_dom")
-    message("Household panel attrition calculated.")
+    print("Household panel attrition calculated.")
   }
-
-  # Create a vector with the IDs of individuals present in the 1st interview
+  
+  # 1. Fundamental Definitions (The Baseline - Wave 1)
+  
+  # N_linhas: The absolute total number of raw observations recorded in Wave 1
+  N_linhas <- sum(data$V1016 == 1, na.rm = TRUE)
+  
+  # Identify the valid IDs present in Wave 1
   presentes_na_1a_entrevista <- data %>%
-    dplyr::filter(V1016 == 1) %>%
+    dplyr::filter(V1016 == 1 & !is.na(individual_identifier)) %>%
     dplyr::pull(individual_identifier) %>%
-    as.vector()
-
-  # Filter the data to include only individuals who participated in the 1st interview
+    unique()
+  
+  # N_ids: The total number of unique and valid identifiers successfully built in Wave 1
+  N_ids <- length(presentes_na_1a_entrevista)
+  
+  # Filter the data only for the cohort we are actively tracking
   data <- data %>%
     dplyr::filter(individual_identifier %in% presentes_na_1a_entrevista)
-
-  # Generate a summary data frame
+  
+  # --- ORIGINAL STRUCTURE MAINTAINED ---
+  # Generate a summary data frame mapping appearances and disappearances
   summary_data <- data %>%
     dplyr::group_by(individual_identifier) %>%
     dplyr::summarize(
@@ -50,17 +66,29 @@ cria_df_de_atrito <- function(data, panel) {
       fourth_interview = ifelse("4" %in% unlist(disappearances), 1, 0),
       fifth_interview = ifelse("5" %in% unlist(disappearances), 1, 0)
     )
-
-  # Create a data frame for definite friction
-  atrito_definite <- data.frame(Entrevista = seq(1, 5), "Contagem de faltantes" = c(0, 0, 0, 0, 0))
-
-  # Calculate the count of missing interviews for each column
+  
+  # Create a data frame for definite attrition tracking
+  atrito_definite <- data.frame(Onda = seq(1, 5), "Contagem_de_faltantes" = c(0, 0, 0, 0, 0))
+  
+  # Calculate the total count of missing interviews for each wave
   for (i in 5:ncol(summary_data)) {
     atrito_definite[i - 4, 2] <- sum(summary_data[, i])
   }
-
-  # Calculate the percentage of interviews attended
-  atrito_definite$Percentage_found <- 100 * (round(1 - (atrito_definite$Contagem.de.faltantes / nrow(summary_data)), 5))
-
+  
+  # --- APPLICATION OF THE DATA ZOOM GUIDE FORMULAS ---
+  
+  # S_w: Survivors Found in Wave w
+  atrito_definite$Sobreviventes_S_w <- N_ids - atrito_definite$Contagem_de_faltantes
+  
+  # Metric A: Unconditional Rate (ID-Based) -> (S_w / N_ids) * 100
+  atrito_definite$Taxa_Incondicional_Base_ID <- (atrito_definite$Sobreviventes_S_w / N_ids) * 100
+  
+  # Metric B: Unconditional Rate (Line-Based) -> (S_w / N_linhas) * 100
+  atrito_definite$Taxa_Incondicional_Base_Linha <- (atrito_definite$Sobreviventes_S_w / N_linhas) * 100
+  
+  # Export the quantity of observations to be used as weights in the final mean calculations
+  atrito_definite$Peso_N_ids <- N_ids
+  atrito_definite$Peso_N_linhas <- N_linhas
+  
   return(atrito_definite)
 }
