@@ -30,12 +30,12 @@ In the first version of the package, the focus is on the [Continuous PNAD](https
 
 # Installation
 
-<!-- You can install the released version of `datazoom.social` from -->
-<!-- [CRAN](https://CRAN.R-project.org/package=datazoom.social) with: -->
+You can install the released version of `datazoom.social` from
+[CRAN](https://CRAN.R-project.org/package=datazoom.social) with:
 
-<!-- ``` {r, eval=FALSE} -->
-<!-- install.packages("datazoom.social") -->
-<!-- ``` -->
+``` {r, eval=FALSE}
+install.packages("datazoom.social")
+```
 
 You can install the development version of `datazoom.social` from GitHub with:
 
@@ -56,8 +56,8 @@ devtools::load_all()
 
 |||
 |---|---|
-| **[Continuous PNAD](#continuous-pnad)** | _Download PNADC of a range of quarters_ |
-| **[Panel Identification](#pnad-panel-identification)** | _Build a Panel of PNADC individuals_ |
+| **[`load_pnadc`](#continuous-pnad)** | _Download PNADC of a range of quarters_ |
+| **[`build_pnadc_panel`](#pnad-panel-identification)** | _Identify individuals throughout time_ |
 
 </td></tr>
 

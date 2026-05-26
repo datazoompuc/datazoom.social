@@ -14,82 +14,83 @@ knitr::opts_chunk$set(
 )
 
 library(datazoom.social)
+
 ```
 
-***
+---
+  
 **Usage:**
 
-Basic Panel
+Basic Panel:
 
-```{r eval=TRUE}
-
+```{r eval=FALSE}
 panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
 
 ```
 
-Advanced Panel
+Advanced Panel (Stages 1, 2, or 3):
 
-```{r eval=TRUE}
+```{r eval=FALSE}
+# Stage 1: Exact matching with donated birth dates
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_1")
 
-panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced")
+# Stage 2: Relaxed matching constraints
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_2")
+
+# Stage 3: Fuzzy matching using Graph Theory (Recommended)
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
 
 ```
 
-***
+---
+  
 **Description**
 
-Our `load_pnadc` function uses the internal function `build_pnadc_panel` to identify households and individuals across quarters. The method used for the identification is based on the paper of Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE". 
+Our `load_pnadc` function uses the internal function `build_pnadc_panel` to identify households and individuals across quarters. The base method used for the identification draws from the paper of Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE", with modernizations implemented by the Data Zoom team to handle missing data and typographical errors.
 
-***
-
+---
+  
 ## Basic Identification
 
 The household identifier -- stored as `id_dom` -- combines the variables:
 
-* `UPA` -- Primary Sampling Unit - PSU;
-
-* `V1008` -- Household;
-
-* `V1014` -- Panel Number;
+  * `UPA` -- Primary Sampling Unit - PSU;
+  * `V1008` -- Household;
+  * `V1014` -- Panel Number;
 
 In order to create a unique number for every combination of those variables.
 
-***
+---
 
 The basic individual identifier -- stored as `id_ind` -- combines the household id with:
 
-* `V2007` -- Sex;
+  * `V2007` -- Sex;
+  * Date of Birth -- [`V20082` (year), `V20081` (month), `V2008` (day)];
 
-* Date of Birth -- [`V20082` (year), `V20081` (month), `V2008` (day)];
+In order to create a unique number for every combination of those variables.
 
-In order to create an unique number for every combination of those variables.
-
-***
-
+---
+  
 ## Advanced Identification
 
-The advanced identifier is saved as `id_rs`. On individuals who were not matched on all interviews, we relax some assumptions to increase matching power. Under the assumption that the date of birth is often misreported, we take individuals who are either:
+On individuals who were not matched across all interviews using the basic method, we apply a progressive multi-stage algorithm to increase matching power without compromising uniqueness.
 
-1. Head of the household or their partner
+* **Stage 1 (`advanced_1`):** We reproduce the birth date donation method (Osório, 2019). It estimates and imputes missing birth dates (day, month, and year) by matching individuals with donors from different interviews within the same household based on sex, acceptable household condition changes, and estimated age. The identifier is stored as `id_rs1`.
+* **Stage 2 (`advanced_2`):** For individuals not completely matched in Stage 1, we relax the year of birth constraint (assuming it is often misreported) and match individuals based on Household ID, Month, and Day of birth. The identifier is stored as `id_rs2`.
+* **Stage 3 (`advanced_3`):** Applies a rigorous Fuzzy Matching algorithm using Graph Theory (via the `igraph` package). Targeting candidates with fragmented interviews, it evaluates pairwise combinations within the same household. It tolerates small typographical errors (up to 4 days difference in the day of birth, 2 months in the month of birth) and dynamically adjusts the acceptable year-of-birth difference based on the individual's reported age. The final identifier is stored as `id_rs3`.
 
-2. Child of the head of the household, 25 or older
+## Identification Rates
 
-For these observations, we run the basic identification again, but allowing the year of birth to be wrong. We also include the order number.
+The table below shows the average unconditional tracking rates (base line) obtained using the basic and advanced identification algorithms across multiple panels.
 
-## Attrition
+*Note: Following the Data Zoom methodological guidelines, we reserve the term **Attrition** strictly for the dropout of households. When referring to individuals (people), we use the term **Identification Rate**. Wave 1 represents the pure initial identification rate (data lost exclusively due to the inability to construct a valid identifier or household grouping constraints). The subsequent waves (2 to 5) represent the cumulative loss of tracked data over time.*
 
-The tables below show the levels of attrition obtained using the basic and advanced identification algorithms, and compares them to the attrition levels obtained in the Stata `datazoom_social` package.
+| Interview (Wave) | Basic Rate (%) | Adv 1 Rate (%) | Adv 2 Rate (%) | Adv 3 Rate (%) | Difference (Adv 3 - Basic) |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| 1 | 93.82378 | 95.82954 | 96.40170 | 96.39606 | + 2.57228 p.p. |
+| 2 | 81.63945 | 84.52960 | 85.32100 | 85.63223 | + 3.99278 p.p. |
+| 3 | 75.58231 | 78.90345 | 79.87407 | 80.37762 | + 4.79531 p.p. |
+| 4 | 71.13217 | 74.66729 | 75.75082 | 76.39818 | + 5.26601 p.p. |
+| 5 | 67.56865 | 71.18041 | 72.31560 | 73.06694 | + 5.49829 p.p. |
 
-```{r, echo = FALSE}
-knitr::kable(
-  datazoom.social:::atrito,
-  col.names = c(
-    "Interview",
-    "Percentage found (R)",
-    "Percentage found (Stata)"
-  ),
-  caption = "Attrition for Panel 2"
-)
-```
-
-Each cell is the percentage of PNADC observations that are identified by the advanced algorithm in each interview.
+Each cell in the rate columns represents the percentage of raw PNADC individual observations successfully identified and tracked in that specific interview, using the total number of raw lines from Wave 1 as the universal denominator.
