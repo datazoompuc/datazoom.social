@@ -30,22 +30,19 @@ donate_birth_dates <- function(dat) {
   
   prep <- dat %>%
     dplyr::mutate(
+      # Create a unique household identifier
       id_dom = dplyr::cur_group_id(),
       .by = c(UPA, V1008, V1014)
     ) %>%
     dplyr::mutate(
-      # Convert PNADC missing codes (99/9999) to NA
-      V2008  = dplyr::if_else(V2008 == 99, NA_real_, V2008),
-      V20081 = dplyr::if_else(V20081 == 99, NA_real_, V20081),
-      V20082 = dplyr::if_else(V20082 == 9999, NA_real_, V20082),
       
-      # identifies obs needing donations and donors
+      # Identify observations that are missing the birth year (those needing donations)
       year_missing = is.na(V20082),
       
-      # will be compared w donors' years to choose best candidate
+      # Estimate birth year to compare with potential donors' years and choose the best candidate
       year_estimated = Ano - V2009,
       
-      # acceptable household condition interchanges
+      # Map acceptable household condition interchanges based on the methodology
       summarised_condition = dplyr::case_when(
         V2005 %in% c(1, 2, 3) ~ 1,
         V2005 %in% c(4, 5, 6) ~ 4,
@@ -59,7 +56,7 @@ donate_birth_dates <- function(dat) {
   ###########################
   
   donors <- prep %>%
-    # Potential donors must have a known birth year.
+    # Potential donors must have a known (non-missing) birth year
     dplyr::filter(!year_missing) %>%
     dplyr::select(id_dom, V1016, V2007, summarised_condition, 
                   donor_day = V2008, donor_month = V20081, donor_year = V20082)
@@ -68,19 +65,20 @@ donate_birth_dates <- function(dat) {
   ## Vectorized Search for Best Donors   ##
   #########################################
   
-  # We join by household, sex, and condition group.
   imputed_matches <- prep %>%
     dplyr::filter(year_missing) %>%
+    # We join candidates and donors by household, sex, and condition group
     dplyr::left_join(donors, by = c("id_dom", "V2007", "summarised_condition"), 
                      relationship = "many-to-many") %>%
-    # Apply Step 2.a criteria: different interview and year window
+    # Apply Step 2.a criteria: the donor must be from a different interview, 
+    # and the donor's year must be within a 3-year window of the estimated year
     dplyr::filter(
       V1016.x != V1016.y, 
       abs(donor_year - year_estimated) <= 3
     ) %>%
-    # Step 2.b: Calculate difference for sorting
+    # Step 2.b: Calculate the absolute difference for sorting purposes
     dplyr::mutate(diff = abs(donor_year - year_estimated)) %>%
-    # Optimized selection: Arrange by person and closest match, then pick first
+    # Optimized selection: Arrange candidates by the closest match, then pick the first one
     dplyr::arrange(id_dom, V1016.x, V2007, summarised_condition, V2009, diff) %>%
     dplyr::distinct(id_dom, V1016.x, V2007, summarised_condition, V2009, .keep_all = TRUE)
   
@@ -88,7 +86,7 @@ donate_birth_dates <- function(dat) {
   ## Final Merge Back ##
   ######################
   
-  # Combine with original data, prioritizing original values where they exist.
+  # Combine the matches back with the original data, prioritizing original values where they exist
   final_data <- prep %>%
     dplyr::left_join(
       imputed_matches %>% 
@@ -96,13 +94,13 @@ donate_birth_dates <- function(dat) {
                       donor_day, donor_month, donor_year),
       by = c("id_dom", "V1016" = "V1016.x", "V2007", "summarised_condition", "V2009")
     ) %>%
-    # Step 2.c: Fallback logic
+    # Step 2.c: Fallback logic using coalesce (if the original is NA, use the donor's value)
     dplyr::mutate(
       birth_day   = dplyr::coalesce(V2008, donor_day),
       birth_month = dplyr::coalesce(V20081, donor_month),
       birth_year  = dplyr::coalesce(V20082, donor_year)
     ) %>%
-    # Cleanup auxiliary columns
+    # Cleanup auxiliary tracking columns
     dplyr::select(-donor_day, -donor_month, -donor_year, -year_missing, 
                   -year_estimated, -summarised_condition)
   
@@ -110,5 +108,6 @@ donate_birth_dates <- function(dat) {
   ## Return Data ##
   #################
   
+  # Return the modified dataset with donated birth dates
   return(final_data)
 }
