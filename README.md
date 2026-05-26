@@ -9,8 +9,6 @@
 
 [![CRAN
 status](https://www.r-pkg.org/badges/version/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
-[![R build
-status](https://github.com/datazoompuc/datazoom.social/workflows/R-CMD-check/badge.svg)](https://github.com/datazoompuc/datazoom.social/actions?style=flat)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/datazoom.social)](https://CRAN.R-project.org/package=datazoom.social)
 [![CRAN RStudio mirror
@@ -37,15 +35,12 @@ provide identification of individuals accross time forming a panel.
 
 # Installation
 
-<!-- You can install the released version of `datazoom.social` from -->
+You can install the released version of `datazoom.social` from
+[CRAN](https://CRAN.R-project.org/package=datazoom.social) with:
 
-<!-- [CRAN](https://CRAN.R-project.org/package=datazoom.social) with: -->
-
-<!-- ``` {r, eval=FALSE} -->
-
-<!-- install.packages("datazoom.social") -->
-
-<!-- ``` -->
+``` r
+install.packages("datazoom.social")
+```
 
 You can install the development version of `datazoom.social` from GitHub
 with:
@@ -65,8 +60,8 @@ devtools::install_github("datazoompuc/datazoom.social")
 
 |  |  |
 |----|----|
-| **[Continuous PNAD](#continuous-pnad)** | *Download PNADC of a range of quarters* |
-| **[Panel Identification](#pnad-panel-identification)** | *Build a Panel of PNADC individuals* |
+| **[`load_pnadc`](#continuous-pnad)** | *Download PNADC of a range of quarters* |
+| **[`build_pnadc_panel`](#pnad-panel-identification)** | *Identify individuals throughout time* |
 
 </td>
 
@@ -77,7 +72,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 ## Continuous PNAD
 
 The `load_pnadc` function is a wrapper for
-[*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)
+*[`get_pnadc`](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)*
 from the package `PNADcIBGE`, with added identification algorithms for
 panel construction. For details on the identification algorithms, see
 `vignette("BUILD_PNADC_PANEL")`.
@@ -86,11 +81,11 @@ panel construction. For details on the identification algorithms, see
 
 **Panel Structure:**
 
-The table below shows the first and last quarter (`ANOtrimestre`, e.g.
-`20121` = 2012 Q1) covered by each PNADC rotating panel:
+The table below shows the first and last quarter (`ANOtrimestre`,
+e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
 
-| Panel | Start |   End |
-|------:|------:|------:|
+| Panel | Start | End   |
+|------:|-------|-------|
 |     1 | 20121 | 20124 |
 |     2 | 20121 | 20141 |
 |     3 | 20132 | 20152 |
@@ -110,7 +105,7 @@ The table below shows the first and last quarter (`ANOtrimestre`, e.g.
 
 **Usage:**
 
-Default
+Default:
 
 ``` r
 
@@ -118,7 +113,7 @@ load_pnadc(
   save_to = getwd(),
   years,
   quarters = 1:4,
-  panel = "advanced",
+  panel = "advanced_3",
   raw_data = FALSE,
   save_options = c(TRUE, TRUE),
   vars = NULL
@@ -126,17 +121,18 @@ load_pnadc(
 ```
 
 To download PNADC data for all quarters of 2022 and 2023, with advanced
-identification, simply run
+fuzzy identification (Stage 3), simply run:
 
 ``` r
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
-  years = 2022:2023
+  years = 2022:2023,
+  panel = "advanced_3"
 )
 ```
 
 To download PNADC data for all of 2022, but only the first quarter of
-2023, run
+2023, run:
 
 ``` r
 load_pnadc(
@@ -147,7 +143,7 @@ load_pnadc(
 ```
 
 To download PNADC data without any variables treatment or identification
-(e.g., for all quarters of 2021), run
+(e.g., for all quarters of 2021), run:
 
 ``` r
 load_pnadc(
@@ -159,7 +155,7 @@ load_pnadc(
 ```
 
 To download PNADC data, keep the quarters parquet on disk, and save
-panels as Parquet, run
+panels as Parquet, run:
 
 ``` r
 load_pnadc(
@@ -170,7 +166,7 @@ load_pnadc(
 ```
 
 To download PNADC data and save panels as CSV but discard the
-intermediate quarters parquet, run
+intermediate quarters parquet, run:
 
 ``` r
 load_pnadc(
@@ -182,7 +178,7 @@ load_pnadc(
 
 To download only a specific subset of variables — for example, age
 (`V2009`) and habitual income (`VD4019`) — alongside the structural
-columns that `PNADcIBGE` always returns, run
+columns that `PNADcIBGE` always returns, run:
 
 ``` r
 load_pnadc(
@@ -204,18 +200,18 @@ load_pnadc(
 If you specify `vars` and also request panel identification, any columns
 required by the identification algorithm that are absent from `vars`
 will be added automatically and a warning will tell you which ones were
-added. For example, when using `panel = "advanced"`, the columns
+added. For example, when using `panel = "advanced_3"`, the columns
 `V2007`, `V20082`, `V20081`, `V2008`, and `V2003` must be present. If
 you omit them from `vars`, the function adds them for you:
 
 ``` r
-# Only V2009 requested, but panel = "advanced" (the default) needs
+# Only V2009 requested, but panel = "advanced_3" needs
 # V2007, V20082, V20081, V2008 and V2003 — these are added automatically
 # with a warning.
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2022,
-  panel = "advanced",
+  panel = "advanced_3",
   vars = c("V2009", "VD4019")
 )
 ```
@@ -236,16 +232,21 @@ load_pnadc(
     in the second).
 
 4.  **panel**: Which panel algorithm to apply to this data. There are
-    three options:
+    five options:
 
     - `none`: No panel is built. If `raw_data = TRUE`, returns the
       original data. Otherwise, creates some extra treated variables.
       The intermediate quarters parquet is always kept when
       `panel = "none"`.
-    - `basic`: Performs basic identification steps for creating
-      households and individual identifiers for panel construction
-    - `advanced`: Performs advanced identification steps for creating
-      households and individual identifiers for panel construction.
+    - `basic`: Performs basic identification steps using household IDs,
+      sex, and exact dates of birth.
+    - `advanced_1`: Performs Stage 1 advanced identification, imputing
+      missing birth dates using within-household donors.
+    - `advanced_2`: Performs Stage 2 advanced identification, relaxing
+      the year of birth constraint.
+    - `advanced_3` (Recommended): Performs Stage 3 advanced
+      identification, utilizing Graph Theory for fuzzy matching of
+      fragmented interviews to account for typographical errors.
 
 5.  **raw_data**: A command to define if the user would like to download
     the raw or treated data. There are two options:
@@ -270,7 +271,7 @@ load_pnadc(
     `PNADcIBGE::get_pnadc()`. Use `NULL` (the default) to download all
     available microdata columns. See the note above regarding the ~210
     structural columns that are always returned by
-    `PNADcIBGE::get_pnadc()` regardless of this argument.
+    `PNADcIBGE::get_pnadc()` regardless of this argument
 
 ------------------------------------------------------------------------
 
@@ -281,19 +282,18 @@ The function performs the following steps:
 1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
     download the data. All quarters are collected in memory and saved
     together into a single `pnadc_quarters.parquet` file in `save_to`.
-
 2.  Split the data into panels by the panel variable `V1014`. Data from
     each panel is saved depending on `save_options`.
-
 3.  Read each panel file and apply the identification algorithms defined
     in `build_pnadc_panel`.
-
 4.  If `save_options[1] = FALSE`, the intermediate quarters parquet is
     deleted after the panels are built.
 
-- The identification algorithms in `build_pnadc_panel` are drawn from
-  Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): “Sobre o
-  painel da Pesquisa Mensal de Emprego (PME) do IBGE”.
+- The base identification logic in `build_pnadc_panel` was originally
+  drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares
+  (2008): “Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE”,
+  with extensive modernizations, missing-data imputation, and
+  graph-based fuzzy matching introduced by the Data Zoom team.
 
 ------------------------------------------------------------------------
 
@@ -305,18 +305,23 @@ The function performs the following steps:
 
 **Usage:**
 
-Basic Panel
+Basic Panel:
 
 ``` r
-
 panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
 ```
 
-Advanced Panel
+Advanced Panel (Stages 1, 2, or 3):
 
 ``` r
+# Stage 1: Exact matching with donated birth dates
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_1")
 
-panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced")
+# Stage 2: Relaxed matching constraints
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_2")
+
+# Stage 3: Fuzzy matching using Graph Theory (Recommended)
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
 ```
 
 ------------------------------------------------------------------------
@@ -324,10 +329,11 @@ panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced")
 **Description**
 
 Our `load_pnadc` function uses the internal function `build_pnadc_panel`
-to identify households and individuals across quarters. The method used
-for the identification is based on the paper of Ribas, Rafael Perez, and
-Sergei Suarez Dillon Soares (2008): “Sobre o painel da Pesquisa Mensal
-de Emprego (PME) do IBGE”.
+to identify households and individuals across quarters. The base method
+used for the identification draws from the paper of Ribas, Rafael Perez,
+and Sergei Suarez Dillon Soares (2008): “Sobre o painel da Pesquisa
+Mensal de Emprego (PME) do IBGE”, with modernizations implemented by the
+Data Zoom team to handle missing data and typographical errors.
 
 ------------------------------------------------------------------------
 
@@ -336,9 +342,7 @@ de Emprego (PME) do IBGE”.
 The household identifier – stored as `id_dom` – combines the variables:
 
 - `UPA` – Primary Sampling Unit - PSU;
-
 - `V1008` – Household;
-
 - `V1014` – Panel Number;
 
 In order to create a unique number for every combination of those
@@ -350,54 +354,64 @@ The basic individual identifier – stored as `id_ind` – combines the
 household id with:
 
 - `V2007` – Sex;
-
 - Date of Birth – \[`V20082` (year), `V20081` (month), `V2008` (day)\];
 
-In order to create an unique number for every combination of those
+In order to create a unique number for every combination of those
 variables.
 
 ------------------------------------------------------------------------
 
 ## Advanced Identification
 
-The advanced identifier is saved as `id_rs`. On individuals who were not
-matched on all interviews, we relax some assumptions to increase
-matching power. Under the assumption that the date of birth is often
-misreported, we take individuals who are either:
+On individuals who were not matched across all interviews using the
+basic method, we apply a progressive multi-stage algorithm to increase
+matching power without compromising uniqueness.
 
-1.  Head of the household or their partner
-
-2.  Child of the head of the household, 25 or older
-
-For these observations, we run the basic identification again, but
-allowing the year of birth to be wrong. We also include the order
-number.
+- **Stage 1 (`advanced_1`):** We reproduce the birth date donation
+  method (Osório, 2019). It estimates and imputes missing birth dates
+  (day, month, and year) by matching individuals with donors from
+  different interviews within the same household based on sex,
+  acceptable household condition changes, and estimated age. The
+  identifier is stored as `id_rs1`.
+- **Stage 2 (`advanced_2`):** For individuals not completely matched in
+  Stage 1, we relax the year of birth constraint (assuming it is often
+  misreported) and match individuals based on Household ID, Month, and
+  Day of birth. The identifier is stored as `id_rs2`.
+- **Stage 3 (`advanced_3`):** Applies a rigorous Fuzzy Matching
+  algorithm using Graph Theory (via the `igraph` package). Targeting
+  candidates with fragmented interviews, it evaluates pairwise
+  combinations within the same household. It tolerates small
+  typographical errors (up to 4 days difference in the day of birth, 2
+  months in the month of birth) and dynamically adjusts the acceptable
+  year-of-birth difference based on the individual’s reported age. The
+  final identifier is stored as `id_rs3`.
 
 ## Identification Rates
 
-The table below shows the weighted average tracking rates obtained using
-the basic and advanced identification algorithms across multiple panels.
+The table below shows the average unconditional tracking rates (base
+line) obtained using the basic and advanced identification algorithms
+across multiple panels.
 
-*Note: We reserve the term **Attrition Rate** strictly for the dropout
-of households. When referring to individuals (people), we use the term
-**Identification Rate**. Wave 1 represents the pure initial
-identification rate (data lost exclusively due to the inability to
-construct a valid identifier or household grouping constraints). The
-subsequent waves (2 to 5) represent the cumulative loss of tracked data
-over time.*
+*Note: Following the Data Zoom methodological guidelines, we reserve the
+term **Attrition** strictly for the dropout of households. When
+referring to individuals (people), we use the term **Identification
+Rate**. Wave 1 represents the pure initial identification rate (data
+lost exclusively due to the inability to construct a valid identifier or
+household grouping constraints). The subsequent waves (2 to 5) represent
+the cumulative loss of tracked data over time.*
 
-| Interview (Wave) | Basic Identification Rate (%) | Advanced Identification Rate (%) | Difference (Advanced - Basic) |
-|:--:|:--:|:--:|:--:|
-| 1 | 88.41460 | 88.78972 | \+ 0.37512 p.p. |
-| 2 | 78.23421 | 78.90977 | \+ 0.67556 p.p. |
-| 3 | 72.96572 | 73.84626 | \+ 0.88054 p.p. |
-| 4 | 69.00672 | 70.01432 | \+ 1.00760 p.p. |
-| 5 | 65.77913 | 66.85078 | \+ 1.07165 p.p. |
+| Interview (Wave) | Basic Rate (%) | Adv 1 Rate (%) | Adv 2 Rate (%) | Adv 3 Rate (%) | Difference (Adv 3 - Basic) |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+| 1 | 93.82378 | 95.82954 | 96.40170 | 96.39606 | \+ 2.57228 p.p. |
+| 2 | 81.63945 | 84.52960 | 85.32100 | 85.63223 | \+ 3.99278 p.p. |
+| 3 | 75.58231 | 78.90345 | 79.87407 | 80.37762 | \+ 4.79531 p.p. |
+| 4 | 71.13217 | 74.66729 | 75.75082 | 76.39818 | \+ 5.26601 p.p. |
+| 5 | 67.56865 | 71.18041 | 72.31560 | 73.06694 | \+ 5.49829 p.p. |
 
-Each cell in the first two columns represents the percentage of raw
-PNADC individual observations successfully identified and tracked in
-that specific interview, using the total number of raw lines from Wave 1
-as the universal denominator.
+Each cell in the rate columns represents the percentage of raw PNADC
+individual observations successfully identified and tracked in that
+specific interview, using the total number of raw lines from Wave 1 as
+the universal denominator.
 
 ------------------------------------------------------------------------
 

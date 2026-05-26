@@ -12,38 +12,39 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
 ```
 
+The `load_pnadc` function is a wrapper for *[`get_pnadc`](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc)* from the package `PNADcIBGE`, with added identification algorithms for panel construction. For details on the identification algorithms, see `vignette("BUILD_PNADC_PANEL")`.
 
-The `load_pnadc` function is a wrapper for [*`get_pnadc`*](https://www.rdocumentation.org/packages/PNADcIBGE/versions/0.7.0/topics/get_pnadc) from the package `PNADcIBGE`, with added identification algorithms for panel construction. For details on the identification algorithms, see `vignette("BUILD_PNADC_PANEL")`.
-
-***
+---
+  
 **Panel Structure:**
 
-The table below shows the first and last quarter (`ANOtrimestre`, e.g.
-`20121` = 2012 Q1) covered by each PNADC rotating panel:
+The table below shows the first and last quarter (`ANOtrimestre`, e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
+  
+| Panel | Start |  End  |
+| ----: | ----- | ----- |
+|     1 | 20121 | 20124 |
+|     2 | 20121 | 20141 |
+|     3 | 20132 | 20152 |
+|     4 | 20143 | 20163 |
+|     5 | 20154 | 20174 |
+|     6 | 20171 | 20191 |
+|     7 | 20182 | 20202 |
+|     8 | 20193 | 20213 |
+|     9 | 20204 | 20224 |
+|    10 | 20221 | 20241 |
+|    11 | 20232 | 20252 |
+|    12 | 20243 | 20263 |
+|    13 | 20254 | 20274 |
+|    14 | 20271 | 20291 |
 
-| Panel | Start | End   |
-|------:|------:|------:|
-| 1     | 20121 | 20124 |
-| 2     | 20121 | 20141 |
-| 3     | 20132 | 20152 |
-| 4     | 20143 | 20163 |
-| 5     | 20154 | 20174 |
-| 6     | 20171 | 20191 |
-| 7     | 20182 | 20202 |
-| 8     | 20193 | 20213 |
-| 9     | 20204 | 20224 |
-| 10    | 20221 | 20241 |
-| 11    | 20232 | 20252 |
-| 12    | 20243 | 20263 |
-| 13    | 20254 | 20274 |
-| 14    | 20271 | 20291 |
+  ---
 
-***
 **Usage:**
 
-Default
+Default:
 
 ```{r eval=FALSE}
 
@@ -51,24 +52,27 @@ load_pnadc(
   save_to = getwd(),
   years,
   quarters = 1:4,
-  panel = "advanced",
+  panel = "advanced_3",
   raw_data = FALSE,
   save_options = c(TRUE, TRUE),
   vars = NULL
 )
 
+
 ```
 
-To download PNADC data for all quarters of 2022 and 2023, with advanced identification, simply run
+To download PNADC data for all quarters of 2022 and 2023, with advanced fuzzy identification (Stage 3), simply run:
 
 ```{r eval=FALSE}
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
-  years = 2022:2023
+  years = 2022:2023,
+  panel = "advanced_3"
 )
+
 ```
 
-To download PNADC data for all of 2022, but only the first quarter of 2023, run
+To download PNADC data for all of 2022, but only the first quarter of 2023, run:
 
 ```{r eval=FALSE}
 load_pnadc(
@@ -76,9 +80,10 @@ load_pnadc(
   years = 2022:2023,
   quarters = list(1:4, 1)
 )
+
 ```
 
-To download PNADC data without any variables treatment or identification (e.g., for all quarters of 2021), run
+To download PNADC data without any variables treatment or identification (e.g., for all quarters of 2021), run:
 
 ```{r eval=FALSE}
 load_pnadc(
@@ -87,9 +92,10 @@ load_pnadc(
   panel = "none",
   raw_data = TRUE
 )
+
 ```
 
-To download PNADC data, keep the quarters parquet on disk, and save panels as Parquet, run
+To download PNADC data, keep the quarters parquet on disk, and save panels as Parquet, run:
 
 ```{r eval=FALSE}
 load_pnadc(
@@ -97,9 +103,10 @@ load_pnadc(
   years = 2022,
   save_options = c(TRUE, FALSE)
 )
+
 ```
 
-To download PNADC data and save panels as CSV but discard the intermediate quarters parquet, run
+To download PNADC data and save panels as CSV but discard the intermediate quarters parquet, run:
 
 ```{r eval=FALSE}
 load_pnadc(
@@ -107,9 +114,10 @@ load_pnadc(
   years = 2022,
   save_options = c(FALSE, TRUE)
 )
+
 ```
 
-To download only a specific subset of variables — for example, age (`V2009`) and habitual income (`VD4019`) — alongside the structural columns that `PNADcIBGE` always returns, run
+To download only a specific subset of variables — for example, age (`V2009`) and habitual income (`VD4019`) — alongside the structural columns that `PNADcIBGE` always returns, run:
 
 ```{r eval=FALSE}
 load_pnadc(
@@ -117,6 +125,7 @@ load_pnadc(
   years = 2022,
   vars = c("V2009", "VD4019")
 )
+
 ```
 
 > **Note:** `PNADcIBGE::get_pnadc()` always downloads a set of ~210 structural
@@ -130,25 +139,25 @@ load_pnadc(
 If you specify `vars` and also request panel identification, any columns
 required by the identification algorithm that are absent from `vars` will be
 added automatically and a warning will tell you which ones were added. For
-example, when using `panel = "advanced"`, the columns `V2007`, `V20082`,
+example, when using `panel = "advanced_3"`, the columns `V2007`, `V20082`,
 `V20081`, `V2008`, and `V2003` must be present. If you omit them from `vars`,
 the function adds them for you:
 
 ```{r eval=FALSE}
-# Only V2009 requested, but panel = "advanced" (the default) needs
+# Only V2009 requested, but panel = "advanced_3" needs
 # V2007, V20082, V20081, V2008 and V2003 — these are added automatically
 # with a warning.
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
   years = 2022,
-  panel = "advanced",
+  panel = "advanced_3",
   vars = c("V2009", "VD4019")
 )
+
 ```
 
-
-
-***
+---
+  
 **Options:**
 
   1. **save_to**: The directory in which the user desires to save the downloaded files.
@@ -160,39 +169,40 @@ load_pnadc(
   3. **quarters**: The quarters within those years to be downloaded. Can be either a vector such as `1:4` for consistent quarters across years, or a list of vectors, if quarters are different for each year (e.g. `list(1:4, 1:2)` for four quarters in the first year and two in the second).
 
 
-  4. **panel**: Which panel algorithm to apply to this data. There are three options:
+  4. **panel**: Which panel algorithm to apply to this data. There are five options:
+  
      * `none`: No panel is built. If `raw_data = TRUE`, returns the original data. Otherwise, creates some extra treated variables. The intermediate quarters parquet is always kept when `panel = "none"`.
-     * `basic`: Performs basic identification steps for creating households and individual identifiers for panel construction
-     * `advanced`: Performs advanced identification steps for creating households and individual identifiers for panel construction.
+     * `basic`: Performs basic identification steps using household IDs, sex, and exact dates of birth.
+     * `advanced_1`: Performs Stage 1 advanced identification, imputing missing birth dates using within-household donors.
+     * `advanced_2`: Performs Stage 2 advanced identification, relaxing the year of birth constraint.
+     * `advanced_3` (Recommended): Performs Stage 3 advanced identification, utilizing Graph Theory for fuzzy matching of fragmented interviews to account for typographical errors.
   
   
   5. **raw_data**: A command to define if the user would like to download the raw or treated data. There are two options:
+  
      * `TRUE`: if you want the PNADC variables as they come.
      * `FALSE`: if you want the treated version of the PNADC variables.
 
   6. **save_options**: A logical vector of length 2 controlling file saving behaviour:
+  
      * `c(TRUE, TRUE)` (default): keeps the intermediate quarters parquet after panel is built; saves panel files as `.csv`.
      * `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves panel files as `.csv`.
      * `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as a `.parquet` dataset.
      * `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves panel files as a `.parquet` dataset.
 
-  7. **vars**: A character vector of additional variable names to download, following the same convention as `vars` in `PNADcIBGE::get_pnadc()`. Use `NULL` (the default) to download all available microdata columns. See the note above regarding the ~210 structural columns that are always returned by `PNADcIBGE::get_pnadc()` regardless of this argument.
-     
-***
+  7. **vars**: A character vector of additional variable names to download, following the same convention as `vars` in `PNADcIBGE::get_pnadc()`. Use `NULL` (the default) to download all available microdata columns. See the note above regarding the ~210 structural columns that are always returned by `PNADcIBGE::get_pnadc()` regardless of this argument
+
+---
+  
 **Details:**
 
 The function performs the following steps:
   
+1. Loop over years and quarters using `PNADcIBGE::get_pnadc` to download the data. All quarters are collected in memory and saved together into a single `pnadc_quarters.parquet` file in `save_to`.
+2. Split the data into panels by the panel variable `V1014`. Data from each panel is saved depending on `save_options`.
+3. Read each panel file and apply the identification algorithms defined in `build_pnadc_panel`.
+4. If `save_options[1] = FALSE`, the intermediate quarters parquet is deleted after the panels are built.
 
-  1. Loop over years and quarters using `PNADcIBGE::get_pnadc` to download the data. All quarters are collected in memory and saved together into a single `pnadc_quarters.parquet` file in `save_to`.
-  
-  2. Split the data into panels by the panel variable `V1014`. Data from each panel is saved depending on `save_options`.
-  
-  3. Read each panel file and apply the identification algorithms defined in `build_pnadc_panel`.
-  
-  4. If `save_options[1] = FALSE`, the intermediate quarters parquet is deleted after the panels are built.
+* The base identification logic in `build_pnadc_panel` was originally drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE", with extensive modernizations, missing-data imputation, and graph-based fuzzy matching introduced by the Data Zoom team.
 
-  
-* The identification algorithms in `build_pnadc_panel` are drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares (2008): "Sobre o painel da Pesquisa Mensal de Emprego (PME) do IBGE".
-  
-***
+---
