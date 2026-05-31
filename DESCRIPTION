@@ -21,12 +21,10 @@ License: MIT + file LICENSE
 URL: https://datazoom.com.br/en/
 Imports: 
     arrow,
-    data.table,
     dplyr,
     magrittr,
     PNADcIBGE,
     purrr,
-    readr,
     rlang,
     stringr,
     tidyr

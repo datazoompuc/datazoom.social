@@ -30,11 +30,11 @@ files are saved and in which format all files are saved. Panel files are
 always saved. There are four possible combinations:
 \itemize{
 \item \code{c(TRUE, TRUE)}: saves quarterly and panel files in
-\code{.csv} format. This is the default.
+\code{.rds} format. This is the default.
 \item \code{c(TRUE, FALSE)}: saves quarterly and panel files in
 \code{.parquet} format.
 \item \code{c(FALSE, TRUE)}: does not save quarterly files; panel files
-are saved in \code{.csv} format.
+are saved in \code{.rds} format.
 \item \code{c(FALSE, FALSE)}: does not save quarterly files; panel files
 are saved in \code{.parquet} format.
 }}
