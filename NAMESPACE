@@ -3,5 +3,4 @@
 export(build_pnadc_panel)
 export(load_pnadc)
 import(PNADcIBGE)
-importFrom(data.table,fread)
 importFrom(magrittr,`%>%`)

@@ -12,11 +12,11 @@
 #'   always saved. There are four possible combinations:
 #'   \itemize{
 #'     \item \code{c(TRUE, TRUE)}: saves quarterly and panel files in
-#'       \code{.csv} format. This is the default.
+#'       \code{.rds} format. This is the default.
 #'     \item \code{c(TRUE, FALSE)}: saves quarterly and panel files in
 #'       \code{.parquet} format.
 #'     \item \code{c(FALSE, TRUE)}: does not save quarterly files; panel files
-#'       are saved in \code{.csv} format.
+#'       are saved in \code{.rds} format.
 #'     \item \code{c(FALSE, FALSE)}: does not save quarterly files; panel files
 #'       are saved in \code{.parquet} format.
 #'   }
@@ -53,7 +53,6 @@
 #'
 #' @return A message indicating the successful save of panel files.
 #'
-#' @importFrom data.table fread
 #' @import PNADcIBGE
 #' @importFrom magrittr `%>%`
 #'
@@ -115,7 +114,7 @@ load_pnadc <- function(save_to, years,
   param$raw_data  <- raw_data  # A command to define if the user would like to download the raw data from the IBGE website directly
   param$save_to   <- save_to   # the directory in which the user desires to save the files downloaded
   param$save_quarters <- save_options[1] # whether to save quarterly files to disk
-  param$csv           <- save_options[2] # if TRUE, saves as .csv; if FALSE, saves as .parquet
+  param$rds           <- save_options[2] # if TRUE, saves as .rds; if FALSE, saves as .parquet
   
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
@@ -214,25 +213,22 @@ load_pnadc <- function(save_to, years,
   # Remove NULL entries (failed downloads)
   source_files <- purrr::compact(source_files)
   
-  # Save all quarters to a single parquet file (list of data frames as separate row groups / named list)
-  quarters_parquet_path <- file.path(param$save_to, "pnadc_quarters.parquet")
-  
   # bind all quarters into one data frame
   all_quarters <- purrr::list_rbind(source_files)
   
   # save quarterly files to disk if requested
   if (param$save_quarters) {
-    if (param$csv) {
-      # CSV: write one flat file per year-quarter
+    if (param$rds) {
+      # RDS: write one flat file per year-quarter
       purrr::map2(
         param$years, param$quarters,
         function(y, q) {
           quarter_df <- all_quarters %>% dplyr::filter(Ano == y, Trimestre == q)
           file_path <- file.path(
-            param$save_to, paste0("pnadc_", y, "_", q, ".csv")
+            param$save_to, paste0("pnadc_", y, "_", q, ".rds")
           )
           base::message(paste0("Saving ", y, " Q", q, " to\n", file_path, "\n"))
-          readr::write_csv(quarter_df, file_path)
+          saveRDS(quarter_df, file_path)
         }
       )
     } else {
@@ -253,7 +249,7 @@ load_pnadc <- function(save_to, years,
   ## Return Raw Data
   
   if (param$panel == "none") {
-    return(paste("Quarters saved to", quarters_parquet_path))
+    return(paste("Quarters saved to", param$save_to))
   }
   
   #################
@@ -281,37 +277,16 @@ load_pnadc <- function(save_to, years,
       }
     )
     
-    ##########################
-    ## Panel Identification ##
-    ##########################
-    
-    # defining column types (kept for reference / potential CSV re-reads)
-    
-    if (param$raw_data) {
-      ctypes <- readr::cols(.default = readr::col_number())
-    } else {
-      ctypes <- readr::cols(
-        .default = readr::col_number(),
-        regiao = readr::col_character(),
-        sigla_uf = readr::col_character(),
-        sexo = readr::col_character(),
-        faixa_idade = readr::col_character(),
-        faixa_educ = readr::col_character(),
-        cnae_2dig = readr::col_character(),
-        cod_2dig = readr::col_character()
-      )
-    }
-    
     # save panel files
     
-    if (param$csv) {
-      # CSV: write one flat file per panel
+    if (param$rds) {
+      # RDS: write one flat file per panel
       purrr::map2(
         identified_panels, panel_list,
         function(df, p) {
-          path <- file.path(param$save_to, paste0("Panel_", p, ".csv"))
+          path <- file.path(param$save_to, paste0("Panel_", p, ".rds"))
           message(paste("Saving panel to", path, "\n"))
-          readr::write_csv(df, path)
+          saveRDS(df, path)
         }
       )
     } else {

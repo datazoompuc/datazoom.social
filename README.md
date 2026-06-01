@@ -154,8 +154,8 @@ load_pnadc(
 )
 ```
 
-To download PNADC data, keep the quarters parquet on disk, and save
-panels as Parquet, run:
+To download PNADC data, save quarters on disk, and save panels as
+Parquet, run:
 
 ``` r
 load_pnadc(
@@ -165,8 +165,8 @@ load_pnadc(
 )
 ```
 
-To download PNADC data and save panels as CSV but discard the
-intermediate quarters parquet, run:
+To download PNADC data and save panels as RDS but discard the quarterly
+files, run:
 
 ``` r
 load_pnadc(
@@ -236,8 +236,7 @@ load_pnadc(
 
     - `none`: No panel is built. If `raw_data = TRUE`, returns the
       original data. Otherwise, creates some extra treated variables.
-      The intermediate quarters parquet is always kept when
-      `panel = "none"`.
+      Quarterly files are saved depending on `save_options`.
     - `basic`: Performs basic identification steps using household IDs,
       sex, and exact dates of birth.
     - `advanced_1`: Performs Stage 1 advanced identification, imputing
@@ -257,14 +256,14 @@ load_pnadc(
 6.  **save_options**: A logical vector of length 2 controlling file
     saving behaviour:
 
-    - `c(TRUE, TRUE)` (default): keeps the intermediate quarters parquet
-      after panel is built; saves panel files as `.csv`.
-    - `c(FALSE, TRUE)`: deletes the quarters parquet after use; saves
-      panel files as `.csv`.
-    - `c(TRUE, FALSE)`: keeps the quarters parquet; saves panel files as
-      a `.parquet` dataset.
-    - `c(FALSE, FALSE)`: deletes the quarters parquet after use; saves
-      panel files as a `.parquet` dataset.
+    - `c(TRUE, TRUE)` (default): saves quarterly and panel files as
+      `.rds`.
+    - `c(FALSE, TRUE)`: does not save quarterly files; saves panel files
+      as `.rds`.
+    - `c(TRUE, FALSE)`: saves quarterly and panel files as `.parquet`
+      datasets.
+    - `c(FALSE, FALSE)`: does not save quarterly files; saves panel
+      files as a `.parquet` dataset.
 
 7.  **vars**: A character vector of additional variable names to
     download, following the same convention as `vars` in
@@ -281,13 +280,11 @@ The function performs the following steps:
 
 1.  Loop over years and quarters using `PNADcIBGE::get_pnadc` to
     download the data. All quarters are collected in memory and saved
-    together into a single `pnadc_quarters.parquet` file in `save_to`.
-2.  Split the data into panels by the panel variable `V1014`. Data from
-    each panel is saved depending on `save_options`.
-3.  Read each panel file and apply the identification algorithms defined
-    in `build_pnadc_panel`.
-4.  If `save_options[1] = FALSE`, the intermediate quarters parquet is
-    deleted after the panels are built.
+    depending on `save_options`.
+2.  Split the data into panels by the panel variable `V1014`.
+3.  Apply the identification algorithms defined in `build_pnadc_panel`.
+4.  Save the panel files as `.rds` or `.parquet`, depending on
+    `save_options`.
 
 - The base identification logic in `build_pnadc_panel` was originally
   drawn from Ribas, Rafael Perez, and Sergei Suarez Dillon Soares

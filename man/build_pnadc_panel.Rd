@@ -9,18 +9,18 @@ build_pnadc_panel(dat, panel)
 \arguments{
 \item{dat}{Data frame with PNADC data, sorted into a single panel.}
 
-\item{panel}{A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, and "advanced" for advanced paneling.}
+\item{panel}{A \code{character} with the type of panel identification. Use "none" for no paneling, "basic" for basic paneling, "advanced_1" for advanced stage 1 paneling, "advanced_2" for advanced stage 2 paneling, and "advanced_3" for the fuzzy-matching stage 3 paneling.}
 }
 \value{
-A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind} or \code{id_rs}) based on the chosen panel algorithm.
+A modified dataset with added identifiers for household (\code{id_dom}) and individual (\code{id_ind}, and progressively \code{id_rs1}, \code{id_rs2}, or \code{id_rs3}) based on the chosen panel algorithm.
 }
 \description{
-This function builds a panel dataset from PNADC data, identifying households and individuals
+This function builds a panel dataset from PNADC data, identifying households and individuals.
 }
 \examples{
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Example usage:
 
-panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
 \dontshow{\}) # examplesIf}
 }
