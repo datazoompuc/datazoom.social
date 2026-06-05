@@ -48,7 +48,7 @@ devtools::install_github("datazoompuc/datazoom.social")
 devtools::load_all()
 ```
 
-## Data 
+## Functions
 
 <table>
 
@@ -70,7 +70,7 @@ devtools::load_all()
 
 ***
 
-## PNAD Panel Identification
+## PNADC Panel Identification
 
 ```{r child = "vignettes/BUILD_PNADC_PANEL.Rmd"}
 ```
