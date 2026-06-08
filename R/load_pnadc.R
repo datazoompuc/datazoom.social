@@ -7,6 +7,18 @@
 #' @param quarters The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
 #' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
+#' @param deflator A logical passed to \code{\link[PNADcIBGE]{get_pnadc}}. If
+#'   \code{TRUE} (the default), deflator variables supplied by
+#'   \code{PNADcIBGE} are included in the downloaded microdata.
+#' @param defyear The deflator year passed to \code{\link[PNADcIBGE]{get_pnadc}}
+#'   for annual microdata. This argument is ignored for quarterly downloads and
+#'   is used only when \code{deflator = TRUE}. See
+#'   \code{\link[PNADcIBGE]{get_pnadc}} for details.
+#' @param defperiod The deflator period passed to
+#'   \code{\link[PNADcIBGE]{get_pnadc}} for annual per-topic microdata. This
+#'   argument is ignored for quarterly downloads and is used only when
+#'   \code{deflator = TRUE}. See \code{\link[PNADcIBGE]{get_pnadc}} for
+#'   details.
 #' @param save_options A \code{logical} vector of length 2. Controls whether quarterly
 #'   files are saved and in which format all files are saved. Panel files are
 #'   always saved. There are four possible combinations:
@@ -28,13 +40,18 @@
 #'
 #'   Note that \code{\link[PNADcIBGE]{get_pnadc}} always returns a set of
 #'   structural columns regardless of this argument, these include survey
-#'   design weights (\code{V1027}, \code{V1028}, \code{V1028001}, \code{V1028200},
-#'   \code{posest}, \code{posest_sxi}), deflator variables (\code{Habitual},
-#'   \code{Efetivo}), and identifiers such as \code{UF}, \code{Estrato},
-#'   \code{V1029}, \code{V1033}, \code{ID_DOMICILIO}, totalling around 233
-#'   columns. The \code{vars} argument adds \emph{on top of} those columns;
-#'   it does not restrict them. Use \code{NULL} (the default) to download all
-#'   available microdata columns.
+#'   design weights (\code{V1027}, \code{V1028}, \code{V1028001},
+#'   \code{V1028200}, \code{posest}, \code{posest_sxi}) and identifiers such as
+#'   \code{UF}, \code{Estrato}, \code{V1029}, \code{V1033},
+#'   \code{ID_DOMICILIO}, totalling around 210 columns. When
+#'   \code{deflator = TRUE}, deflator variables (\code{Habitual},
+#'   \code{Efetivo}) are also included. The \code{vars} argument adds
+#'   \emph{on top of} those columns; it does not restrict them. Use \code{NULL}
+#'   (the default) to download all available microdata columns.
+#'
+#'   Deflation support in this wrapper is provided by \code{PNADcIBGE}. For the
+#'   deflator methodology and the deflator files themselves, see
+#'   \code{\link[PNADcIBGE]{pnadc_deflator}} in that package.
 #'
 #'   If \code{panel} is not \code{"none"}, any columns required by the panel
 #'   identification algorithm that are missing from \code{vars} will be added
@@ -64,22 +81,24 @@
 #'   quarters = 1:4,
 #'   panel = "advanced",
 #'   raw_data = FALSE,
+#'   deflator = TRUE,
 #'   save_options = c(FALSE, FALSE)
 #' )
 #' @export
 
 load_pnadc <- function(save_to, years,
                        quarters = 1:4, panel = "advanced",
-                       raw_data = FALSE, save_options = c(TRUE, TRUE),
+                       raw_data = FALSE, deflator = TRUE, defyear = NULL,
+                       defperiod = NULL, save_options = c(TRUE, TRUE),
                        vars = NULL) {
-  
+
   if (missing(save_to) || is.null(save_to) || !nzchar(save_to)) {
     stop("'save_to' must be a non-empty path to an existing directory.", call. = FALSE)
   }
   if (!dir.exists(save_to)) {
     stop("Directory '", save_to, "' does not exist. Please create it first.", call. = FALSE)
   }
-  
+
   # Check if PNADcIBGE namespace is already attached
   if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it
@@ -88,42 +107,45 @@ load_pnadc <- function(save_to, years,
     # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
     # you get the same error
   }
-  
+
   # if (!requireNamespace("PNADcIBGE", quietly = TRUE)) {
   #   stop(
   #     "Please run library(PNADcIBGE) before using this function.",
   #     call. = FALSE
   #   )
   # }
-  
+
   ###########################
   ## Bind Global Variables ##
   ###########################
-  
+
   year <- . <- V1014 <- Ano <- Trimestre <- NULL
-  
+
   #############################
   ## Define Basic Parameters ##
   #############################
-  
+
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
   param$years     <- years     # the years the user would like to download
   param$quarters  <- quarters  # the quarters within those years to be downloaded
   param$panel     <- panel     # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
   param$raw_data  <- raw_data  # A command to define if the user would like to download the raw data from the IBGE website directly
+  param$deflator  <- deflator  # whether deflator variables from PNADcIBGE should be added to the downloaded microdata
+  param$defyear   <- defyear   # deflator year for annual microdata, forwarded to PNADcIBGE::get_pnadc
+  param$defperiod <- defperiod # deflator period for annual per-topic microdata, forwarded to PNADcIBGE::get_pnadc
   param$save_to   <- save_to   # the directory in which the user desires to save the files downloaded
   param$save_quarters <- save_options[1] # whether to save quarterly files to disk
   param$rds           <- save_options[2] # if TRUE, saves as .rds; if FALSE, saves as .parquet
-  
+
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
     param$quarters <- rep(list(quarters), length(years))
   }
-  
+
   # Calculate the lengths of quarters for each year
   n_quarters <- lapply(param$quarters, length)
-  
+
   # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
   param$years <- purrr::map2(
     years, n_quarters,
@@ -131,21 +153,28 @@ load_pnadc <- function(save_to, years,
       rep(year, n)
     }
   )
-  
+
   # generaring these two paralell vectors of years and quarter to loop over
-  
+
   param$years    <- unlist(param$years)
   param$quarters <- unlist(param$quarters)
-  
+
+  latest_quarter_requested <- (
+    isTRUE(param$deflator) &&
+      length(param$years) == 1 &&
+      length(param$quarters) == 1 &&
+      is_latest_available_pnadc_quarter(param$years[[1]], param$quarters[[1]])
+  )
+
   #####################
   ## vars validation ##
   #####################
-  
+
   # Columns required to run the panel identification algorithms.
   # These must always be present in the data regardless of the user's selection.
   panel_required_basic    <- c("UPA", "V1008", "V1014", "V2007", "V20082", "V20081", "V2008")
   panel_required_advanced <- c(panel_required_basic, "V2003")
-  
+
   if (!is.null(vars) && param$panel != "none") {
     required_cols <- if (param$panel == "advanced") panel_required_advanced else panel_required_basic
     missing_cols  <- setdiff(required_cols, vars)
@@ -155,67 +184,88 @@ load_pnadc <- function(save_to, years,
         "and have been added automatically: ",
         paste(missing_cols, collapse = ", "),
         ".\n",
-        "Note: PNADcIBGE::get_pnadc() always returns ~210 structural columns (weights, ",
-        "deflators, identifiers) regardless of `vars`. The `vars` argument only adds ",
-        "columns on top of those, it does not restrict them.",
+        "Note: PNADcIBGE::get_pnadc() always returns structural columns ",
+        "(weights and identifiers) regardless of `vars`. When `deflator = TRUE`, ",
+        "deflator variables are also included. The `vars` argument only adds columns ",
+        "on top of those, it does not restrict them.",
         call. = FALSE
       )
       vars <- c(vars, missing_cols)
     }
   }
-  
+
   ##################
   ## Loading data ##
   ##################
-  
+
   # store info on all panels and column names
-  
+
   panel_list <- c()
   cnames     <- NULL
-  
+
   # download all quarters into a list of data frames
-  
+
   source_files <- purrr::map2(
     param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but qwe optimized it)
-    
+
     function(year, quarter) {
       base::message(paste0("Downloading PNADC ", year, " Q", quarter, "\n"))
-      
-      df <- get_pnadc(year = year, quarter = quarter, labels = FALSE, design = FALSE, vars = vars)
-      
+
+      df <- get_pnadc(
+        year = year,
+        quarter = quarter,
+        vars = vars,
+        defyear = param$defyear,
+        defperiod = param$defperiod,
+        labels = FALSE,
+        deflator = param$deflator,
+        design = FALSE
+      )
+
       if (is.null(df)) {
         return(NULL)
-        
+
       } else {
         # turns everything into numeric
         df <- df %>%
           dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
-        
+
         panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but the data for a quarter contains observations of many panels)
         #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-        
+
         # runs data cleaning if desired
         if (!param$raw_data) {
           df <- treat_pnadc(df)
         }
-        
+
         cnames <<- names(df)
-        
+
         # tag each row with its year and quarter for later reference
         df$Ano       <- year
         df$Trimestre <- quarter
-        
+
         return(df)
       }
     }
   )
-  
+
   # Remove NULL entries (failed downloads)
   source_files <- purrr::compact(source_files)
-  
+
   # bind all quarters into one data frame
   all_quarters <- purrr::list_rbind(source_files)
-  
+
+  if (latest_quarter_requested && length(source_files) == 1) {
+    warning(
+      "You are downloading the latest available PNADC quarter with `deflator = TRUE`. ",
+      "PNADcIBGE updates deflator values as new quarters are released, so the deflator ",
+      "variables and real income measures in this download may differ from versions ",
+      "downloaded previously. For this reason, these data are not directly comparable ",
+      "to earlier downloads of the same quarter.",
+      call. = FALSE
+    )
+  }
+
   # save quarterly files to disk if requested
   if (param$save_quarters) {
     if (param$rds) {
@@ -245,40 +295,40 @@ load_pnadc <- function(save_to, years,
         )
     }
   }
-  
+
   ## Return Raw Data
-  
+
   if (param$panel == "none") {
     return(paste("Quarters saved to", param$save_to))
   }
-  
+
   #################
   ## Panel Files ##
   #################
-  
+
   if (param$panel != "none") {
     ## Split data into panels
-    
+
     panel_list <- unique(panel_list) # listing all the panels included in the quarters downloaded
-    
+
     # Apply panel identification to each panel's data
-    
+
     identified_panels <- purrr::map(
       panel_list,
       function(p) {
         base::message(paste("Compiling panel", p, "\n"))
         dat <- all_quarters %>% dplyr::filter(V1014 == p)
-        
+
         message(paste("Running", param$panel, "identification on panel", p, "\n"))
         df <- dat %>%
           build_pnadc_panel(panel = param$panel)
-        
+
         return(df)
       }
     )
-    
+
     # save panel files
-    
+
     if (param$rds) {
       # RDS: write one flat file per panel
       purrr::map2(
@@ -304,12 +354,89 @@ load_pnadc <- function(save_to, years,
         )
     }
   }
-  
+
   ####################
   ## Returning Data ##
   ####################
-  
+
   return(paste("Panel files saved to", param$save_to))
+}
+
+get_latest_available_pnadc_quarter <- function() {
+  base_url <- paste0(
+    "https://ftp.ibge.gov.br/Trabalho_e_Rendimento/",
+    "Pesquisa_Nacional_por_Amostra_de_Domicilios_continua/",
+    "Trimestral/Microdados/"
+  )
+
+  root_index <- tryCatch(
+    readLines(url(base_url), warn = FALSE, encoding = "UTF-8"),
+    error = function(e) NULL
+  )
+
+  if (is.null(root_index)) {
+    return(NULL)
+  }
+
+  year_lines <- grep(
+    'href="[0-9]{4}/"',
+    root_index,
+    value = TRUE,
+    perl = TRUE,
+    useBytes = TRUE
+  )
+
+  if (length(year_lines) == 0) {
+    return(NULL)
+  }
+
+  latest_year <- max(as.integer(sub(
+    '.*href="([0-9]{4})/".*',
+    '\\1',
+    year_lines,
+    perl = TRUE
+  )))
+  year_index <- tryCatch(
+    readLines(url(paste0(base_url, latest_year, "/")), warn = FALSE, encoding = "UTF-8"),
+    error = function(e) NULL
+  )
+
+  if (is.null(year_index)) {
+    return(NULL)
+  }
+
+  quarter_lines <- grep(
+    paste0("PNADC_[0-9]{2}", latest_year, "\\.zip"),
+    year_index,
+    value = TRUE,
+    perl = TRUE,
+    useBytes = TRUE
+  )
+
+  if (length(quarter_lines) == 0) {
+    return(NULL)
+  }
+
+  list(
+    year = latest_year,
+    quarter = max(as.integer(sub(
+      paste0(".*PNADC_([0-9]{2})", latest_year, "\\.zip.*"),
+      "\\1",
+      quarter_lines,
+      perl = TRUE
+    )))
+  )
+}
+
+is_latest_available_pnadc_quarter <- function(year, quarter) {
+  latest_available <- get_latest_available_pnadc_quarter()
+
+  if (is.null(latest_available)) {
+    return(FALSE)
+  }
+
+  identical(as.integer(year), latest_available$year) &&
+    identical(as.integer(quarter), latest_available$quarter)
 }
 
 ######################
@@ -324,9 +451,9 @@ treat_pnadc <- function(df) {
   VD4001 <- V2009 <- ocupado <- desocupado <- forca_trab <- VD4005 <- VD4009 <- NULL
   VD4012 <- V4022 <- V4013 <- cnae_2dig <- V4010 <- cod_2dig <- NULL
   V3002 <- V4074 <- V4074A <- fora_forca_trab <- NULL
-  
+
   # regions
-  
+
   if ("UF" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -340,7 +467,7 @@ treat_pnadc <- function(df) {
           "5" ~ "Centro-Oeste"
         )
       )
-    
+
     # states (depend on UF as well)
     df <- df %>%
       dplyr::mutate(
@@ -376,9 +503,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # sex
-  
+
   if ("V2007" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -389,9 +516,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # age groups
-  
+
   if ("V2009" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -406,9 +533,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # education levels
-  
+
   if ("VD3004" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -422,12 +549,12 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # Labor Market definitions taken from:
   # https://github.com/datazoompuc/datazoom_labour_amazon/blob/main/Labour_Market/code/_definicoes_pnadcontinua_trimestral.do
-  
+
   # habitual income from all occupations
-  
+
   if (all(c("VD4019", "Habitual") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
@@ -435,9 +562,9 @@ treat_pnadc <- function(df) {
         rendimento_habitual_real = VD4019 * Habitual
       )
   }
-  
+
   # occupied status
-  
+
   if ("VD4002" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -445,10 +572,10 @@ treat_pnadc <- function(df) {
         desocupado = ifelse(VD4002 == 2, 1, 0)
       )
   }
-  
+
   # formal vs. informal
   # depends on derived columns ocupado/desocupado, so guard on both source and derived
-  
+
   if (all(c("ocupado", "VD4009", "VD4012") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
@@ -464,9 +591,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # public or private sector
-  
+
   if ("V4012" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -474,9 +601,9 @@ treat_pnadc <- function(df) {
         privado = ifelse(V4012 %in% c(1, 3, 5, 6, 7), 1, 0)
       )
   }
-  
+
   # labor force
-  
+
   if ("VD4001" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -484,9 +611,9 @@ treat_pnadc <- function(df) {
         forca_trab = ifelse(VD4001 == 1, 1, 0)
       )
   }
-  
+
   # active population
-  
+
   if (all(c("V2009", "ocupado", "desocupado") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
@@ -495,25 +622,25 @@ treat_pnadc <- function(df) {
         pea = ocupado + desocupado
       )
   }
-  
+
   # unemployed
-  
+
   if (all(c("forca_trab", "desocupado") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
         desempregado = forca_trab * desocupado
       )
   }
-  
+
   if ("VD4005" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
         desalentado = ifelse(VD4005 == 1, 1, 0)
       )
   }
-  
+
   # neet
-  
+
   if (all(c("desocupado", "forca_trab", "fora_forca_trab", "V3002") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
@@ -528,9 +655,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # positions in occupation
-  
+
   if (all(c("VD4009", "VD4012", "V4022") %in% names(df))) {
     df <- df %>%
       dplyr::mutate(
@@ -544,9 +671,9 @@ treat_pnadc <- function(df) {
         home_office = ifelse(V4022 %in% c(4, 5), 1, 0)
       )
   }
-  
+
   # translating sector codes
-  
+
   if ("V4013" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -648,9 +775,9 @@ treat_pnadc <- function(df) {
         )
       )
   }
-  
+
   # translating occupation codes
-  
+
   if ("V4010" %in% names(df)) {
     df <- df %>%
       dplyr::mutate(
@@ -704,6 +831,6 @@ treat_pnadc <- function(df) {
         cod_2dig = ifelse(V4010 == 9215, "Extrativistas florestais", cod_2dig)
       )
   }
-  
+
   return(df)
 }

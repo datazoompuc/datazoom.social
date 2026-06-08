@@ -138,7 +138,23 @@ e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
     - `TRUE`: if you want the PNADC variables as they come.
     - `FALSE`: if you want the treated version of the PNADC variables.
 
-6.  **save_options**: A logical vector of length 2 controlling file
+6.  **deflator**: A logical argument forwarded to
+    `PNADcIBGE::get_pnadc()`.
+
+    - `TRUE` (default): downloads the deflator variables made available
+      by `PNADcIBGE`.
+    - `FALSE`: downloads the microdata without those deflator variables.
+
+7.  **defyear**: The deflator year forwarded to `PNADcIBGE::get_pnadc()`
+    for annual microdata. It is ignored for quarterly downloads and used
+    only when `deflator = TRUE`.
+
+8.  **defperiod**: The deflator period forwarded to
+    `PNADcIBGE::get_pnadc()` for annual per-topic microdata. It is
+    ignored for quarterly downloads and used only when
+    `deflator = TRUE`.
+
+9.  **save_options**: A logical vector of length 2 controlling file
     saving behaviour:
 
     - `c(TRUE, TRUE)` (default): saves quarterly and panel files as
@@ -150,10 +166,10 @@ e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
     - `c(FALSE, FALSE)`: does not save quarterly files; saves panel
       files as a `.parquet` dataset.
 
-7.  **vars**: A character vector of additional variable names to
+10. **vars**: A character vector of additional variable names to
     download, following the same convention as `vars` in
     `PNADcIBGE::get_pnadc()`. Use `NULL` (the default) to download all
-    available microdata columns. See the note above regarding the ~210
+    available microdata columns. See the note above regarding the
     structural columns that are always returned by
     `PNADcIBGE::get_pnadc()` regardless of this argument
 
@@ -191,6 +207,9 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced_3",
   raw_data = FALSE,
+  deflator = TRUE,
+  defyear = NULL,
+  defperiod = NULL,
   save_options = c(TRUE, TRUE),
   vars = NULL
 )
@@ -230,6 +249,17 @@ load_pnadc(
 )
 ```
 
+To download PNADC data without the deflator variables supplied by
+`PNADcIBGE`, run:
+
+``` r
+load_pnadc(
+  save_to = "Directory/You/Would/like/to/save/the/files",
+  years = 2022,
+  deflator = FALSE
+)
+```
+
 To download PNADC data, save quarters on disk, and save panels as
 Parquet, run:
 
@@ -252,9 +282,12 @@ load_pnadc(
 )
 ```
 
-To download only a specific subset of variables — for example, age
-(`V2009`) and habitual income (`VD4019`) — alongside the structural
-columns that `PNADcIBGE` always returns, run:
+To download only a specific subset of variables - for example, age
+(`V2009`) and habitual income (`VD4019`) - alongside the structural
+columns that `PNADcIBGE` always returns, run: To download only a
+specific subset of variables - for example, age (`V2009`) and habitual
+income (`VD4019`) - alongside the structural columns that `PNADcIBGE`
+always returns, run:
 
 ``` r
 load_pnadc(
@@ -264,25 +297,31 @@ load_pnadc(
 )
 ```
 
-> **Note:** `PNADcIBGE::get_pnadc()` always downloads a set of ~210
-> structural columns regardless of the `vars` argument. These include
-> survey design weights (`V1027`, `V1028`, `V1028001`–`V1028200`,
-> `posest`, `posest_sxi`), deflator variables (`Habitual`, `Efetivo`),
-> and identifiers such as `UF`, `Estrato`, `V1029`, `V1033`, and
-> `ID_DOMICILIO`. The `vars` argument adds columns **on top of** those;
-> it does not restrict them. Use `vars = NULL` (the default) to download
-> all available microdata columns.
+> (`V1027`, `V1028`, `V1028001`-`V1028200`, `posest`, `posest_sxi`) and
+> columns regardless of the `vars` argument. These include survey design
+> weights (`V1027`, `V1028`, `V1028001`-`V1028200`, `posest`,
+> `posest_sxi`) and identifiers such as `UF`, `Estrato`, `V1029`,
+> `V1033`, and `ID_DOMICILIO`. When `deflator = TRUE`, deflator
+> variables (`Habitual`, `Efetivo`) are also included. The `vars`
+> argument adds columns **on top of** those; it does not restrict them.
+> Use `vars = NULL` (the default) to download all available microdata
+> columns.
+
+> **Deflation:** Deflation support in `load_pnadc()` is provided by
+> `PNADcIBGE`. For the deflator methodology and the deflator files
+> themselves, see `PNADcIBGE::pnadc_deflator()` and the corresponding
+> documentation in that package.
 
 If you specify `vars` and also request panel identification, any columns
-required by the identification algorithm that are absent from `vars`
-will be added automatically and a warning will tell you which ones were
-added. For example, when using `panel = "advanced_3"`, the columns
+\# V2007, V20082, V20081, V2008 and V2003 - these are added
+automatically added automatically and a warning will tell you which ones
+were added. For example, when using `panel = "advanced_3"`, the columns
 `V2007`, `V20082`, `V20081`, `V2008`, and `V2003` must be present. If
 you omit them from `vars`, the function adds them for you:
 
 ``` r
 # Only V2009 requested, but panel = "advanced_3" needs
-# V2007, V20082, V20081, V2008 and V2003 — these are added automatically
+# V2007, V20082, V20081, V2008 and V2003 - these are added automatically
 # with a warning.
 load_pnadc(
   save_to = "Directory/You/Would/like/to/save/the/files",
