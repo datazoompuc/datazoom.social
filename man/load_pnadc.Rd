@@ -10,6 +10,9 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
+  deflator = TRUE,
+  defyear = NULL,
+  defperiod = NULL,
   save_options = c(TRUE, TRUE),
   vars = NULL
 )
@@ -24,6 +27,21 @@ load_pnadc(
 \item{panel}{A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}}
 
 \item{raw_data}{A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.}
+
+\item{deflator}{A logical passed to \code{\link[PNADcIBGE]{get_pnadc}}. If
+\code{TRUE} (the default), deflator variables supplied by
+\code{PNADcIBGE} are included in the downloaded microdata.}
+
+\item{defyear}{The deflator year passed to \code{\link[PNADcIBGE]{get_pnadc}}
+for annual microdata. This argument is ignored for quarterly downloads and
+is used only when \code{deflator = TRUE}. See
+\code{\link[PNADcIBGE]{get_pnadc}} for details.}
+
+\item{defperiod}{The deflator period passed to
+\code{\link[PNADcIBGE]{get_pnadc}} for annual per-topic microdata. This
+argument is ignored for quarterly downloads and is used only when
+\code{deflator = TRUE}. See \code{\link[PNADcIBGE]{get_pnadc}} for
+details.}
 
 \item{save_options}{A \code{logical} vector of length 2. Controls whether quarterly
 files are saved and in which format all files are saved. Panel files are
@@ -47,13 +65,18 @@ PNADC microdata exactly as published by IBGE (e.g. \code{"VD4019"},
 
 Note that \code{\link[PNADcIBGE]{get_pnadc}} always returns a set of
 structural columns regardless of this argument, these include survey
-design weights (\code{V1027}, \code{V1028}, \code{V1028001}, \code{V1028200},
-\code{posest}, \code{posest_sxi}), deflator variables (\code{Habitual},
-\code{Efetivo}), and identifiers such as \code{UF}, \code{Estrato},
-\code{V1029}, \code{V1033}, \code{ID_DOMICILIO}, totalling around 233
-columns. The \code{vars} argument adds \emph{on top of} those columns;
-it does not restrict them. Use \code{NULL} (the default) to download all
-available microdata columns.
+design weights (\code{V1027}, \code{V1028}, \code{V1028001},
+\code{V1028200}, \code{posest}, \code{posest_sxi}) and identifiers such as
+\code{UF}, \code{Estrato}, \code{V1029}, \code{V1033},
+\code{ID_DOMICILIO}, totalling around 210 columns. When
+\code{deflator = TRUE}, deflator variables (\code{Habitual},
+\code{Efetivo}) are also included. The \code{vars} argument adds
+\emph{on top of} those columns; it does not restrict them. Use \code{NULL}
+(the default) to download all available microdata columns.
+
+Deflation support in this wrapper is provided by \code{PNADcIBGE}. For the
+deflator methodology and the deflator files themselves, see
+\code{\link[PNADcIBGE]{pnadc_deflator}} in that package.
 
 If \code{panel} is not \code{"none"}, any columns required by the panel
 identification algorithm that are missing from \code{vars} will be added
@@ -85,6 +108,7 @@ load_pnadc(
   quarters = 1:4,
   panel = "advanced",
   raw_data = FALSE,
+  deflator = TRUE,
   save_options = c(FALSE, FALSE)
 )
 \dontshow{\}) # examplesIf}
