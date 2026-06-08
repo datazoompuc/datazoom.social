@@ -1,18 +1,18 @@
-#' Donate Birth Dates for PNADC
-#'
-#' This internal function reproduces Rafael Osorio's birth date donation method. 
-#' It estimates and imputes missing birth dates (day, month, and year) by matching 
-#' individuals with donors from different interviews within the same household based 
-#' on sex, acceptable household condition changes, and estimated age.
-#'
-#' @param dat A data frame with PNADC data to be processed.
-#'
-#' @return A modified dataset with donated birth dates replacing missing ones. 
-#' The final dataset includes updated \code{birth_day}, \code{birth_month}, and 
-#' \code{birth_year} variables.
-#' 
-#' @keywords internal
-#' @noRd
+# Donate Birth Dates for PNADC
+#
+# This internal function reproduces Rafael Osorio's birth date donation method. 
+# It estimates and imputes missing birth dates (day, month, and year) by matching 
+# individuals with donors from different interviews within the same household based 
+# on sex, acceptable household condition changes, and estimated age.
+#
+# @param dat A data frame with PNADC data to be processed.
+#
+# @return A modified dataset with donated birth dates replacing missing ones. 
+# The final dataset includes updated \code{birth_day}, \code{birth_month}, and 
+# \code{birth_year} variables.
+# 
+# @keywords internal
+# @noRd
 donate_birth_dates <- function(dat) {
   
   ###########################
