@@ -3,10 +3,10 @@
 #' This function generates a summary dataframe indicating the count of missing
 #' interviews for each individual and the unconditional tracking rates.
 #'
-#' data: The input data frame, preferably a PNADc panel file.
-#' panel: The identification strategy: "basic", "advanced_1", "advanced_2", "advanced_3" or "households".
+#' @param data The input data frame, preferably a PNADc panel file.
+#' @param panel The identification strategy: "basic", "advanced_1", "advanced_2", "advanced_3" or "households".
 #'
-#' A data frame summarizing missing interviews and the tracking rates.
+#' @return A data frame summarizing missing interviews and the tracking rates.
 cria_df_de_atrito <- function(data, panel) {
   # Binding globals
   V1016 <- individual_identifier <- disappearances <- NULL

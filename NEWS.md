@@ -1,4 +1,5 @@
-# datazoom.social (minor version)
+# datazoom.social 0.1.1
+
 
 ## datazoom.social 0.1.0.0
 
