@@ -183,7 +183,7 @@ load_pnadc(
      * `TRUE`: if you want the PNADC variables as they come.
      * `FALSE`: if you want the treated version of the PNADC variables.
 
-  6. **save_options**: A logical vector of length 2 controlling file saving behaviour:
+  6. **save_options**: A logical vector of length 2 controlling file saving behavior:
   
      * `c(TRUE, TRUE)` (default): saves quarterly and panel files as `.rds`.
      * `c(FALSE, TRUE)`: does not save quarterly files; saves panel files as `.rds`.

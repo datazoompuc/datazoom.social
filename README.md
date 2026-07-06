@@ -31,7 +31,7 @@ This package is in development: more datasets will be added soon.
 In the first version of the package, the focus is on the [Continuous
 PNAD](https://www.ibge.gov.br/estatisticas/sociais/populacao/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html)
 panel. We allow for many quarters to be easily downloaded and read, and
-provide identification of individuals accross time forming a panel.
+provide identification of individuals across time forming a panel.
 
 # Installation
 
@@ -254,7 +254,7 @@ load_pnadc(
     - `FALSE`: if you want the treated version of the PNADC variables.
 
 6.  **save_options**: A logical vector of length 2 controlling file
-    saving behaviour:
+    saving behavior:
 
     - `c(TRUE, TRUE)` (default): saves quarterly and panel files as
       `.rds`.
