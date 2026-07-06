@@ -15,7 +15,11 @@ Changes in this version:
 ## Test environments
 
 * local macOS install (x86_64-apple-darwin20), R 4.5.1 -- 0 errors | 0 warnings | 0 notes
-* win-builder (R-devel) -- pending (awaiting results)
+* win-builder (R-devel) -- Status: OK (0 errors | 0 warnings | 0 notes)
+
+## Notes on URLs
+
+* https://www.ibge.gov.br returns 403 Forbidden in automated checks but is a valid, accessible URL in browsers. The server blocks automated access.
 
 ## Vignettes
 
