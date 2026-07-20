@@ -28,6 +28,7 @@ build_pnadc_panel <- function(dat, panel) {
   Ano.A <- Ano.B <- Trimestre.A <- Trimestre.B <- NULL
   V2007.A <- V2007.B <- birth_day.A <- birth_day.B <- NULL
   birth_month.A <- birth_month.B <- V2009.A <- V2009.B <- NULL
+  id_rs2.A <- id_rs2.B <- NULL
   id_rs3_fuzzy <- cluster_id <- NULL
   
   ###################
@@ -206,9 +207,9 @@ build_pnadc_panel <- function(dat, panel) {
       
       # 2. Build the Nest (Self-join within household)
       nest <- candidates %>%
-        dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre) %>%
+        dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre) %>%
         dplyr::inner_join(
-          candidates %>% dplyr::select(row_id, id_dom, V2007, birth_day, birth_month, V2009, Ano, Trimestre),
+          candidates %>% dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre),
           by = "id_dom",
           suffix = c(".A", ".B"),
           relationship = "many-to-many"
@@ -221,7 +222,16 @@ build_pnadc_panel <- function(dat, panel) {
           abs(birth_day.A - birth_day.B) <= 4,
           abs(birth_month.A - birth_month.B) <= 2,
           abs(V2009.A - V2009.B) <= dplyr::if_else(V2009.A < 25, 2, exp(V2009.A / 30))
-        )
+        ) %>%
+        dplyr::group_by(row_id.A, Ano.B, Trimestre.B) %>%
+        dplyr::filter(
+          if (any(id_rs2.A == id_rs2.B, na.rm = TRUE)) {
+            id_rs2.A == id_rs2.B
+          } else {
+            TRUE
+          }
+        ) %>%
+        dplyr::ungroup()
       
       # 3. Apply Uniqueness Tie-Breaker
       valid_matches <- nest %>%
