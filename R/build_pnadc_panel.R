@@ -26,6 +26,7 @@ build_pnadc_panel <- function(dat, panel) {
   q_count_rs1 <- q_count_rs2 <- q_count_rs3 <- NULL
   is_candidate <- row_id <- row_id.A <- row_id.B <- NULL
   Ano.A <- Ano.B <- Trimestre.A <- Trimestre.B <- NULL
+  period_key <- period_key.A <- period_key.B <- already_occupied <- NULL
   V2007.A <- V2007.B <- birth_day.A <- birth_day.B <- NULL
   birth_month.A <- birth_month.B <- V2009.A <- V2009.B <- NULL
   id_rs2.A <- id_rs2.B <- NULL
@@ -92,7 +93,7 @@ build_pnadc_panel <- function(dat, panel) {
     # Treat missing values
     dat <- dat %>% dplyr::mutate(
       id_ind = dplyr::case_when(
-        V2008 == NA | V20081 == NA | V20082 == NA ~ NA_real_,
+        is.na(V2008) | is.na(V20081) | is.na(V20082) ~ NA_real_,
         .default = id_ind
       )
     )
@@ -128,11 +129,19 @@ build_pnadc_panel <- function(dat, panel) {
     # Stage 1 evaluation and fallback
     dat <- dat %>%
       dplyr::mutate(
-        q_count_ind = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+        q_count_ind = dplyr::if_else(
+          is.na(id_ind),
+          NA_integer_,
+          dplyr::n_distinct(interaction(Ano, Trimestre))
+        ),
         .by = "id_ind"
       ) %>%
       dplyr::mutate(
-        q_count_rs1 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+        q_count_rs1 = dplyr::if_else(
+          is.na(id_rs1),
+          NA_integer_,
+          dplyr::n_distinct(interaction(Ano, Trimestre))
+        ),
         .by = "id_rs1"
       ) %>%
       dplyr::mutate(
@@ -172,7 +181,11 @@ build_pnadc_panel <- function(dat, panel) {
       # Stage 2 evaluation and fallback
       dat <- dat %>%
         dplyr::mutate(
-          q_count_rs2 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+          q_count_rs2 = dplyr::if_else(
+            is.na(id_rs2),
+            NA_integer_,
+            dplyr::n_distinct(interaction(Ano, Trimestre))
+          ),
           .by = "id_rs2"
         ) %>%
         dplyr::mutate(
@@ -205,17 +218,36 @@ build_pnadc_panel <- function(dat, panel) {
       
       candidates <- dat %>% dplyr::filter(is_candidate)
       
+      # Quarters already assigned to each Stage 2 trajectory. Fuzzy matching
+      # must only search for observations in quarters that are still missing.
+      occupied_periods <- candidates %>%
+        dplyr::filter(!is.na(id_rs2)) %>%
+        dplyr::transmute(
+          id_rs2.A = id_rs2,
+          period_key.B = paste(Ano, Trimestre, sep = "-"),
+          already_occupied = TRUE
+        ) %>%
+        dplyr::distinct()
+      
       # 2. Build the Nest (Self-join within household)
       nest <- candidates %>%
-        dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre) %>%
+        dplyr::mutate(period_key = paste(Ano, Trimestre, sep = "-")) %>%
+        dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre, period_key) %>%
         dplyr::inner_join(
-          candidates %>% dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre),
+          candidates %>%
+            dplyr::mutate(period_key = paste(Ano, Trimestre, sep = "-")) %>%
+            dplyr::select(row_id, id_dom, id_rs2, V2007, birth_day, birth_month, V2009, Ano, Trimestre, period_key),
           by = "id_dom",
           suffix = c(".A", ".B"),
           relationship = "many-to-many"
         ) %>%
+        dplyr::left_join(
+          occupied_periods,
+          by = c("id_rs2.A", "period_key.B")
+        ) %>%
         # Apply strict fuzzy evaluation constraints inside the nest
         dplyr::filter(
+          is.na(already_occupied),
           row_id.A != row_id.B,
           interaction(Ano.A, Trimestre.A) != interaction(Ano.B, Trimestre.B),
           V2007.A == V2007.B,
@@ -239,12 +271,27 @@ build_pnadc_panel <- function(dat, panel) {
         dplyr::filter(dplyr::n() == 1) %>% 
         dplyr::ungroup()
       
+      # Preserve the links already established by id_rs2 when constructing the
+      # graph. This lets a fuzzy match extend an existing trajectory as a whole.
+      rs2_edges <- candidates %>%
+        dplyr::filter(!is.na(id_rs2)) %>%
+        dplyr::arrange(id_rs2, Ano, Trimestre, row_id) %>%
+        dplyr::mutate(row_id.B = dplyr::lead(row_id), .by = "id_rs2") %>%
+        dplyr::filter(!is.na(row_id.B)) %>%
+        dplyr::transmute(row_id.A = row_id, row_id.B)
+      
+      graph_edges <- dplyr::bind_rows(
+        valid_matches %>% dplyr::select(row_id.A, row_id.B),
+        rs2_edges
+      ) %>%
+        dplyr::distinct()
+      
       # 4. Generate Graph & Component IDs
-      if (nrow(valid_matches) > 0) {
+      if (nrow(graph_edges) > 0) {
         
         edges_char <- cbind(
-          as.character(valid_matches$row_id.A), 
-          as.character(valid_matches$row_id.B)
+          as.character(graph_edges$row_id.A), 
+          as.character(graph_edges$row_id.B)
         )
         
         g <- igraph::graph_from_edgelist(edges_char, directed = FALSE)
@@ -274,7 +321,11 @@ build_pnadc_panel <- function(dat, panel) {
       # 5. Evaluate and Fallback
       dat <- dat %>%
         dplyr::mutate(
-          q_count_rs3 = dplyr::n_distinct(interaction(Ano, Trimestre)), 
+          q_count_rs3 = dplyr::if_else(
+            is.na(id_rs3),
+            NA_integer_,
+            dplyr::n_distinct(interaction(Ano, Trimestre))
+          ),
           .by = "id_rs3"
         ) %>%
         dplyr::mutate(
@@ -292,7 +343,7 @@ build_pnadc_panel <- function(dat, panel) {
         )
       
       # Discard the nest and related tracking variables from the environment
-      rm(candidates, nest, valid_matches)
+      rm(candidates, occupied_periods, nest, valid_matches, rs2_edges, graph_edges)
     }
     
     # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2 & id_rs3)
