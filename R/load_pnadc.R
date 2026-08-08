@@ -231,7 +231,7 @@ load_pnadc <- function(save_to, years,
           dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
 
         panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but the data for a quarter contains observations of many panels)
-        #<<- stabilishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
+        #<<- establishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
 
         # runs data cleaning if desired
         if (!param$raw_data) {
