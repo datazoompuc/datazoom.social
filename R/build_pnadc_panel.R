@@ -1,3 +1,93 @@
+#' Incremental Union-Find with a temporal capacity constraint
+#'
+#' replaces igraph::graph_from_edgelist() + components()
+#' for Stage 3 of the "advanced_3" panel. Merges edges one at a time -
+#' rs2_edges first (already validated by Stage 2), followed by fuzzy edges
+#' sorted from the closest matches (low match_score) to the most uncertain -
+#' and REJECTS any merge that would create a temporal collision (two rows
+#' from the same cluster in the same Ano/Trimestre). Unlike
+#' igraph::components(), which takes the transitive closure of all edges
+#' without ever checking the consistency of the resulting clusters, only
+#' the specific offending edge is rejected here - the valid links in the
+#' rest of the cluster are preserved.
+#'
+#' Diagnosis of the problem and empirical validation of this fix:
+#' see notes_fuzzy_matching_igraph_pnadc.pdf,
+#' journal_enquete_matching_pnadc_advanced3.pdf, and the panel-by-panel tests
+#' from August 16-17, 2026 (Option A vs. Option B).
+#'
+#' @param candidates data.frame with at least row_id, Ano, Trimestre - rows
+#'   eligible for fuzzy matching (q_count_rs2 < 5 or missing id_rs2)
+#' @param valid_matches data.frame with row_id.A, row_id.B, match_score - edges
+#'   produced by fuzzy matching, after applying the uniqueness tie-breaker
+#' @param rs2_edges data.frame with row_id.A, row_id.B - internal edges within
+#'   already known id_rs2 trajectories
+#'
+#' @return data.frame with row_id, cluster_root (internal group identifier,
+#'   to be offset by max(id_rs2) to avoid any collision with id_rs2)
+#'
+#' @keywords internal
+build_id_rs3_capacity_constrained <- function(candidates, valid_matches, rs2_edges) {
+  
+  all_row_ids <- candidates$row_id
+  period_key  <- paste(candidates$Ano, candidates$Trimestre, sep = "-")
+  n <- length(all_row_ids)
+  
+  parent   <- seq_len(n)
+  occupied <- as.list(period_key)  # Each row initially occupies its own period
+  
+  find_root <- function(x) {
+    while (parent[x] != x) {
+      parent[x] <<- parent[parent[x]]  # path halving
+      x <- parent[x]
+    }
+    x
+  }
+  
+  try_merge <- function(a, b) {
+    if (is.na(a) || is.na(b)) return(invisible(NULL))
+    ra <- find_root(a); rb <- find_root(b)
+    if (ra == rb) return(invisible(NULL))
+    if (length(intersect(occupied[[ra]], occupied[[rb]])) == 0) {
+      parent[rb] <<- ra
+      occupied[[ra]] <<- union(occupied[[ra]], occupied[[rb]])
+    }
+    # Else: collision detected, we discard this edge (nothing to be done)
+    invisible(NULL)
+  }
+  
+  # 1. rs2_edges first : already reliable, never in conflict between them
+  if (nrow(rs2_edges) > 0) {
+    pa <- match(rs2_edges$row_id.A, all_row_ids)
+    pb <- match(rs2_edges$row_id.B, all_row_ids)
+    for (k in seq_along(pa)) try_merge(pa[k], pb[k])
+  }
+  
+  # 2. aretes fuzzy next, from the closest to the most questionable
+  if (nrow(valid_matches) > 0) {
+    valid_matches <- valid_matches[order(valid_matches$match_score), ]
+    pa <- match(valid_matches$row_id.A, all_row_ids)
+    pb <- match(valid_matches$row_id.B, all_row_ids)
+    for (k in seq_along(pa)) try_merge(pa[k], pb[k])
+  }
+  
+  roots <- vapply(seq_len(n), find_root, integer(1))
+  
+  # IMPORTANT: keep only candidates that participated in AT LEAST ONE
+  # edge (fuzzy or rs2). Without this filter, an isolated candidate (no edges,
+  # never merged with anyone) would still receive a cluster_root -
+  # its own singleton root - and therefore a new, purely artificial "singleton"
+  # id_rs3 covering only one quarter. This matches the behavior of
+  # igraph::graph_from_edgelist() that we are replacing: a node absent from
+  # every edge is never created as a graph vertex, and therefore never appears
+  # in igraph::components(). We faithfully reproduce that rule here.
+  connected_ids <- unique(c(rs2_edges$row_id.A, rs2_edges$row_id.B,
+                            valid_matches$row_id.A, valid_matches$row_id.B))
+  
+  cluster_map_raw <- data.frame(row_id = all_row_ids, cluster_root = roots)
+  cluster_map_raw[cluster_map_raw$row_id %in% connected_ids, ]
+}
+
 #' Build PNADc Panel
 #'
 #' This function builds a panel dataset from PNADC data, identifying households and individuals.
@@ -9,7 +99,7 @@
 #'
 #' @examplesIf interactive()
 #' # Example usage:
-#' 
+#'
 #' panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
 #'
 #' @export
@@ -30,10 +120,10 @@ build_pnadc_panel <- function(dat, panel) {
   V2007.A <- V2007.B <- birth_day.A <- birth_day.B <- NULL
   birth_month.A <- birth_month.B <- V2009.A <- V2009.B <- NULL
   id_rs2.A <- id_rs2.B <- NULL
-  id_rs3_fuzzy <- cluster_id <- NULL
+  id_rs3_fuzzy <- cluster_root <- NULL
   
   ###################
-  ## Cleaning Data ## 
+  ## Cleaning Data ##
   ###################
   
   dat <- dat %>%
@@ -53,7 +143,7 @@ build_pnadc_panel <- function(dat, panel) {
     )
   
   #############################
-  ## Define Basic Parameters ## 
+  ## Define Basic Parameters ##
   #############################
   
   # Check if the panel type is 'none'; if so, return the original raw data
@@ -191,7 +281,7 @@ build_pnadc_panel <- function(dat, panel) {
         dplyr::mutate(
           # id_rs2 falls back to the already-optimized id_rs1
           id_rs2 = dplyr::case_when(
-            q_count_rs1 == 5 ~ id_rs1, 
+            q_count_rs1 == 5 ~ id_rs1,
             q_count_rs2 > q_count_rs1 & q_count_rs2 <= 5 ~ id_rs2,
             TRUE ~ dplyr::coalesce(id_rs1, id_rs2)
           ),
@@ -268,8 +358,16 @@ build_pnadc_panel <- function(dat, panel) {
       # 3. Apply Uniqueness Tie-Breaker
       valid_matches <- nest %>%
         dplyr::group_by(row_id.A, Ano.B, Trimestre.B) %>%
-        dplyr::filter(dplyr::n() == 1) %>% 
-        dplyr::ungroup()
+        dplyr::filter(dplyr::n() == 1) %>%
+        dplyr::ungroup() %>%
+        # Score de confiance (plus bas = paire plus proche/plausible) : utilise
+        # par l'union-find ci-dessous pour departager les aretes en conflit,
+        # en donnant priorite aux meilleures correspondances.
+        dplyr::mutate(
+          match_score = abs(birth_day.A - birth_day.B) +
+            abs(birth_month.A - birth_month.B) * 30 +
+            abs(V2009.A - V2009.B) * 365
+        )
       
       # Preserve the links already established by id_rs2 when constructing the
       # graph. This lets a fuzzy match extend an existing trajectory as a whole.
@@ -280,43 +378,29 @@ build_pnadc_panel <- function(dat, panel) {
         dplyr::filter(!is.na(row_id.B)) %>%
         dplyr::transmute(row_id.A = row_id, row_id.B)
       
-      graph_edges <- dplyr::bind_rows(
-        valid_matches %>% dplyr::select(row_id.A, row_id.B),
-        rs2_edges
-      ) %>%
-        dplyr::distinct()
+      # 4. Cluster IDs using capacity-constrained union-find
+      # (replaces igraph::components(), which computed the transitive closure
+      # of the edges without ever checking whether a resulting cluster contained
+      # two rows from the same quarter. See build_id_rs3_capacity_constrained():
+      # rs2_edges are merged first, followed by fuzzy edges from the closest
+      # matches to the most uncertain ones. Any merge that would create a temporal
+      # collision is rejected (only that specific edge, not the entire cluster).
+      cluster_map_raw <- build_id_rs3_capacity_constrained(candidates, valid_matches, rs2_edges)
       
-      # 4. Generate Graph & Component IDs
-      if (nrow(graph_edges) > 0) {
-        
-        edges_char <- cbind(
-          as.character(graph_edges$row_id.A), 
-          as.character(graph_edges$row_id.B)
-        )
-        
-        g <- igraph::graph_from_edgelist(edges_char, directed = FALSE)
-        comps <- igraph::components(g)$membership
-        
-        cluster_map <- data.frame(
-          row_id = as.integer(names(comps)),
-          cluster_id = as.integer(comps)
-        )
-        
-        m3 <- max(dat$id_rs2, na.rm = TRUE)
-        cluster_map$id_rs3_fuzzy <- cluster_map$cluster_id + m3
-        
-        dat <- dat %>%
-          dplyr::left_join(cluster_map, by = "row_id") %>%
-          dplyr::mutate(
-            id_rs3 = dplyr::case_when(
-              !is_candidate ~ id_rs2,
-              !is.na(id_rs3_fuzzy) ~ id_rs3_fuzzy,
-              TRUE ~ id_rs2
-            )
+      m3 <- max(dat$id_rs2, na.rm = TRUE)
+      cluster_map <- cluster_map_raw %>%
+        dplyr::mutate(id_rs3_fuzzy = cluster_root + m3) %>%
+        dplyr::select(row_id, id_rs3_fuzzy)
+      
+      dat <- dat %>%
+        dplyr::left_join(cluster_map, by = "row_id") %>%
+        dplyr::mutate(
+          id_rs3 = dplyr::case_when(
+            !is_candidate ~ id_rs2,
+            !is.na(id_rs3_fuzzy) ~ id_rs3_fuzzy,
+            TRUE ~ id_rs2
           )
-      } else {
-        dat <- dat %>% dplyr::mutate(id_rs3 = id_rs2)
-      }
+        )
       
       # 5. Evaluate and Fallback
       dat <- dat %>%
@@ -343,7 +427,7 @@ build_pnadc_panel <- function(dat, panel) {
         )
       
       # Discard the nest and related tracking variables from the environment
-      rm(candidates, occupied_periods, nest, valid_matches, rs2_edges, graph_edges)
+      rm(candidates, occupied_periods, nest, valid_matches, rs2_edges, cluster_map_raw, cluster_map)
     }
     
     # Cleanup auxiliary variables mapped during the advanced stages (KEEPING id_rs1 & id_rs2 & id_rs3)
