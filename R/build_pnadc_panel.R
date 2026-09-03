@@ -63,7 +63,7 @@ build_id_rs3_capacity_constrained <- function(candidates, valid_matches, rs2_edg
     for (k in seq_along(pa)) try_merge(pa[k], pb[k])
   }
   
-  # 2. aretes fuzzy next, from the closest to the most questionable
+  # 2. Fuzzy edges next, from the closest to the most questionable
   if (nrow(valid_matches) > 0) {
     valid_matches <- valid_matches[order(valid_matches$match_score), ]
     pa <- match(valid_matches$row_id.A, all_row_ids)
@@ -360,9 +360,9 @@ build_pnadc_panel <- function(dat, panel) {
         dplyr::group_by(row_id.A, Ano.B, Trimestre.B) %>%
         dplyr::filter(dplyr::n() == 1) %>%
         dplyr::ungroup() %>%
-        # Score de confiance (plus bas = paire plus proche/plausible) : utilise
-        # par l'union-find ci-dessous pour departager les aretes en conflit,
-        # en donnant priorite aux meilleures correspondances.
+        # Confidence score (lower = closer pair/more plausible) : used
+        # by the union-find below to resolve conflicts betweens edges,
+        # prioritizing the best matches.
         dplyr::mutate(
           match_score = abs(birth_day.A - birth_day.B) +
             abs(birth_month.A - birth_month.B) * 30 +
