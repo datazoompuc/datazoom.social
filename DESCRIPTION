@@ -22,7 +22,6 @@ URL: https://datazoom.com.br/en/
 Imports: 
     arrow,
     dplyr,
-    igraph,
     magrittr,
     PNADcIBGE,
     purrr,
