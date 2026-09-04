@@ -205,9 +205,6 @@ build_pnadc_panel <- function(dat, panel) {
 
     ## Stage 3 (Fuzzy Matching):
     if (panel == "advanced_3") {
-      if (!requireNamespace("igraph", quietly = TRUE)) {
-        stop("The 'igraph' package is required for the 'advanced_3' panel algorithm. Please install it using install.packages('igraph').")
-      }
 
       # 1. Target Candidates (Less than 5 successful matches in id_rs2)
       dat <- dat %>%
