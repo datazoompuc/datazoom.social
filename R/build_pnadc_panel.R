@@ -14,6 +14,11 @@
 #'
 #' @export
 build_pnadc_panel <- function(dat, panel) {
+  # Start the overall function timer here, before any processing, so the
+  # elapsed time reported at the end reflects the entire call (data cleaning
+  # + every identification stage that ran), not just a sub-piece of it.
+  build_pnadc_panel_t0 <- Sys.time()
+
   ###########################
   ## Bind Global Variables ##
   ###########################
@@ -58,7 +63,51 @@ build_pnadc_panel <- function(dat, panel) {
 
   # Check if the panel type is 'none'; if so, return the original raw data
   if (panel == "none") {
+    elapsed <- Sys.time() - build_pnadc_panel_t0
+    message(sprintf(
+      "build_pnadc_panel(): finished in %.2f %s (panel = 'none').",
+      as.numeric(elapsed), units(elapsed)
+    ))
     return(dat)
+  }
+
+  # Warn about 'advanced_3' as early as possible -- right after we know which
+  # panel level was requested, and before Basic/Stage 1/Stage 2 even start
+  # running -- since it is by far the slowest level (it processes every
+  # id_rs2 edge and every surviving fuzzy match one by one in a union-find
+  # pass, often several hundred thousand edges on a full panel).
+  #
+  # In an interactive session (RStudio console, interactive R session) we
+  # offer a real choice with readline() before spending that time: keep
+  # running 'advanced_3', or downgrade this call to 'advanced_2' (much
+  # cheaper, no fuzzy self-join / union-find pass at all). We implement the
+  # downgrade simply by reassigning the local `panel` variable: every check
+  # further down the function (the Stage 3 block, the id_rs3 column cleanup,
+  # the final "Pasting Panel Number" section) branches on `panel`, so once
+  # it is set to "advanced_2" here, the rest of the function behaves exactly
+  # as if build_pnadc_panel(dat, "advanced_2") had been called from the
+  # start -- no separate code path needed.
+  #
+  # readline() only works interactively: in a non-interactive run (e.g. this
+  # file sourced from an unattended script such as BAIXAR E CONSTRUIR
+  # PAINEIS.R, which calls build_pnadc_panel() in a loop over many panels)
+  # there is nobody to answer a prompt, so interactive() is FALSE there and
+  # we just print the notice and let 'advanced_3' run unattended, as before.
+  if (panel == "advanced_3") {
+    if (interactive()) {
+      resposta <- readline(
+        "Advanced 3 algorithm may take a while to run. Continue with advanced_3, or switch to advanced_2? [3/2]: "
+      )
+      resposta <- tolower(trimws(resposta))
+      if (resposta %in% c("2", "advanced_2", "adv2", "adv_2")) {
+        message("build_pnadc_panel(): switching to 'advanced_2' as requested.")
+        panel <- "advanced_2"
+      }
+      # Any other answer (blank/Enter, "3", "advanced_3", ...) leaves
+      # `panel` untouched and the function proceeds with 'advanced_3'.
+    } else {
+      message("Advanced 3 algorithm may take a while to run.")
+    }
   }
 
   ##########################
@@ -205,6 +254,16 @@ build_pnadc_panel <- function(dat, panel) {
 
     ## Stage 3 (Fuzzy Matching):
     if (panel == "advanced_3") {
+      # The user was already warned about this stage's runtime as soon as
+      # panel == "advanced_3" was known, at the very top of the function
+      # (before Basic/Stage 1/Stage 2 ran). We just start this stage's own
+      # timer here, so we can report how long the fuzzy self-join + union-find
+      # clustering specifically took, as opposed to the function as a whole.
+      stage3_t0 <- Sys.time()
+
+      if (!requireNamespace("igraph", quietly = TRUE)) {
+        stop("The 'igraph' package is required for the 'advanced_3' panel algorithm. Please install it using install.packages('igraph').")
+      }
 
       # 1. Target Candidates (Less than 5 successful matches in id_rs2)
       dat <- dat %>%
@@ -295,6 +354,12 @@ build_pnadc_panel <- function(dat, panel) {
       # is rejected (only that specific edge, not the entire cluster).
       cluster_map_raw <- build_id_rs3_capacity_constrained(candidates, valid_matches, rs2_edges)
 
+      stage3_elapsed <- Sys.time() - stage3_t0
+      message(sprintf(
+        "build_pnadc_panel(): 'advanced_3' fuzzy matching + clustering finished in %.1f %s.",
+        as.numeric(stage3_elapsed), units(stage3_elapsed)
+      ))
+
       m3 <- max(dat$id_rs2, na.rm = TRUE)
       cluster_map <- cluster_map_raw %>%
         dplyr::mutate(id_rs3_fuzzy = cluster_root + m3) %>%
@@ -356,6 +421,25 @@ build_pnadc_panel <- function(dat, panel) {
   # To avoid overlap when binding more than one panel (all IDs are just counts from 1, ..., N)
   # The ifelse function guards against as.hexmode(NA) which returns the string "NA" instead of a true NA
 
+  # Household ID
+  # id_dom is built earlier by cur_group_id() over (UPA, V1008, V1014); since
+  # build_pnadc_panel() only ever sees one panel's data per call, that just
+  # numbers households 1, ..., N *within this call*. Without this paste,
+  # household #1 from a panel-2 call and household #1 from a panel-3 call
+  # would both be "1" and collide once the two panels' outputs are combined
+  # -- exactly the same collision risk id_ind/id_rs1/id_rs2/id_rs3 already
+  # guard against below. Guarded with the same is.na() check for consistency,
+  # even though id_dom itself should never actually be NA (UPA/V1008/V1014
+  # have perfect completion in the analyzed period, see Household
+  # Identification above).
+  if (panel != "none") {
+    dat$id_dom <- ifelse(
+      is.na(dat$id_dom),
+      NA_character_,
+      paste0(as.hexmode(dat$V1014), as.hexmode(dat$id_dom))
+    )
+  }
+
   # Basic panel
   if (panel != "none") {
     dat$id_ind <- ifelse(
@@ -395,6 +479,15 @@ build_pnadc_panel <- function(dat, panel) {
   #################
   ## Return Data ##
   #################
+
+  # Report the total runtime of the whole call (all stages combined) so the
+  # user always has a timing reference on hand, regardless of which panel
+  # level was requested.
+  build_pnadc_panel_elapsed <- Sys.time() - build_pnadc_panel_t0
+  message(sprintf(
+    "build_pnadc_panel(): finished in %.2f %s (panel = '%s').",
+    as.numeric(build_pnadc_panel_elapsed), units(build_pnadc_panel_elapsed), panel
+  ))
 
   # Return the modified dataset
   return(dat)
