@@ -5,7 +5,10 @@
 #' @param save_to A \code{character} with the directory in which to save the downloaded files.
 #' @param years A \code{numeric} indicating for which years the data will be loaded, in the format YYYY. Can be any vector of numbers, such as 2010:2012.
 #' @param quarters The quarters within those years to be downloaded. Can be a numeric vector or a list of vectors, for different quarters per year.
-#' @param panel A \code{character} choosing the panel algorithm to apply ("none", "basic", or "advanced"). For details, check \code{vignette("BUILD_PNADC_PANEL")}
+#' @param panel A \code{character} choosing the panel algorithm to apply
+#'   (\code{"none"}, \code{"basic"}, \code{"advanced_1"},
+#'   \code{"advanced_2"}, or \code{"advanced_3"}).
+#'   For details, check \code{vignette("BUILD_PNADC_PANEL")}.
 #' @param raw_data A \code{logical} setting the return of raw (\code{TRUE}) or processed (\code{FALSE}) variables.
 #' @param deflator A logical passed to \code{\link[PNADcIBGE]{get_pnadc}}. If
 #'   \code{TRUE} (the default), deflator variables supplied by
@@ -17,8 +20,8 @@
 #' @param defperiod The deflator period passed to
 #'   \code{\link[PNADcIBGE]{get_pnadc}} for annual per-topic microdata. This
 #'   argument is ignored for quarterly downloads and is used only when
-#'   \code{deflator = TRUE}. See \code{\link[PNADcIBGE]{get_pnadc}} for
-#'   details.
+#'   \code{deflator = TRUE}. See
+#'   \code{\link[PNADcIBGE]{get_pnadc}} for details.
 #' @param save_options A \code{logical} vector of length 2. Controls whether quarterly
 #'   files are saved and in which format all files are saved. Panel files are
 #'   always saved. There are four possible combinations:
@@ -39,15 +42,15 @@
 #'   \code{"V2009"}).
 #'
 #'   Note that \code{\link[PNADcIBGE]{get_pnadc}} always returns a set of
-#'   structural columns regardless of this argument, these include survey
+#'   structural columns regardless of this argument. These include survey
 #'   design weights (\code{V1027}, \code{V1028}, \code{V1028001},
 #'   \code{V1028200}, \code{posest}, \code{posest_sxi}) and identifiers such as
 #'   \code{UF}, \code{Estrato}, \code{V1029}, \code{V1033},
 #'   \code{ID_DOMICILIO}, totalling around 210 columns. When
-#'   \code{deflator = TRUE}, deflator variables (\code{Habitual},
-#'   \code{Efetivo}) are also included. The \code{vars} argument adds
-#'   \emph{on top of} those columns; it does not restrict them. Use \code{NULL}
-#'   (the default) to download all available microdata columns.
+#'   \code{deflator = TRUE}, deflator variables (\code{Habitual}, \code{Efetivo})
+#'   are also included. The \code{vars} argument adds
+#'   \emph{on top of} those columns; it does not restrict them. Use
+#'   \code{NULL} (the default) to download all available microdata columns.
 #'
 #'   Deflation support in this wrapper is provided by \code{PNADcIBGE}. For the
 #'   deflator methodology and the deflator files themselves, see
@@ -60,13 +63,15 @@
 #'   \itemize{
 #'     \item \code{"basic"}: \code{UPA}, \code{V1008}, \code{V1014},
 #'       \code{V2007}, \code{V20082}, \code{V20081}, \code{V2008}.
-#'     \item \code{"advanced"}: all of the above, plus \code{V2003}.
+#'     \item \code{"advanced_1"}, \code{"advanced_2"}, and
+#'       \code{"advanced_3"}: all of the above, plus \code{V2003},
+#'       \code{V2005}, \code{V1016}, and \code{V2009}.
 #'   }
 #'   Note that several of these (\code{UPA}, \code{V1008}, \code{V1014}) are
 #'   part of the structural columns always returned by
 #'   \code{\link[PNADcIBGE]{get_pnadc}}, so in practice only \code{V2007},
-#'   \code{V20082}, \code{V20081}, \code{V2008} (and \code{V2003} for
-#'   \code{"advanced"}) are likely to be auto-added.
+#'   \code{V20082}, \code{V20081}, \code{V2008} (and the additional variables
+#'   required by the advanced methods) are likely to be auto-added.
 #'
 #' @return A message indicating the successful save of panel files.
 #'
@@ -79,26 +84,36 @@
 #'   save_to = tempdir(),
 #'   years = 2016,
 #'   quarters = 1:4,
-#'   panel = "advanced",
+#'   panel = "advanced_3",
 #'   raw_data = FALSE,
 #'   deflator = TRUE,
 #'   save_options = c(FALSE, FALSE)
 #' )
+#'
 #' @export
 
-load_pnadc <- function(save_to, years,
-                       quarters = 1:4, panel = "advanced",
-                       raw_data = FALSE, deflator = TRUE, defyear = NULL,
-                       defperiod = NULL, save_options = c(TRUE, TRUE),
+load_pnadc <- function(save_to,
+                       years,
+                       quarters = 1:4,
+                       panel = "advanced_1",
+                       raw_data = FALSE,
+                       deflator = TRUE,
+                       defyear = NULL,
+                       defperiod = NULL,
+                       save_options = c(TRUE, TRUE),
                        vars = NULL) {
-
   if (missing(save_to) || is.null(save_to) || !nzchar(save_to)) {
-    stop("'save_to' must be a non-empty path to an existing directory.", call. = FALSE)
+    stop("'save_to' must be a non-empty path to an existing directory.",
+         call. = FALSE)
   }
+  
   if (!dir.exists(save_to)) {
-    stop("Directory '", save_to, "' does not exist. Please create it first.", call. = FALSE)
+    stop("Directory '",
+         save_to,
+         "' does not exist. Please create it first.",
+         call. = FALSE)
   }
-
+  
   # Check if PNADcIBGE namespace is already attached
   if (!"PNADcIBGE" %in% .packages()) {
     # If not attached, attach it
@@ -107,77 +122,88 @@ load_pnadc <- function(save_to, years,
     # If you run PNADcIBGE::get_pnad(...) without library(PNADcIBGE)
     # you get the same error
   }
-
-  # if (!requireNamespace("PNADcIBGE", quietly = TRUE)) {
-  #   stop(
-  #     "Please run library(PNADcIBGE) before using this function.",
-  #     call. = FALSE
-  #   )
-  # }
-
+  
   ###########################
   ## Bind Global Variables ##
   ###########################
-
+  
   year <- . <- V1014 <- Ano <- Trimestre <- NULL
-
+  
   #############################
   ## Define Basic Parameters ##
   #############################
-
+  
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
-  param$years     <- years     # the years the user would like to download
-  param$quarters  <- quarters  # the quarters within those years to be downloaded
-  param$panel     <- panel     # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
-  param$raw_data  <- raw_data  # A command to define if the user would like to download the raw data from the IBGE website directly
-  param$deflator  <- deflator  # whether deflator variables from PNADcIBGE should be added to the downloaded microdata
-  param$defyear   <- defyear   # deflator year for annual microdata, forwarded to PNADcIBGE::get_pnadc
-  param$defperiod <- defperiod # deflator period for annual per-topic microdata, forwarded to PNADcIBGE::get_pnadc
-  param$save_to   <- save_to   # the directory in which the user desires to save the files downloaded
-  param$save_quarters <- save_options[1] # whether to save quarterly files to disk
-  param$rds           <- save_options[2] # if TRUE, saves as .rds; if FALSE, saves as .parquet
-
+  
+  param$years     <- years
+  param$quarters  <- quarters
+  param$panel     <- panel
+  param$raw_data  <- raw_data
+  param$deflator  <- deflator
+  param$defyear   <- defyear
+  param$defperiod <- defperiod
+  param$save_to   <- save_to
+  
+  param$save_quarters <- save_options[1]
+  param$rds           <- save_options[2]
+  
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
     param$quarters <- rep(list(quarters), length(years))
   }
-
+  
   # Calculate the lengths of quarters for each year
   n_quarters <- lapply(param$quarters, length)
-
-  # Map2: Repeat each year based on the corresponding lengths in n_quarters, so we can have two parallel vectors of years and quarters to loop over
-  param$years <- purrr::map2(
-    years, n_quarters,
-    function(year, n) {
-      rep(year, n)
-    }
-  )
-
-  # generaring these two paralell vectors of years and quarter to loop over
-
+  
+  # Map2: Repeat each year based on the corresponding lengths in n_quarters
+  # so we have two parallel vectors of years and quarters to loop over
+  param$years <- purrr::map2(years, n_quarters, function(year, n) {
+    rep(year, n)
+  })
+  
+  # Generate these two parallel vectors of year and quarter to loop over
   param$years    <- unlist(param$years)
   param$quarters <- unlist(param$quarters)
-
+  
   latest_quarter_requested <- (
     isTRUE(param$deflator) &&
       length(param$years) == 1 &&
       length(param$quarters) == 1 &&
       is_latest_available_pnadc_quarter(param$years[[1]], param$quarters[[1]])
   )
-
+  
+  #####################
+  ## Panel Validation ##
+  #####################
+  
+  panel_options <- c("none", "basic", "advanced_1", "advanced_2", "advanced_3")
+  
+  if (!param$panel %in% panel_options) {
+    stop("'panel' must be one of: ",
+         paste(panel_options, collapse = ", "),
+         ".",
+         call. = FALSE)
+  }
+  
   #####################
   ## vars validation ##
   #####################
-
+  
   # Columns required to run the panel identification algorithms.
-  # These must always be present in the data regardless of the user's selection.
-  panel_required_basic    <- c("UPA", "V1008", "V1014", "V2007", "V20082", "V20081", "V2008")
-  panel_required_advanced <- c(panel_required_basic, "V2003")
-
+  panel_required_basic <- c("UPA", "V1008", "V1014", "V2007", "V20082", "V20081", "V2008")
+  
+  panel_required_advanced <- c(panel_required_basic, "V2003", "V2005", "V1016", "V2009")
+  
   if (!is.null(vars) && param$panel != "none") {
-    required_cols <- if (param$panel == "advanced") panel_required_advanced else panel_required_basic
-    missing_cols  <- setdiff(required_cols, vars)
+    required_cols <- if (param$panel %in% c("advanced_1", "advanced_2", "advanced_3")) {
+      panel_required_advanced
+    } else {
+      panel_required_basic
+    }
+    
+    missing_cols <- setdiff(required_cols, vars)
+    
     if (length(missing_cols) > 0) {
       warning(
         "The following columns required for panel identification were not in `vars` ",
@@ -190,71 +216,65 @@ load_pnadc <- function(save_to, years,
         "on top of those, it does not restrict them.",
         call. = FALSE
       )
+      
       vars <- c(vars, missing_cols)
     }
   }
-
+  
   ##################
   ## Loading data ##
   ##################
-
-  # store info on all panels and column names
-
+  
+  # Store information on all panels and column names
   panel_list <- c()
   cnames     <- NULL
-
-  # download all quarters into a list of data frames
-
-  source_files <- purrr::map2(
-    param$years, param$quarters, # looping over the two parallel vector of years and quarters (this was previoulsy done in a "for" structure, but we optimized it)
-
-    function(year, quarter) {
-      base::message(paste0("Downloading PNADC ", year, " Q", quarter, "\n"))
-
-      df <- get_pnadc(
-        year = year,
-        quarter = quarter,
-        vars = vars,
-        defyear = param$defyear,
-        defperiod = param$defperiod,
-        labels = FALSE,
-        deflator = param$deflator,
-        design = FALSE
-      )
-
-      if (is.null(df)) {
-        return(NULL)
-
-      } else {
-        # turns everything into numeric
-        df <- df %>%
-          dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
-
-        panel_list <<- c(panel_list, unique(df$V1014)) # registering, for every quarter, the panel's which the quarter's observations are included (every OBS is just included in one panel, but the data for a quarter contains observations of many panels)
-        #<<- establishing a variable inside the function that continues to exist outside the function, it is not just local to the function's current context
-
-        # runs data cleaning if desired
-        if (!param$raw_data) {
-          df <- treat_pnadc(df)
-        }
-
-        cnames <<- names(df)
-
-        # tag each row with its year and quarter for later reference
-        df$Ano       <- year
-        df$Trimestre <- quarter
-
-        return(df)
+  
+  # Download all quarters into a list of data frames
+  source_files <- purrr::map2(param$years, param$quarters, function(year, quarter) {
+    base::message(paste0("Downloading PNADC ", year, " Q", quarter, "\n"))
+    
+    df <- get_pnadc(
+      year = year,
+      quarter = quarter,
+      vars = vars,
+      defyear = param$defyear,
+      defperiod = param$defperiod,
+      labels = FALSE,
+      deflator = param$deflator,
+      design = FALSE
+    )
+    
+    if (is.null(df)) {
+      return(NULL)
+      
+    } else {
+      # Turns everything into numeric
+      df <- df %>%
+        dplyr::mutate(dplyr::across(dplyr::everything(), as.numeric))
+      
+      panel_list <<- c(panel_list, unique(df$V1014))
+      
+      # Runs data cleaning if desired
+      if (!param$raw_data) {
+        df <- treat_pnadc(df)
       }
+      
+      cnames <<- names(df)
+      
+      # Tag each row with its year and quarter for later reference
+      df$Ano       <- year
+      df$Trimestre <- quarter
+      
+      return(df)
     }
-  )
-
+  })
+  
   # Remove NULL entries (failed downloads)
   source_files <- purrr::compact(source_files)
-
-  # bind all quarters into one data frame
+  
+  # Bind all quarters into one data frame
   all_quarters <- purrr::list_rbind(source_files)
-
+  
   if (latest_quarter_requested && length(source_files) == 1) {
     warning(
       "You are downloading the latest available PNADC quarter with `deflator = TRUE`. ",
@@ -265,100 +285,102 @@ load_pnadc <- function(save_to, years,
       call. = FALSE
     )
   }
-
-  # save quarterly files to disk if requested
+  
+  # Save quarterly files to disk if requested
   if (param$save_quarters) {
     if (param$rds) {
       # RDS: write one flat file per year-quarter
-      purrr::map2(
-        param$years, param$quarters,
-        function(y, q) {
-          quarter_df <- all_quarters %>% dplyr::filter(Ano == y, Trimestre == q)
-          file_path <- file.path(
-            param$save_to, paste0("pnadc_", y, "_", q, ".rds")
-          )
-          base::message(paste0("Saving ", y, " Q", q, " to\n", file_path, "\n"))
-          saveRDS(quarter_df, file_path)
-        }
-      )
+      purrr::map2(param$years, param$quarters, function(y, q) {
+        quarter_df <- all_quarters %>%
+          dplyr::filter(Ano == y, Trimestre == q)
+        
+        file_path <- file.path(param$save_to, paste0("pnadc_", y, "_", q, ".rds"))
+        
+        base::message(paste0("Saving ", y, " Q", q, " to\n", file_path, "\n"))
+        
+        saveRDS(quarter_df, file_path)
+      })
+      
     } else {
-      # Parquet: write a partitioned dataset grouped by Ano/Trimestre
+      # Parquet: write a partitioned dataset grouped by year and quarter
       quarters_dir <- file.path(param$save_to, "pnadc_quarters")
+      
       base::message(paste0(
-        "Saving quarterly parquet dataset to\n", quarters_dir, "\n"
+        "Saving quarterly parquet dataset to\n",
+        quarters_dir,
+        "\n"
       ))
+      
       all_quarters %>%
         dplyr::group_by(Ano, Trimestre) %>%
-        arrow::write_dataset(
-          path = quarters_dir,
-          format = "parquet"
-        )
+        arrow::write_dataset(path = quarters_dir, format = "parquet")
     }
   }
-
-  ## Return Raw Data
-
+  
+  ####################
+  ## Return Raw Data ##
+  ####################
+  
   if (param$panel == "none") {
     return(paste("Quarters saved to", param$save_to))
   }
-
+  
   #################
   ## Panel Files ##
   #################
-
+  
   if (param$panel != "none") {
     ## Split data into panels
-
-    panel_list <- unique(panel_list) # listing all the panels included in the quarters downloaded
-
+    panel_list <- unique(panel_list)
+    
     # Apply panel identification to each panel's data
-
-    identified_panels <- purrr::map(
-      panel_list,
-      function(p) {
-        base::message(paste("Compiling panel", p, "\n"))
-        dat <- all_quarters %>% dplyr::filter(V1014 == p)
-
-        message(paste("Running", param$panel, "identification on panel", p, "\n"))
-        df <- dat %>%
-          build_pnadc_panel(panel = param$panel)
-
-        return(df)
-      }
-    )
-
-    # save panel files
-
+    identified_panels <- purrr::map(panel_list, function(p) {
+      base::message(paste("Compiling panel", p, "\n"))
+      
+      dat <- all_quarters %>%
+        dplyr::filter(V1014 == p)
+      
+      base::message(paste("Running", param$panel, "identification on panel", p, "\n"))
+      
+      df <- dat %>%
+        build_pnadc_panel(panel = param$panel)
+      
+      return(df)
+    })
+    
+    # Save panel files
     if (param$rds) {
       # RDS: write one flat file per panel
-      purrr::map2(
-        identified_panels, panel_list,
-        function(df, p) {
-          path <- file.path(param$save_to, paste0("Panel_", p, ".rds"))
-          message(paste("Saving panel to", path, "\n"))
-          saveRDS(df, path)
-        }
-      )
+      purrr::map2(identified_panels, panel_list, function(df, p) {
+        path <- file.path(param$save_to, paste0("Panel_", p, ".rds"))
+        
+        message(paste("Saving panel to", path, "\n"))
+        
+        saveRDS(df, path)
+      })
+      
     } else {
-      # Parquet: bind all panels and write a partitioned dataset grouped by V1014
+      # Parquet: bind all panels and write a partitioned dataset grouped by panel
       all_panels <- purrr::list_rbind(identified_panels)
+      
       panels_dir <- file.path(param$save_to, "pnadc_panels")
+      
       message(paste(
-        "Saving partitioned panel parquet dataset to", panels_dir, "\n"
+        "Saving partitioned panel parquet dataset to",
+        panels_dir,
+        "\n"
       ))
+      
       all_panels %>%
         dplyr::group_by(V1014) %>%
-        arrow::write_dataset(
-          path = panels_dir,
-          format = "parquet"
-        )
+        arrow::write_dataset(path = panels_dir, format = "parquet")
     }
   }
-
+  
   ####################
   ## Returning Data ##
   ####################
-
+  
   return(paste("Panel files saved to", param$save_to))
 }
 
