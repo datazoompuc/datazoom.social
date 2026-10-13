@@ -136,17 +136,17 @@ load_pnadc <- function(save_to,
   # The param list contains the various objects that will be used as parameters for this function
   param <- list()
   
-  param$years     <- years
-  param$quarters  <- quarters
-  param$panel     <- panel
-  param$raw_data  <- raw_data
-  param$deflator  <- deflator
-  param$defyear   <- defyear
-  param$defperiod <- defperiod
-  param$save_to   <- save_to
+  param$years     <- years     # the years the user would like to download
+  param$quarters  <- quarters  # the quarters within those years to be downloaded
+  param$panel     <- panel     # which panel algorithm (none, basic or advanced) should be applied to this data, check our READ-ME for greater explanation
+  param$raw_data  <- raw_data  # A command to define if the user would like to download the raw data from the IBGE website directly
+  param$deflator  <- deflator  # whether deflator variables from PNADcIBGE should be added to the downloaded microdata
+  param$defyear   <- defyear   # deflator year for annual microdata, forwarded to PNADcIBGE::get_pnadc
+  param$defperiod <- defperiod # deflator period for annual per-topic microdata, forwarded to PNADcIBGE::get_pnadc
+  param$save_to   <- save_to   # the directory in which the user desires to save the files downloaded
   
-  param$save_quarters <- save_options[1]
-  param$rds           <- save_options[2]
+  param$save_quarters <- save_options[1] # whether to save quarterly files to disk
+  param$rds           <- save_options[2] # if TRUE, saves as .rds; if FALSE, saves as .parquet
   
   # Check if quarter is a list; if not, wrap it in a list and repeat it for each year
   if (!is.list(quarters)) {
