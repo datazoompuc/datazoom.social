@@ -46,8 +46,8 @@ You can install the development version of `datazoom.social` from GitHub
 with:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("datazoompuc/datazoom.social")
+install.packages("remotes")
+remotes::install_github("datazoompuc/datazoom.social")
 ```
 
 ## Functions
@@ -82,7 +82,7 @@ panel construction. For details on the identification algorithms, see
 **Panel Structure:**
 
 The table below shows the first and last quarter (`ANOtrimestre`,
-e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
+e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
 
 | Panel | Start | End   |
 |------:|-------|-------|
@@ -113,7 +113,7 @@ e.g. `20121` = 2012 Q1) covered by each PNADC rotating panel:
 3.  **quarters**: The quarters within those years to be downloaded. Can
     be either a vector such as `1:4` for consistent quarters across
     years, or a list of vectors, if quarters are different for each year
-    (e.g. `list(1:4, 1:2)` for four quarters in the first year and two
+    (e.g. `list(1:4, 1:2)` for four quarters in the first year and two
     in the second).
 
 4.  **panel**: Which panel algorithm to apply to this data. There are
@@ -461,8 +461,8 @@ to construct the identifier (e.g., missing essential data) or household
 grouping constraints.
 
 | Interview (Wave) | Basic Rate (%) | Adv 1 Rate (%) | Adv 2 Rate (%) | Adv 3 Rate (%) | Difference (Adv 3 - Basic) |
-|:----------------:|:--------------:|:--------------:|:--------------:|:--------------:|:---------------------------:|
-|        1         |    88.41460    |    92.47039    |    93.07332    |    93.07332    |           4.65872           |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+| 1 | 88.41460 | 92.47039 | 93.07332 | 93.07332 | 4.65872 |
 
 ### 3. Individual Unconditional Tracking Rate (ID-Based)
 

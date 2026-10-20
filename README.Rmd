@@ -40,8 +40,8 @@ install.packages("datazoom.social")
 You can install the development version of `datazoom.social` from GitHub with:
 
 ```{r, eval=FALSE}
-install.packages("devtools")
-devtools::install_github("datazoompuc/datazoom.social")
+install.packages("remotes")
+remotes::install_github("datazoompuc/datazoom.social")
 ```
 
 ```{r, echo=FALSE, message=FALSE}
