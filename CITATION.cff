@@ -1,0 +1,56 @@
+# CITATION.cff for the datazoom.social R package.
+# Enables GitHub's "Cite this repository" button. Keep in sync with
+# DESCRIPTION when the version or authors change.
+cff-version: 1.2.0
+message: "If you use datazoom.social in your research, please cite it as below."
+type: software
+title: "datazoom.social: Simplify Access to Brazilian Social Data"
+abstract: >-
+  R package to download and process microdata from the PNAD Contínua
+  (Continuous National Household Sample Survey, IBGE), with panel
+  identification algorithms that link households and individuals across
+  survey waves.
+authors:
+  - family-names: "Tavares Regadas"
+    given-names: "Laura"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Rigolon Veiga"
+    given-names: "Igor"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Lins de Vasconcellos"
+    given-names: "Arthur"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Toscano Imbuzeiro"
+    given-names: "Giulia"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Jardim"
+    given-names: "Guilherme"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Chaves"
+    given-names: "Pablo"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Avidos"
+    given-names: "Breno"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - family-names: "Sieira"
+    given-names: "Bernardo"
+    affiliation: "Pontifical Catholic University of Rio de Janeiro (PUC-Rio)"
+  - name: "Data Zoom (PUC-Rio)"
+    email: "datazoom@econ.puc-rio.br"
+    website: "https://datazoom.com.br/"
+version: "0.1.1"
+date-released: "2026-07-06"
+license: MIT
+repository-code: "https://github.com/datazoompuc/datazoom.social"
+repository-artifact: "https://CRAN.R-project.org/package=datazoom.social"
+url: "https://datazoom.com.br/en/dz_r/"
+keywords:
+  - R
+  - PNAD Contínua
+  - PNADC
+  - IBGE
+  - Brazil
+  - household survey
+  - panel data
+  - labor market
+  - microdata
