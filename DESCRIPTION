@@ -18,7 +18,8 @@ Description: Provides tools for downloading and processing microdata from
     of Geography and Statistics). Includes panel identification algorithms 
     for linking individuals across survey waves.
 License: MIT + file LICENSE
-URL: https://datazoom.com.br/en/
+URL: https://datazoom.com.br/datazoom.social/, https://datazoom.com.br/en/dz_r/,
+    https://github.com/datazoompuc/datazoom.social
 Imports: 
     arrow,
     dplyr,
