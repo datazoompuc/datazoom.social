@@ -481,7 +481,7 @@ public health microdata),
 To cite package `datazoom.social` in publications use:
 
 > Data Zoom (2023). Data Zoom: Simplifying Access To Brazilian
-> Microdata.  
+> Microdata.\
 > <https://datazoom.com.br/en/>
 
 A BibTeX entry for LaTeX users is:
