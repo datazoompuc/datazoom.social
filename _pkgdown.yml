@@ -1,0 +1,21 @@
+url: https://datazoom.com.br/datazoom.social/
+
+template:
+  bootstrap: 5
+
+home:
+  title: "datazoom.social: PNAD Contínua microdata and panels in R"
+  description: >-
+    Download and process PNAD Contínua (IBGE) microdata in R and build
+    longitudinal panels that identify households and individuals across
+    survey waves. Part of Data Zoom, PUC-Rio.
+  links:
+  - text: Data Zoom website
+    href: https://datazoom.com.br/en/dz_r/
+  - text: Other Data Zoom packages
+    href: https://github.com/datazoompuc
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
