@@ -1,0 +1,147 @@
+# BUILD_PNADC_PANEL
+
+------------------------------------------------------------------------
+
+**Description**
+
+Our `load_pnadc` function uses the internal function `build_pnadc_panel`
+to identify households and individuals across quarters. The base method
+used for the identification draws from the paper of Rafael Perez Ribas
+and Sergei Suarez Dillon Soares (2008): “Sobre o painel da Pesquisa
+Mensal de Emprego (PME) do IBGE”, with modernizations implemented by the
+Data Zoom team to handle missing data and typographical errors.
+
+------------------------------------------------------------------------
+
+**Usage:**
+
+Basic Panel:
+
+``` r
+
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "basic")
+```
+
+Advanced Panel (Stages 1, 2, or 3):
+
+``` r
+
+# Stage 1: Exact matching with donated birth dates
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_1")
+
+# Stage 2: Relaxed matching constraints
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_2")
+
+# Stage 3: Fuzzy matching (Recommended)
+panel_data <- build_pnadc_panel(dat = pnad_sample, panel = "advanced_3")
+```
+
+------------------------------------------------------------------------
+
+## Basic Identification
+
+The household identifier – stored as `id_dom` – combines the variables:
+
+- `UPA` – Primary Sampling Unit - PSU;
+- `V1008` – Household;
+- `V1014` – Panel Number;
+
+In order to create a unique number for every combination of those
+variables.
+
+------------------------------------------------------------------------
+
+The basic individual identifier – stored as `id_ind` – combines the
+household id with:
+
+- `V2007` – Sex;
+- Date of Birth – \[`V20082` (year), `V20081` (month), `V2008` (day)\];
+
+In order to create a unique number for every combination of those
+variables.
+
+------------------------------------------------------------------------
+
+## Advanced Identification
+
+On individuals who were not matched across all interviews using the
+basic method, we apply a progressive multi-stage algorithm to increase
+matching power without compromising uniqueness.
+
+First, we reproduce the birth date donation method based on the
+methodology described in the IPEA technical note (Osório, 2019). It
+estimates and imputes missing birth dates (day, month, and year) by
+matching individuals with donors from different interviews within the
+same household based on sex, acceptable household condition changes, and
+estimated age. This process is executed by our internal function
+`donate_birth_dates`.
+
+- **Stage 1 (`advanced_1`):** Repeats the basic identification logic,
+  but utilizing the donated dates. The identifier – stored as `id_rs1` –
+  combines:
+  - `id_dom` – Household ID
+  - `V2007` – Sex
+  - `birth_day` – Donated day of birth
+  - `birth_month` – Donated month of birth
+  - `birth_year` – Donated year of birth
+- **Stage 2 (`advanced_2`):** For individuals not completely matched in
+  Stage 1, we relax the year of birth constraint (assuming it is often
+  misreported). The identifier – stored as `id_rs2` – combines:
+  - `id_dom` – Household ID
+  - `birth_month` – Donated month of birth
+  - `birth_day` – Donated day of birth
+  - `V2003` – Order number in the household
+- **Stage 3 (`advanced_3`):** Targets candidates with fragmented
+  interviews (less than 5 matches in the previous stages). It considers
+  a match successful if there is a unique individual in the same
+  household, in a different quarter, that satisfies the acceptable
+  difference criteria established by Ribas and Soares (up to 4 days
+  difference in the day of birth, 2 months in the month of birth, and a
+  dynamically adjusted year-of-birth difference based on the
+  individual’s reported age). The final identifier is stored as
+  `id_rs3`.
+
+------------------------------------------------------------------------
+
+## Attrition and Identification Rates
+
+### 1. Household Attrition Rate
+
+The table below shows the unconditional attrition rate for households.
+This represents the percentage of household units observed in Wave 1
+that were successfully re-interviewed and tracked in subsequent waves.
+
+| Interview (Wave) | Household Attrition Rate (%) |
+|:----------------:|:----------------------------:|
+|        1         |          100.00000           |
+|        2         |           93.75667           |
+|        3         |           91.84360           |
+|        4         |           90.59256           |
+|        5         |           89.60861           |
+
+### 2. Initial Identification Rate (Line-Based)
+
+This table reports the percentage of raw PNADC individual observations
+(lines) **in Wave 1** for which we successfully built a valid
+identifier. Data is lost in this stage exclusively due to the inability
+to construct the identifier (e.g., missing essential data) or household
+grouping constraints.
+
+| Interview (Wave) | Basic Rate (%) | Adv 1 Rate (%) | Adv 2 Rate (%) | Adv 3 Rate (%) | Difference (Adv 3 - Basic) |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+| 1 | 88.41460 | 92.47039 | 93.07332 | 93.07332 | 4.65872 |
+
+### 3. Individual Unconditional Tracking Rate (ID-Based)
+
+This table demonstrates the cumulative retention of tracked individuals
+over time. It uses the total number of uniquely identified individuals
+from Wave 1 as the universal denominator (starting at 100%), showing how
+much tracking power is gained by using the advanced algorithms.
+
+| Interview (Wave) | Basic Rate (%) | Adv 1 Rate (%) | Adv 2 Rate (%) | Adv 3 Rate (%) | Difference (Adv 3 - Basic) |
+|:--:|:--:|:--:|:--:|:--:|:--:|
+| 1 | 100.00000 | 100.00000 | 100.00000 | 100.00000 | 0.00000 p.p. |
+| 2 | 88.48562 | 88.77434 | 89.09820 | 89.48702 | \+ 1.00140 p.p. |
+| 3 | 82.52678 | 83.03621 | 83.58946 | 84.18944 | \+ 1.66266 p.p. |
+| 4 | 78.04901 | 78.68452 | 79.38402 | 80.14362 | \+ 2.09461 p.p. |
+| 5 | 74.39850 | 75.09844 | 75.86866 | 76.74766 | \+ 2.34916 p.p. |
