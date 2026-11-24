@@ -2,7 +2,7 @@ Package: datazoom.social
 Title: Simplify Access to Brazilian Social Data
 Version: 0.1.1
 Authors@R: c(
-    person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre")),
+    person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0002-8107-1806")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
     person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = "aut"),
     person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
