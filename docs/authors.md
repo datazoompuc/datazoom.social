@@ -3,36 +3,39 @@
 ## Authors
 
 - **Laura Tavares Regadas**. Author, maintainer.
+  [](https://orcid.org/0009-0002-8107-1806)
 
 - **DataZoom (PUC-Rio)**. Funder.
 
-- **Igor Rigolon Veiga**. Author.
+- **Igor Rigolon Veiga**. Contributor.
 
-- **Arthur Lins de Vasconcellos**. Author.
+- **Arthur Lins de Vasconcellos**. Contributor.
 
-- **Giulia Toscano Imbuzeiro**. Author.
+- **Giulia Toscano Imbuzeiro**. Contributor.
 
-- **Guilherme Jardim**. Author.
+- **Guilherme Jardim**. Contributor.
 
-- **Pablo Chaves**. Author.
+- **Pablo Chaves**. Contributor.
 
-- **Breno Avidos**. Author.
+- **Breno Avidos**. Contributor.
 
-- **Bernardo Sieira**. Author.
+- **Bernardo Sieira**. Contributor.
+
+- **Antonio Pedro Rodrigues Bergallo**. Contributor.
+  [](https://orcid.org/0009-0004-6132-3070)
 
 ## Citation
 
 Source:
 [`DESCRIPTION`](https://github.com/datazoompuc/datazoom.social/blob/HEAD/DESCRIPTION)
 
-Tavares Regadas L, Rigolon Veiga I, Lins de Vasconcellos A, Toscano
-Imbuzeiro G, Jardim G, Chaves P, Avidos B, Sieira B (2026).
-*datazoom.social: Simplify Access to Brazilian Social Data*. R package
-version 0.1.1, <https://datazoom.com.br/datazoom.social/>.
+Tavares Regadas L (2026). *datazoom.social: Simplify Access to Brazilian
+Social Data*. R package version 0.1.1,
+<https://datazoom.com.br/datazoom.social/>.
 
     @Manual{,
       title = {datazoom.social: Simplify Access to Brazilian Social Data},
-      author = {Laura {Tavares Regadas} and Igor {Rigolon Veiga} and Arthur {Lins de Vasconcellos} and Giulia {Toscano Imbuzeiro} and Guilherme Jardim and Pablo Chaves and Breno Avidos and Bernardo Sieira},
+      author = {Laura {Tavares Regadas}},
       year = {2026},
       note = {R package version 0.1.1},
       url = {https://datazoom.com.br/datazoom.social/},

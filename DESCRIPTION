@@ -4,13 +4,14 @@ Version: 0.1.1
 Authors@R: c(
     person("Laura", "Tavares Regadas", , "lauratregadas@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0009-0002-8107-1806")),
     person("DataZoom (PUC-Rio)", , , "datazoom@econ.puc-rio.br", role = "fnd"),
-    person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = "aut"),
-    person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "aut"),
-    person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "aut"),
-    person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "aut"),
-    person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = "aut"),
-    person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "aut"),
-    person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "aut")
+    person("Igor", "Rigolon Veiga", , "igor.rilave@hotmail.com", role = "ctb"),
+    person("Arthur", "Lins de Vasconcellos", , "tuca1211@gmail.com", role = "ctb"),
+    person("Giulia", "Toscano Imbuzeiro", , "giuliatoscano.imbuzeiro@gmail.com", role = "ctb"),
+    person("Guilherme", "Jardim", , "gnjardim1@gmail.com", role = "ctb"),
+    person("Pablo", "Chaves", , "pablochavescastro@gmail.com", role = "ctb"),
+    person("Breno", "Avidos", , "breno.avidos@gmail.com", role = "ctb"),
+    person("Bernardo", "Sieira", , "bernardo.sieira@gmail.com", role = "ctb"),
+    person("Antonio Pedro", "Rodrigues Bergallo", role = "ctb", comment = c(ORCID = "0009-0004-6132-3070"))
   )
 Description: Provides tools for downloading and processing microdata from 
     the PNAD Contínua (PNADC, Continuous National Household Sample Survey), 
